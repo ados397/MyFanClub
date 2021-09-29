@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".page.FragmentSuccessCalendar">
+
+    <TextView
+        android:id="@+id/text_year_month"
+        android:fontFamily="@font/font"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="2020년 01월"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        android:gravity="center_vertical|start"
+        android:layout_marginStart="20dp"
+        />
+
+    <View
+        android:id="@+id/div"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        />
+
+    <LinearLayout
+        android:id="@+id/calendar_header"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+        <TextView android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:text="일"
+            android:fontFamily="@font/font"
+            />
+        <TextView android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:text="월"
+            android:fontFamily="@font/font"
+            />
+        <TextView android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:text="화"
+            android:fontFamily="@font/font"
+            />
+        <TextView android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:text="수"
+            android:fontFamily="@font/font"
+            />
+        <TextView android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:text="목"
+            android:fontFamily="@font/font"
+            />
+        <TextView android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:text="금"
+            android:fontFamily="@font/font"
+            />
+        <TextView android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_horizontal"
+            android:text="토"
+            android:fontFamily="@font/font"
+            />
+
+    </LinearLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:id="@+id/layout_success_calendar"
+            android:layout_above="@id/layout_total"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_success_calendar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:spanCount="7"
+                android:adjustViewBounds="true"
+                app:layout_constrainedHeight="true"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_total"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/text_total"
+                android:fontFamily="@font/font"
+                android:text="8월 달성률"
+                android:textSize="24sp"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <ProgressBar
+                android:id="@+id/progress_percent"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:progress="70"
+                android:indeterminate="false"
+                android:progressBackgroundTint="#FBE7C6"
+                android:progressDrawable="@drawable/circle_progressbar"
+                android:progressTint="#edbf41"
+                android:gravity="center_horizontal|top"
+                android:layout_marginLeft="10dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"/>
+            <TextView
+                android:id="@+id/text_percent"
+                android:fontFamily="@font/font"
+                android:layout_marginLeft="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="70%"
+                android:textSize="20sp"
+                android:textColor="#FF0000"
+                android:layout_gravity="center"/>
+
+        </LinearLayout>
+    </RelativeLayout>
+
+</LinearLayout>

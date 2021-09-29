@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "892875125287",
+    "project_id": "myfanclub-3be9d",
+    "storage_bucket": "myfanclub-3be9d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:892875125287:android:1c20108e36ae413d7f1402",
+        "android_client_info": {
+          "package_name": "com.ados.myfanclub"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "892875125287-k5rnuod17rj1ni6qrcv55cu3sn7mu2c9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ados.myfanclub",
+            "certificate_hash": "5e40b2ae52f48828d8ef30a39332202186cab587"
+          }
+        },
+        {
+          "client_id": "892875125287-nqsb6a70klclnru6397qce06o6m2i1jl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTeSnzpLYb99Qm4nVFxqu2DZO63xe-Ma8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "892875125287-nqsb6a70klclnru6397qce06o6m2i1jl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

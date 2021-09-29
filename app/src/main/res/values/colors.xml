@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="text">#FF222222</color>
+    <color name="text_sub">#5E5E5E</color>
+    <color name="text_red">#FF0000</color>
+    <color name="text_gold">#716600</color>
+    <color name="text_disable">#8E8E8E</color>
+    <color name="button_disable">#E0E0E0</color>
+    <color name="dialog">#474747</color>
+    <color name="charge_back">#333333</color>
+    <color name="charge_back2">#00246D</color>
+    <color name="exp">#D60165</color>
+    <color name="rank1">#FFFFA2</color>
+    <color name="rank2">#C4EDFF</color>
+    <color name="rank3">#FFE0EC</color>
+    <color name="master">#FFD500</color>
+    <color name="sub_master">#FF8C00</color>
+    <color name="member">#0099FF</color>
+    <color name="edit_text">#FAF6FF</color>
+    <color name="progress_0">#FF0000</color>
+    <color name="progress_40">#F79256</color>
+    <color name="progress_70">#03DAC5</color>
+    <color name="progress_100">#0099FF</color>
+    <color name="display_board_1">#00FFEA</color>
+    <color name="display_board_2">#90FFCA</color>
+    <color name="display_board_3">#37BEFD</color>
+    <color name="display_board_4">#FFFFFF</color>
+    <color name="display_board_5">#FFE699 </color>
+    <color name="display_board_6">#FFF400 </color>
+    <color name="display_board_7">#95FF00</color>
+    <color name="display_board_8">#FF9B00</color>
+    <color name="display_board_9">#FC00FF</color>
+    <color name="display_board_10">#FF0081 </color>
+</resources>

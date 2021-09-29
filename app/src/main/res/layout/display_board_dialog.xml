@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/layout_title"
+        layout="@layout/item_display_board"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <RelativeLayout
+        android:id="@+id/layout_display_board_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layout_title"
+        android:layout_above="@id/layout_menu"
+        android:orientation="vertical"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp">
+
+        <ImageView
+            android:id="@+id/img_display_board_top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
+            android:src="@drawable/display_board_top" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_display_board"
+            android:layout_above="@id/img_display_board_bottom"
+            android:layout_below="@id/img_display_board_top"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <ImageView
+            android:id="@+id/img_display_board_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/button_add_ads"
+            android:scaleType="fitXY"
+            android:src="@drawable/display_board_bottom" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/button_add_ads"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="1dp"
+            android:layout_marginBottom="5dp"
+            android:backgroundTint="@android:color/transparent"
+            android:clickable="true"
+            app:cardElevation="0dp"
+            app:rippleColor="#fff">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/btn_round4"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingLeft="10dp"
+                android:paddingTop="2dp"
+                android:paddingRight="10dp"
+                android:paddingBottom="2dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="10dp"
+                    android:src="@drawable/ads" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:fontFamily="@font/font"
+                    android:text="전광판 등록"
+                    android:textColor="@color/text" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/dialog">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button_display_board_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="25dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="7dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/btn_round4"
+            android:fontFamily="@font/font"
+            android:text="확인"
+            android:textColor="@color/text" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:visibility="gone"
+        android:id="@+id/layout_add"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#DFDFDF"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/text_level"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="7dp"
+            android:background="@color/dialog"
+            android:fontFamily="@font/font"
+            android:text="전광판 등록"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#DFDFDF"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <include
+                android:id="@+id/layout_display_board_test"
+                layout="@layout/item_display_board"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/button_preview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="1dp"
+                android:backgroundTint="@android:color/transparent"
+                android:clickable="true"
+                app:cardElevation="0dp"
+                app:rippleColor="#fff">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/btn_round4"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="2dp"
+                    android:paddingRight="10dp"
+                    android:paddingBottom="2dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:src="@drawable/play" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:fontFamily="@font/font"
+                        android:text="미리 보기"
+                        android:textColor="@color/text" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:stretchColumns="0, 1, 2, 3, 4, 5, 6, 7, 8, 9">
+
+                <TableRow>
+
+                    <Button
+                        android:id="@+id/button_color_1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:backgroundTint="@color/display_board_1"
+                        android:onClick="colorSelect" />
+
+                    <Button
+                        android:id="@+id/button_color_2"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dp"
+                        android:backgroundTint="@color/display_board_2"
+                        android:onClick="colorSelect" />
+
+                    <Button
+                        android:id="@+id/button_color_3"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dp"
+                        android:backgroundTint="@color/display_board_3"
+                        android:onClick="colorSelect" />
+
+                    <Button
+                        android:id="@+id/button_color_4"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dp"
+                        android:backgroundTint="@color/display_board_4"
+                        android:onClick="colorSelect" />
+
+                    <Button
+                        android:id="@+id/button_color_5"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dp"
+                        android:backgroundTint="@color/display_board_5"
+                        android:onClick="colorSelect" />
+
+                    <Button
+                        android:id="@+id/button_color_6"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dp"
+                        android:backgroundTint="@color/display_board_6"
+                        android:onClick="colorSelect" />
+
+                    <Button
+                        android:id="@+id/button_color_7"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dp"
+                        android:backgroundTint="@color/display_board_7"
+                        android:onClick="colorSelect" />
+
+                    <Button
+                        android:id="@+id/button_color_8"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dp"
+                        android:backgroundTint="@color/display_board_8"
+                        android:onClick="colorSelect" />
+
+                    <Button
+                        android:id="@+id/button_color_9"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dp"
+                        android:backgroundTint="@color/display_board_9"
+                        android:onClick="colorSelect" />
+
+                    <Button
+                        android:id="@+id/button_color_10"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dp"
+                        android:backgroundTint="@color/display_board_10"
+                        android:onClick="colorSelect" />
+
+                </TableRow>
+
+            </TableLayout>
+
+            <EditText
+                android:id="@+id/edit_display_board"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/text_title"
+                android:background="@drawable/edit_rectangle"
+                android:fontFamily="@font/font"
+                android:maxLength="40"
+                android:singleLine="true"
+                android:textColor="@color/text"
+                android:textCursorDrawable="@drawable/edit_cursor"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/text_display_board_len"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/edit_content"
+                android:layout_gravity="right"
+                android:layout_marginRight="10dp"
+                android:fontFamily="@font/font"
+                android:text="0/40" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_add_menu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginTop="5dp"
+            android:background="@color/dialog">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_add_ok"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="7dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/btn_round4"
+                android:fontFamily="@font/font"
+                android:text="등록"
+                android:textColor="@color/text" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_add_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="7dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/btn_round4"
+                android:fontFamily="@font/font"
+                android:text="취소"
+                android:textColor="@color/text" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

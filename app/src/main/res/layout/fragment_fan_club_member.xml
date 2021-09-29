@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".page.FragmentFanClubMember">
+
+    <ImageView
+        android:src="@drawable/family"
+        android:layout_toLeftOf="@+id/text_member_count"
+        android:layout_marginRight="5dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"/>
+
+    <TextView
+        android:id="@+id/text_member_count"
+        android:fontFamily="@font/font"
+        android:layout_marginRight="15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="10/30" />
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
+        android:layout_below="@+id/text_member_count"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_fan_club_member"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_menu"
+        android:orientation="vertical"
+        android:background="#DDDDDDDD"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content">
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button_delegate_master"
+            android:fontFamily="@font/font"
+            android:text="클럽장 위임"
+            android:background="@drawable/btn_ripple2"
+            android:textColor="#FF0077"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button_appoint_sub_master"
+            android:fontFamily="@font/font"
+            android:text="부클럽장 임명"
+            android:background="@drawable/btn_ripple"
+            android:textColor="#0090FF"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button_fire_sub_master"
+            android:fontFamily="@font/font"
+            android:text="부클럽장 해임"
+            android:background="@drawable/btn_ripple2"
+            android:textColor="#FF0077"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button_deportation"
+            android:fontFamily="@font/font"
+            android:text="강제 추방"
+            android:background="@drawable/btn_ripple2"
+            android:textColor="#FF0077"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button_cancel"
+            android:fontFamily="@font/font"
+            android:text="취소"
+            android:background="@drawable/btn_ripple"
+            android:textColor="#0090FF"
+            android:layout_margin="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

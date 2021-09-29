@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".BuyGemActivity">
+
+    <RelativeLayout
+        android:id="@+id/layout_title"
+        android:background="@color/charge_back2"
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/button_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="5dp"
+            android:backgroundTint="@android:color/transparent"
+            android:clickable="true"
+            app:cardElevation="0dp"
+            app:rippleColor="#fff">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/arrow_back" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/text_page_title"
+            android:fontFamily="@font/font"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/button_back"
+            android:text="다이아 구매"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
+
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_below="@+id/layout_title"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:background="@color/charge_back2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:padding="5dp"
+                android:weightSum="10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_marginRight="5dp"
+                    android:layout_weight="5"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/btn_half_top_round"
+                        android:fontFamily="@font/font_title"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:text="40 + 10 다이아"
+                        android:textColor="@color/white" />
+
+                    <RelativeLayout
+                        android:background="@color/charge_back"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:layout_width="120dp"
+                            android:layout_height="120dp"
+                            android:layout_centerHorizontal="true"
+                            android:src="@drawable/diamond_pack_back" />
+
+                        <ImageView
+                            android:layout_width="120dp"
+                            android:layout_height="120dp"
+                            android:layout_centerHorizontal="true"
+                            android:src="@drawable/diamond_pack1" />
+
+                        <ImageView
+                            android:src="@drawable/first_buy"
+                            android:layout_margin="5dp"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"/>
+                    </RelativeLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/btn_half_bottom_round"
+                        android:fontFamily="@font/font_title"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:text="\\ 1,200"
+                        android:textColor="@color/text_gold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_weight="5"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:text="200 + 50 다이아"
+                        android:textColor="@color/white"
+                        android:fontFamily="@font/font_title"
+                        android:background="@drawable/btn_half_top_round"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <RelativeLayout
+                        android:background="@color/charge_back"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <ImageView
+                            android:src="@drawable/diamond_pack_back"
+                            android:layout_centerHorizontal="true"
+                            android:layout_width="120dp"
+                            android:layout_height="120dp"/>
+
+                        <ImageView
+                            android:layout_width="120dp"
+                            android:layout_height="120dp"
+                            android:layout_centerHorizontal="true"
+                            android:src="@drawable/diamond_pack2" />
+                    </RelativeLayout>
+
+                    <TextView
+                        android:text="\\ 5,900"
+                        android:textColor="@color/text_gold"
+                        android:fontFamily="@font/font_title"
+                        android:background="@drawable/btn_half_bottom_round"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:weightSum="10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_marginRight="5dp"
+                    android:layout_weight="5"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:text="750\n+250 다이아"
+                        android:textColor="@color/white"
+                        android:fontFamily="@font/font_title"
+                        android:background="@drawable/btn_half_top_round"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <RelativeLayout
+                        android:background="@color/charge_back"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:layout_width="160dp"
+                            android:layout_height="160dp"
+                            android:layout_centerHorizontal="true"
+                            android:src="@drawable/diamond_pack_back" />
+
+                        <ImageView
+                            android:layout_width="130dp"
+                            android:layout_height="130dp"
+                            android:layout_centerHorizontal="true"
+                            android:layout_marginTop="10dp"
+                            android:src="@drawable/diamond_pack3" />
+                    </RelativeLayout>
+
+                    <TextView
+                        android:text="\\ 22,000"
+                        android:textColor="@color/text_gold"
+                        android:fontFamily="@font/font_title"
+                        android:background="@drawable/btn_half_bottom_round"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_weight="5"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:text="2000\n+650 다이아"
+                        android:textColor="@color/white"
+                        android:fontFamily="@font/font_title"
+                        android:background="@drawable/btn_half_top_round"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <RelativeLayout
+                        android:background="@color/charge_back"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:layout_width="160dp"
+                            android:layout_height="160dp"
+                            android:layout_centerHorizontal="true"
+                            android:src="@drawable/diamond_pack_back" />
+
+                        <ImageView
+                            android:layout_width="150dp"
+                            android:layout_height="150dp"
+                            android:layout_centerHorizontal="true"
+                            android:paddingRight="20dp"
+                            android:src="@drawable/diamond_pack4" />
+
+                        <ImageView
+                            android:src="@drawable/first_buy"
+                            android:layout_margin="5dp"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"/>
+                    </RelativeLayout>
+
+                    <TextView
+                        android:text="\\ 55,000"
+                        android:textColor="@color/text_gold"
+                        android:fontFamily="@font/font_title"
+                        android:background="@drawable/btn_half_bottom_round"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:padding="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:text="4300 + 1400 다이아"
+                        android:textColor="@color/white"
+                        android:fontFamily="@font/font_title"
+                        android:background="@drawable/btn_half_top_round"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <RelativeLayout
+                        android:background="@color/charge_back"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:layout_width="190dp"
+                            android:layout_height="190dp"
+                            android:layout_centerHorizontal="true"
+                            android:src="@drawable/diamond_pack_back" />
+
+                        <ImageView
+                            android:layout_width="150dp"
+                            android:layout_height="150dp"
+                            android:layout_centerHorizontal="true"
+                            android:src="@drawable/diamond_pack5" />
+
+                        <ImageView
+                            android:src="@drawable/first_buy"
+                            android:layout_margin="5dp"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"/>
+
+                    </RelativeLayout>
+
+                    <TextView
+                        android:text="\\ 109,000"
+                        android:textColor="@color/text_gold"
+                        android:fontFamily="@font/font_title"
+                        android:background="@drawable/btn_half_bottom_round"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+
+    </ScrollView>
+
+</RelativeLayout>

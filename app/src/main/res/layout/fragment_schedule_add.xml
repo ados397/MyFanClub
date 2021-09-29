@@ -1,0 +1,611 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".page.FragmentScheduleAdd">
+
+    <RelativeLayout
+        android:id="@+id/layout_title"
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/button_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="5dp"
+            android:backgroundTint="@android:color/transparent"
+            android:clickable="true"
+            app:cardElevation="0dp"
+            app:rippleColor="#fff">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/arrow_back" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/text_page_title"
+            android:fontFamily="@font/font"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/button_back"
+            android:text="스케줄 추가"
+            android:textColor="@color/text"
+            android:textSize="20sp" />
+
+    </RelativeLayout>
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/layout_ok"
+        android:layout_below="@+id/layout_title"
+        android:fillViewport="true"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/text_title"
+                android:fontFamily="@font/font"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:text="제목"
+                android:textColor="@color/text"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/edit_title"
+                android:fontFamily="@font/font"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/edit_rectangle"
+                android:maxLength="30"
+                android:maxLines="1"
+                android:inputType="text"
+                android:textColor="@color/text"
+                android:textCursorDrawable="@drawable/edit_cursor"
+                android:textSize="16sp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/text_title_error"
+                    android:fontFamily="@font/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginBottom="5dp"
+                    android:text=""
+                    android:textColor="@color/text_red"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/text_title_len"
+                    android:fontFamily="@font/font"
+                    android:layout_alignParentRight="true"
+                    android:text="0/30"
+                    android:layout_marginRight="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/text_period"
+                android:fontFamily="@font/font"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:text="기간"
+                android:textColor="@color/text"
+                android:textSize="16sp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/edit_start_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_marginRight="10dp"
+                    android:layout_toLeftOf="@+id/text_tilde"
+                    android:background="@drawable/edit_rectangle"
+                    android:focusable="false"
+                    android:fontFamily="@font/font"
+                    android:textColor="@color/text"
+                    android:textCursorDrawable="@drawable/edit_cursor"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/text_tilde"
+                    android:fontFamily="@font/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:text="~" />
+
+                <EditText
+                    android:id="@+id/edit_end_date"
+                    android:fontFamily="@font/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@+id/text_tilde"
+                    android:background="@drawable/edit_rectangle"
+                    android:focusable="false"
+                    android:textColor="@color/text"
+                    android:textCursorDrawable="@drawable/edit_cursor"
+                    android:textSize="16sp" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/text_range_error"
+                android:fontFamily="@font/font"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="5dp"
+                android:text=""
+                android:textColor="@color/text_red"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/text_purpose"
+                android:fontFamily="@font/font"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:text="목표"
+                android:textColor="@color/text"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/edit_purpose"
+                android:fontFamily="@font/font"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/edit_rectangle"
+                android:minLines="4"
+                android:maxLines="10"
+                android:maxLength="300"
+                android:scrollbars="vertical"
+                android:textColor="@color/text"
+                android:textCursorDrawable="@drawable/edit_cursor"
+                android:textSize="16sp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/text_purpose_error"
+                    android:fontFamily="@font/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginBottom="5dp"
+                    android:text=""
+                    android:textColor="@color/text_red"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/text_purpose_len"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="10dp"
+                    android:fontFamily="@font/font"
+                    android:text="0/300" />
+            </RelativeLayout>
+
+            <TextView
+                android:fontFamily="@font/font"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:text="수행할 동작"
+                android:textColor="@color/text"
+                android:textSize="16sp" />
+
+            <RadioGroup
+                android:id="@+id/radio_group_action"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp">
+
+                <RadioButton
+                    android:id="@+id/radio_app"
+                    android:fontFamily="@font/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30sp"
+                    android:text="앱 연결"
+                    android:textSize="14sp" />
+
+                <LinearLayout
+                    android:id="@+id/layout_select_app"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/button_select_app"
+                        android:layout_width="wrap_content"
+                        android:layout_height="25dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginBottom="5dp"
+                        android:background="@drawable/btn_round4"
+                        android:fontFamily="@font/font"
+                        android:text="앱 선택"
+                        android:textColor="@color/text" />
+
+                    <TextView
+                        android:id="@+id/text_selected_app"
+                        android:fontFamily="@font/font"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:text="선택된 앱"
+                        android:textColor="@color/text"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <RadioButton
+                    android:id="@+id/radio_url"
+                    android:fontFamily="@font/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30sp"
+                    android:text="링크 실행"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/edit_url"
+                    android:fontFamily="@font/font"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/edit_rectangle"
+                    android:hint="링크 주소를 입력하세요"
+                    android:maxLines="1"
+                    android:inputType="text"
+                    android:textColor="@color/text"
+                    android:textCursorDrawable="@drawable/edit_cursor"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/text_url_error"
+                    android:fontFamily="@font/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:text=""
+                    android:textColor="@color/text_red"
+                    android:textSize="12sp" />
+
+            </RadioGroup>
+
+            <TextView
+                android:fontFamily="@font/font"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:text="반복"
+                android:textColor="@color/text"
+                android:textSize="16sp" />
+
+            <RadioGroup
+                android:id="@+id/radio_group_cycle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/radio_day"
+                    android:fontFamily="@font/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30sp"
+                    android:layout_marginRight="5dp"
+                    android:text="매일"
+                    android:textSize="14sp" />
+
+                <RadioButton
+                    android:id="@+id/radio_week"
+                    android:fontFamily="@font/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30sp"
+                    android:layout_marginRight="5dp"
+                    android:text="매주"
+                    android:textSize="14sp" />
+
+                <RadioButton
+                    android:id="@+id/radio_month"
+                    android:fontFamily="@font/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30sp"
+                    android:layout_marginRight="5dp"
+                    android:text="매달"
+                    android:textSize="14sp" />
+
+                <RadioButton
+                    android:id="@+id/radio_period"
+                    android:fontFamily="@font/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30sp"
+                    android:layout_marginRight="5dp"
+                    android:text="기간내"
+                    android:textSize="14sp" />
+            </RadioGroup>
+
+            <TextView
+                android:id="@+id/text_count"
+                android:fontFamily="@font/font"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:text="목표 횟수"
+                android:textColor="@color/text"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/edit_count"
+                android:fontFamily="@font/font"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/edit_rectangle"
+                android:inputType="numberDecimal"
+                android:maxLength="9"
+                android:hint="1~999999999 까지 설정 가능합니다"
+                android:textColor="@color/text"
+                android:textCursorDrawable="@drawable/edit_cursor"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/text_count_error"
+                android:fontFamily="@font/font"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="5dp"
+                android:text=""
+                android:textColor="@color/text_red"
+                android:textSize="12sp" />
+
+            <TextView
+                android:fontFamily="@font/font"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:text="알람"
+                android:textColor="@color/text"
+                android:textSize="16sp" />
+
+            <Switch
+                android:id="@+id/switch_alarm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:id="@+id/layout_alarm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:orientation="vertical">
+
+                <TimePicker
+                    android:id="@+id/timepicker_alarm"
+                    android:fontFamily="@font/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:timePickerMode="spinner" />
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/text_alarm_date"
+                        android:fontFamily="@font/font"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:text="알람날짜" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/button_alarm_calendar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginRight="30dp"
+                        android:layout_marginBottom="5dp"
+                        android:backgroundTint="@android:color/transparent"
+                        android:clickable="true"
+                        app:cardElevation="0dp"
+                        app:rippleColor="#fff">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/calendar" />
+
+                    </com.google.android.material.card.MaterialCardView>
+                </RelativeLayout>
+
+                <com.nex3z.togglebuttongroup.MultiSelectToggleGroup
+                    android:id="@+id/weekGroup"
+                    android:fontFamily="@font/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:tbgChildSpacing="auto">
+
+                    <com.nex3z.togglebuttongroup.button.CircularToggle
+                        android:id="@+id/day_sun"
+                        android:fontFamily="@font/font"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="일" />
+
+                    <com.nex3z.togglebuttongroup.button.CircularToggle
+                        android:id="@+id/day_mon"
+                        android:fontFamily="@font/font"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="월" />
+
+                    <com.nex3z.togglebuttongroup.button.CircularToggle
+                        android:id="@+id/day_tues"
+                        android:fontFamily="@font/font"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="화" />
+
+                    <com.nex3z.togglebuttongroup.button.CircularToggle
+                        android:id="@+id/day_wed"
+                        android:fontFamily="@font/font"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="수" />
+
+                    <com.nex3z.togglebuttongroup.button.CircularToggle
+                        android:id="@+id/day_thurs"
+                        android:fontFamily="@font/font"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="목" />
+
+                    <com.nex3z.togglebuttongroup.button.CircularToggle
+                        android:id="@+id/day_fri"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="금" />
+
+                    <com.nex3z.togglebuttongroup.button.CircularToggle
+                        android:id="@+id/day_sat"
+                        android:fontFamily="@font/font"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="토" />
+
+                </com.nex3z.togglebuttongroup.MultiSelectToggleGroup>
+            </LinearLayout>
+
+            <View
+                android:layout_marginBottom="100dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <RelativeLayout
+        android:id="@+id/layout_calendar"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <com.applikeysolutions.cosmocalendar.view.CalendarView
+            android:id="@+id/calendar_view"
+            android:fontFamily="@font/font"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:connectedDayIconPosition="top"
+            app:currentDayIconRes="@drawable/selected"
+            app:currentDaySelectedIconRes="@drawable/selected"
+            app:currentDayTextColor="#f79256"
+            app:firstDayOfTheWeek="sunday"
+            app:orientation="horizontal"
+            app:selectedDayBackgroundColor="#FFEACA"
+            app:selectedDayBackgroundEndColor="#F79256"
+            app:selectedDayBackgroundStartColor="#F79256"
+            app:selectedDayTextColor="#FFFFFF"
+            app:weekendDayTextColor="#ef4550" />
+
+        <LinearLayout
+            android:background="@color/dialog"
+            android:layout_below="@+id/calendar_view"
+            android:layout_marginTop="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_cal_ok"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:layout_marginTop="7dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/btn_round4"
+                android:fontFamily="@font/font"
+                android:text="확인"
+                android:textColor="@color/text" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_cal_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:layout_marginTop="7dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/btn_round4"
+                android:fontFamily="@font/font"
+                android:text="취소"
+                android:textColor="@color/text" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/layout_ok"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/button_ok"
+            android:fontFamily="@font/font"
+            android:enabled="false"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="작성 완료" />
+    </RelativeLayout>
+
+</RelativeLayout>

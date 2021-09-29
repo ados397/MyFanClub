@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_main"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:id="@+id/layout_display_board"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+
+        <RelativeLayout
+            android:background="@color/text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/text_display_board"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:ellipsize="marquee"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:fontFamily="@font/font_title"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:paddingTop="4dp"
+                android:scrollHorizontally="true"
+                android:shadowColor="#C5C5C5"
+                android:shadowDx="0.0"
+                android:shadowDy="0.0"
+                android:shadowRadius="15.0"
+                android:singleLine="true"
+                android:text="전광판 텍스트"
+                android:textColor="@color/display_board_1"
+                android:textSize="20sp" />
+        </RelativeLayout>
+
+        <ImageView
+            android:src="@drawable/display_board"
+            android:scaleType="fitXY"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </RelativeLayout>
+
+</RelativeLayout>

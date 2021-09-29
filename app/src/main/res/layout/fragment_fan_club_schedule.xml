@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".page.FragmentFanClubSchedule">
+
+    <RelativeLayout
+        android:id="@+id/layout_title"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp">
+        <TextView
+            android:fontFamily="@font/font"
+            android:text=""
+            android:textSize="20sp"
+            android:textColor="@color/text"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/button_add_schedule"
+            app:cardElevation="0dp"
+            app:rippleColor="#fff"
+            android:backgroundTint="@android:color/transparent"
+            android:clickable="true"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/button_reorder"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:src="@drawable/add_schedule"
+                android:layout_width="30dp"
+                android:layout_height="30dp"/>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/button_reorder"
+            app:cardElevation="0dp"
+            app:rippleColor="#fff"
+            android:backgroundTint="@android:color/transparent"
+            android:clickable="true"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginBottom="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:src="@drawable/arrow_change"
+                android:layout_width="20dp"
+                android:layout_height="20dp"/>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </RelativeLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_fan_club_schedule"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/layout_menu"
+        android:layout_below="@+id/layout_title" />
+
+    <LinearLayout
+        android:id="@+id/layout_menu"
+        android:orientation="vertical"
+        android:background="#DDDDDDDD"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:id="@+id/layout_menu_modify"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_modify"
+                android:fontFamily="@font/font"
+                android:text="수정"
+                android:background="@drawable/btn_ripple"
+                android:textColor="#0090FF"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_delete"
+                android:fontFamily="@font/font"
+                android:text="삭제"
+                android:background="@drawable/btn_ripple2"
+                android:textColor="#FF0077"
+                android:layout_margin="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_menu_reorder"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_ok"
+                android:fontFamily="@font/font"
+                android:text="완료"
+                android:background="@drawable/btn_ripple"
+                android:textColor="#0090FF"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_cancel"
+                android:fontFamily="@font/font"
+                android:text="취소"
+                android:background="@drawable/btn_ripple2"
+                android:textColor="#FF0077"
+                android:layout_margin="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>
