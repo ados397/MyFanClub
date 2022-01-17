@@ -5,27 +5,78 @@
     android:layout_height="match_parent"
     tools:context=".page.FragmentFanClubMember">
 
-    <ImageView
-        android:src="@drawable/family"
-        android:layout_toLeftOf="@+id/text_member_count"
-        android:layout_marginRight="5dp"
-        android:layout_width="24dp"
-        android:layout_height="24dp"/>
+    <LinearLayout
+        android:id="@+id/layout_count"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/text_member_count"
-        android:fontFamily="@font/font"
-        android:layout_marginRight="15dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:text="10/30" />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_marginLeft="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:src="@drawable/medal_icon_09"
+                android:layout_marginRight="5dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"/>
+
+            <TextView
+                android:fontFamily="@font/font"
+                android:layout_marginTop="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1/1" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_marginLeft="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:src="@drawable/medal_icon_48"
+                android:layout_marginRight="5dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"/>
+
+            <TextView
+                android:id="@+id/text_sub_master_count"
+                android:fontFamily="@font/font"
+                android:layout_marginTop="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0/3" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_marginLeft="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:src="@drawable/family"
+                android:layout_marginRight="5dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"/>
+
+            <TextView
+                android:id="@+id/text_member_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/font"
+                android:text="10/30" />
+        </LinearLayout>
+
+    </LinearLayout>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
-        android:layout_below="@+id/text_member_count"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@+id/layout_count">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_fan_club_member"
@@ -46,6 +97,7 @@
             android:id="@+id/button_delegate_master"
             android:fontFamily="@font/font"
             android:text="클럽장 위임"
+            android:textSize="18sp"
             android:background="@drawable/btn_ripple2"
             android:textColor="#FF0077"
             android:layout_marginLeft="10dp"
@@ -57,10 +109,11 @@
             android:id="@+id/button_appoint_sub_master"
             android:fontFamily="@font/font"
             android:text="부클럽장 임명"
+            android:textSize="18sp"
             android:background="@drawable/btn_ripple"
             android:textColor="#0090FF"
             android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="3dp"
             android:layout_marginRight="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
@@ -68,10 +121,11 @@
             android:id="@+id/button_fire_sub_master"
             android:fontFamily="@font/font"
             android:text="부클럽장 해임"
+            android:textSize="18sp"
             android:background="@drawable/btn_ripple2"
             android:textColor="#FF0077"
             android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="3dp"
             android:layout_marginRight="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
@@ -79,10 +133,23 @@
             android:id="@+id/button_deportation"
             android:fontFamily="@font/font"
             android:text="강제 추방"
+            android:textSize="18sp"
             android:background="@drawable/btn_ripple2"
             android:textColor="#FF0077"
             android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="3dp"
+            android:layout_marginRight="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button_user_info"
+            android:fontFamily="@font/font"
+            android:text="사용자 정보"
+            android:textSize="18sp"
+            android:background="@drawable/btn_ripple"
+            android:textColor="#0090FF"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="3dp"
             android:layout_marginRight="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
@@ -90,10 +157,13 @@
             android:id="@+id/button_cancel"
             android:fontFamily="@font/font"
             android:text="취소"
+            android:textSize="18sp"
             android:background="@drawable/btn_ripple"
             android:textColor="#0090FF"
-            android:layout_margin="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="20dp"
             android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 

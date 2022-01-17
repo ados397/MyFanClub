@@ -196,6 +196,7 @@
                 <TableRow>
 
                     <Button
+                        android:drawableBottom="@drawable/lock"
                         android:id="@+id/button_color_1"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -205,6 +206,7 @@
                         android:onClick="colorSelect" />
 
                     <Button
+                        android:drawableBottom="@drawable/lock"
                         android:id="@+id/button_color_2"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -213,6 +215,7 @@
                         android:onClick="colorSelect" />
 
                     <Button
+                        android:drawableBottom="@drawable/lock"
                         android:id="@+id/button_color_3"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -221,6 +224,7 @@
                         android:onClick="colorSelect" />
 
                     <Button
+                        android:drawableBottom="@drawable/lock"
                         android:id="@+id/button_color_4"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -229,6 +233,7 @@
                         android:onClick="colorSelect" />
 
                     <Button
+                        android:drawableBottom="@drawable/lock"
                         android:id="@+id/button_color_5"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -237,6 +242,7 @@
                         android:onClick="colorSelect" />
 
                     <Button
+                        android:drawableBottom="@drawable/lock"
                         android:id="@+id/button_color_6"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -245,6 +251,7 @@
                         android:onClick="colorSelect" />
 
                     <Button
+                        android:drawableBottom="@drawable/lock"
                         android:id="@+id/button_color_7"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -253,6 +260,7 @@
                         android:onClick="colorSelect" />
 
                     <Button
+                        android:drawableBottom="@drawable/lock"
                         android:id="@+id/button_color_8"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -261,6 +269,7 @@
                         android:onClick="colorSelect" />
 
                     <Button
+                        android:drawableBottom="@drawable/lock"
                         android:id="@+id/button_color_9"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -269,6 +278,7 @@
                         android:onClick="colorSelect" />
 
                     <Button
+                        android:drawableBottom="@drawable/lock"
                         android:id="@+id/button_color_10"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -318,7 +328,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <androidx.appcompat.widget.AppCompatButton
+            <com.google.android.material.card.MaterialCardView
                 android:id="@+id/button_add_ok"
                 android:layout_width="wrap_content"
                 android:layout_height="25dp"
@@ -326,10 +336,38 @@
                 android:layout_marginTop="7dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@drawable/btn_round4"
-                android:fontFamily="@font/font"
-                android:text="등록"
-                android:textColor="@color/text" />
+                android:backgroundTint="@android:color/transparent"
+                android:clickable="true"
+                app:cardElevation="0dp"
+                app:rippleColor="#fff">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/btn_round4"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingLeft="30dp"
+                    android:paddingTop="2dp"
+                    android:paddingRight="30dp"
+                    android:paddingBottom="2dp">
+
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:layout_marginRight="5dp"
+                        android:src="@drawable/diamond" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:fontFamily="@font/font"
+                        android:text="등록"
+                        android:textColor="@color/text" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/button_add_cancel"

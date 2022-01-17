@@ -8,17 +8,22 @@ import android.view.ViewGroup
 import android.view.Window
 import android.view.animation.AnimationUtils
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentFanClubMemberBinding
 import com.ados.myfanclub.dialog.QuestionDialog
-import com.ados.myfanclub.model.FanClubDTO
-import com.ados.myfanclub.model.MemberDTO
-import com.ados.myfanclub.model.QuestionDTO
-import com.google.firebase.firestore.FirebaseFirestore
+import com.ados.myfanclub.dialog.UserInfoDialog
+import com.ados.myfanclub.model.*
+import com.ados.myfanclub.repository.FirebaseRepository
+import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
+import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import kotlinx.android.synthetic.main.question_dialog.*
+import kotlinx.android.synthetic.main.question_dialog.button_question_cancel
+import kotlinx.android.synthetic.main.question_dialog.button_question_ok
+import kotlinx.android.synthetic.main.user_info_dialog.*
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -34,13 +39,17 @@ private const val ARG_PARAM2 = "param2"
  */
 class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
     // TODO: Rename and change types of parameters
+    private var param1: String? = null
+    private var param2: String? = null
+
     private var _binding: FragmentFanClubMemberBinding? = null
     private val binding get() = _binding!!
 
     lateinit var recyclerView : RecyclerView
     lateinit var recyclerViewAdapter : RecyclerViewAdapterFanClubMember
 
-    private var firestore : FirebaseFirestore? = null
+    private val firebaseViewModel : FirebaseViewModel by viewModels()
+    private val firebaseStorageViewModel : FirebaseStorageViewModel by viewModels()
 
     private var fanClubDTO: FanClubDTO? = null
     private var currentMember: MemberDTO? = null
@@ -52,9 +61,12 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            fanClubDTO = it.getParcelable(ARG_PARAM1)
-            currentMember = it.getParcelable(ARG_PARAM2)
+            param1 = it.getString(ARG_PARAM1)
+            param2 = it.getString(ARG_PARAM2)
         }
+
+        fanClubDTO = (activity as MainActivity?)?.getFanClub()
+        currentMember = (activity as MainActivity?)?.getMember()
     }
 
     override fun onCreateView(
@@ -65,8 +77,6 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
         _binding = FragmentFanClubMemberBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
 
-        firestore = FirebaseFirestore.getInstance()
-
         recyclerView = rootView.findViewById(R.id.rv_fan_club_member!!)as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
@@ -75,7 +85,7 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
 
         setFanClubInfo()
 
-        refresh()
+        refreshMembers()
 
         return rootView
     }
@@ -93,131 +103,274 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
         }
 
         binding.swipeRefreshLayout.setOnRefreshListener {
-            (activity as MainActivity?)?.refreshFanClubDTO { fanClub ->
-                fanClubDTO = fanClub
-
-                (activity as MainActivity?)?.refreshMemberDTO { member ->
-                    currentMember = member
-
-                    (parentFragment as FragmentFanClubMain?)?.setFanClub(fanClub)
-                    (parentFragment as FragmentFanClubMain?)?.setMember(member)
-                    (parentFragment as FragmentFanClubMain?)?.setFanClubInfo()
-
-                    binding.swipeRefreshLayout.isRefreshing = false
-                    Toast.makeText(activity, "새로 고침", Toast.LENGTH_SHORT).show()
-                }
-            }
             refresh()
+            refreshMembers()
         }
 
         binding.buttonDelegateMaster.setOnClickListener {
-            val question = QuestionDTO(
-                QuestionDTO.STAT.ERROR,
-                "클럽장 위임",
-                "[${selectedMember?.userNickname}]님에게 클럽장을 위임하시겠습니까?\n클럽장을 위임하고나면 클럽원으로 강등됩니다."
-            )
-            val dialog = QuestionDialog(requireContext(), question)
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.show()
-            dialog.button_question_cancel.setOnClickListener { // No
-                dialog.dismiss()
-            }
-            dialog.button_question_ok.setOnClickListener { // No
-                dialog.dismiss()
+            // 관리자 권한이 없어졌는지 확인
+            if (!(parentFragment as FragmentFanClubMain?)?.isRemoveAdmin()!!) {
+                delegateMaster()
             }
         }
 
         binding.buttonAppointSubMaster.setOnClickListener {
-            val question = QuestionDTO(
-                QuestionDTO.STAT.INFO,
-                "부클럽장 임명",
-                "[${selectedMember?.userNickname}]님을 부클럽장으로 임명 하시겠습니까?"
-            )
-            val dialog = QuestionDialog(requireContext(), question)
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.show()
-            dialog.button_question_cancel.setOnClickListener { // No
-                dialog.dismiss()
-            }
-            dialog.button_question_ok.setOnClickListener { // Yes
-                dialog.dismiss()
-                firestore?.collection("fanClub")?.document(fanClubDTO?.docName.toString())
-                    ?.collection("member")?.document(selectedMember?.userUid.toString())?.update("position", MemberDTO.POSITION.SUB_MASTER)?.addOnCompleteListener {
-                        members[selectedPosition!!].position = MemberDTO.POSITION.SUB_MASTER
-                        recyclerViewAdapter.notifyDataSetChanged()
-                        selectRecyclerView()
-                        Toast.makeText(activity, "새로운 부클럽장 임명 완료", Toast.LENGTH_SHORT).show()
+            // 관리자 권한이 없어졌는지 확인
+            if (!(parentFragment as FragmentFanClubMain?)?.isRemoveAdmin()!!) {
+                if (fanClubDTO?.subMasterCount!! >= fanClubDTO?.getMaxSubMasterCount()!!) {
+                    selectRecyclerView()
+                    Toast.makeText(activity, "더 이상 부클럽장을 임명할 수 없습니다.", Toast.LENGTH_SHORT).show()
+                } else {
+                    appointSubMaster()
                 }
             }
         }
 
         binding.buttonFireSubMaster.setOnClickListener {
-            val question = QuestionDTO(
-                QuestionDTO.STAT.WARNING,
-                "부클럽장 해임",
-                "[${selectedMember?.userNickname}]님을 부클럽장에서 해임 하시겠습니까?"
-            )
-            val dialog = QuestionDialog(requireContext(), question)
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.show()
-            dialog.button_question_cancel.setOnClickListener { // No
-                dialog.dismiss()
+            // 관리자 권한이 없어졌는지 확인
+            if (!(parentFragment as FragmentFanClubMain?)?.isRemoveAdmin()!!) {
+                fireSubMaster()
             }
-            dialog.button_question_ok.setOnClickListener { // Yes
-                dialog.dismiss()
-                firestore?.collection("fanClub")?.document(fanClubDTO?.docName.toString())
-                    ?.collection("member")?.document(selectedMember?.userUid.toString())?.update("position", MemberDTO.POSITION.MEMBER)?.addOnCompleteListener {
-                        members[selectedPosition!!].position = MemberDTO.POSITION.MEMBER
-                        recyclerViewAdapter.notifyDataSetChanged()
-                        selectRecyclerView()
-                        Toast.makeText(activity, "부클럽장 해임 완료", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.buttonDeportation.setOnClickListener {
+            // 관리자 권한이 없어졌는지 확인
+            if (!(parentFragment as FragmentFanClubMain?)?.isRemoveAdmin()!!) {
+                deportation()
+            }
+        }
+
+        binding.buttonUserInfo.setOnClickListener {
+            selectRecyclerView()
+            firebaseViewModel.getUser(selectedMember?.userUid.toString()) { userDTO ->
+                if (userDTO != null) {
+                    var userEx = UserExDTO(userDTO)
+                    if (userDTO.imgProfile != null) {
+                        firebaseStorageViewModel.getUserProfile(selectedMember?.userUid.toString()) { uri ->
+                            userEx.imgProfileUri = uri
+                            userInfo(userEx)
+                        }
+                    } else {
+                        userInfo(userEx)
                     }
+                } else {
+                    Toast.makeText(activity, "사용자 정보 획득에 실패하였습니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun userInfo(userEx: UserExDTO) {
+        val dialog = UserInfoDialog(requireContext(), selectedMember!!, userEx)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.show()
+        dialog.button_user_info_close.setOnClickListener {
+            dialog.dismiss()
+        }
+    }
+
+    private fun delegateMaster() {
+        val question = QuestionDTO(
+            QuestionDTO.Stat.ERROR,
+            "클럽장 위임",
+            "[${selectedMember?.userNickname}]님에게 클럽장을 위임하시겠습니까?\n클럽장을 위임하고나면 클럽원으로 강등됩니다."
+        )
+        val dialog = QuestionDialog(requireContext(), question)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.show()
+        dialog.button_question_cancel.setOnClickListener { // No
+            dialog.dismiss()
+        }
+        dialog.button_question_ok.setOnClickListener { // No
+            dialog.dismiss()
+            (activity as MainActivity?)?.loading()
+            selectedMember?.position = MemberDTO.Position.MASTER
+            firebaseViewModel.updateMemberPosition(fanClubDTO?.docName.toString(), selectedMember!!) { // 선택한 멤버 클럽장 임명
+                currentMember?.position = MemberDTO.Position.MEMBER
+                firebaseViewModel.updateMemberPosition(fanClubDTO?.docName.toString(), currentMember!!) { // 현재 사용자(클럽장) 클럽원으로 강등
+                    // 팬클럽에 클럽장 아이디와 닉네임 새로운 클럽장 정보 적용
+                    fanClubDTO?.masterUid = selectedMember?.userUid
+                    fanClubDTO?.masterNickname = selectedMember?.userNickname
+                    firebaseViewModel.updateFanClub(fanClubDTO!!) {
+                        selectRecyclerView()
+                        refreshMembers()
+                        Toast.makeText(activity, "클럽장 위임 완료", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun appointSubMaster() {
+        val question = QuestionDTO(
+            QuestionDTO.Stat.INFO,
+            "부클럽장 임명",
+            "[${selectedMember?.userNickname}]님을 부클럽장으로 임명 하시겠습니까?"
+        )
+        val dialog = QuestionDialog(requireContext(), question)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.show()
+        dialog.button_question_cancel.setOnClickListener { // No
+            dialog.dismiss()
+        }
+        dialog.button_question_ok.setOnClickListener { // Yes
+            dialog.dismiss()
+            selectedMember?.position = MemberDTO.Position.SUB_MASTER
+            //firebaseViewModel.updateMemberPosition(fanClubDTO?.docName.toString(), selectedMember!!) { // 선택한 멤버 부클럽장 임명
+            firebaseViewModel.updateFanClubSubMaster(fanClubDTO?.docName.toString(), selectedMember!!) { fanClub -> // 선택한 멤버 부클럽장 임명
+                if (fanClub != null) {
+                    fanClubDTO = fanClub
+                    members[selectedPosition!!].position = MemberDTO.Position.SUB_MASTER
+                    recyclerViewAdapter.notifyDataSetChanged()
+                    selectRecyclerView()
+                    binding.textSubMasterCount.text = "${fanClubDTO?.subMasterCount}/${fanClubDTO?.getMaxSubMasterCount()}"
+                    Toast.makeText(activity, "새로운 부클럽장 임명 완료", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun fireSubMaster() {
+        val question = QuestionDTO(
+            QuestionDTO.Stat.WARNING,
+            "부클럽장 해임",
+            "[${selectedMember?.userNickname}]님을 부클럽장에서 해임 하시겠습니까?"
+        )
+        val dialog = QuestionDialog(requireContext(), question)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.show()
+        dialog.button_question_cancel.setOnClickListener { // No
+            dialog.dismiss()
+        }
+        dialog.button_question_ok.setOnClickListener { // Yes
+            dialog.dismiss()
+            selectedMember?.position = MemberDTO.Position.MEMBER
+            //firebaseViewModel.updateMemberPosition(fanClubDTO?.docName.toString(), selectedMember!!) { // 선택한 멤버 부클럽장 해임
+            firebaseViewModel.updateFanClubSubMaster(fanClubDTO?.docName.toString(), selectedMember!!, true) { fanClub -> // 선택한 멤버 부클럽장 해임
+                if (fanClub != null) {
+                    fanClubDTO = fanClub
+                    members[selectedPosition!!].position = MemberDTO.Position.MEMBER
+                    recyclerViewAdapter.notifyDataSetChanged()
+                    selectRecyclerView()
+                    binding.textSubMasterCount.text = "${fanClubDTO?.subMasterCount}/${fanClubDTO?.getMaxSubMasterCount()}"
+                    Toast.makeText(activity, "부클럽장 해임 완료", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun deportation() {
+        val question = QuestionDTO(
+            QuestionDTO.Stat.WARNING,
+            "강제 추방",
+            "[${selectedMember?.userNickname}]님을 강제 추방 하시겠습니까?"
+        )
+        val dialog = QuestionDialog(requireContext(), question)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.show()
+        dialog.button_question_cancel.setOnClickListener { // No
+            dialog.dismiss()
+        }
+        dialog.button_question_ok.setOnClickListener { // Yes
+            dialog.dismiss()
+
+            // 팬클럽 멤버에서 삭제
+            (activity as MainActivity?)?.loading()
+            val date = Date()
+            firebaseViewModel.deleteMember(fanClubDTO?.docName.toString(), selectedMember!!) { fanClub ->
+                if (fanClub != null) {
+                    fanClubDTO = fanClub
+
+                    var log = LogDTO("[클럽원 강제 추방] 추방된 클럽원 : ${selectedMember?.userNickname}(${selectedMember?.userUid.toString()}), 추방한 관리자 : ${currentMember?.userNickname}(${currentMember?.userUid.toString()})", date)
+                    firebaseViewModel.writeFanClubLog(fanClubDTO?.docName.toString(), log) { }
+
+                    firebaseViewModel.deleteUserFanClubId(selectedMember?.userUid.toString(), true) {
+                        // 팬클럽 추방 우편으로 발송
+                        val docName = "master${System.currentTimeMillis()}"
+                        val calendar= Calendar.getInstance()
+                        calendar.add(Calendar.DATE, 7)
+                        var mail = MailDTO(docName,"팬클럽 추방", "죄송합니다. 가입하신 팬클럽 [${fanClubDTO?.name}]에서 추방 당하셨습니다.", "시스템", MailDTO.Item.NONE, 0, date, calendar.time)
+                        firebaseViewModel.sendUserMail(selectedMember?.userUid.toString(), mail) {
+                            var log = LogDTO("[팬클럽 추방됨] 추방된 팬클럽 : ${fanClubDTO?.name}(${fanClubDTO?.docName.toString()}), 추방한 관리자 : ${currentMember?.userNickname}(${currentMember?.userUid.toString()})", date)
+                            firebaseViewModel.writeUserLog(selectedMember?.userUid.toString(), log) { }
+                        }
+
+                        selectRecyclerView()
+                        refreshMembers()
+                        setFanClubInfo()
+
+                        Toast.makeText(activity, "강제 추방 완료", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    (activity as MainActivity?)?.loadingEnd()
+                }
             }
         }
     }
 
     private fun refresh() {
-        firestore?.collection("fanClub")?.document(fanClubDTO?.docName.toString())?.collection("member")?.get()?.addOnCompleteListener { task ->
-            members.clear()
-            if(task.isSuccessful) {
-                for (document in task.result) {
-                    var member = document.toObject(MemberDTO::class.java)!!
-                    if (member.position != MemberDTO.POSITION.GUEST) {
-                        members.add(member)
-                    }
-                }
-                recyclerViewAdapter = RecyclerViewAdapterFanClubMember(members, this)
-                recyclerView.adapter = recyclerViewAdapter
-            }
+        (activity as MainActivity?)?.loading()
+        fanClubDTO = (activity as MainActivity?)?.getFanClub()
+        currentMember = (activity as MainActivity?)?.getMember()
+
+        setFanClubInfo()
+        (activity as MainActivity?)?.loadingEnd()
+
+        Toast.makeText(context, "새로 고침", Toast.LENGTH_SHORT).show()
+        binding.swipeRefreshLayout.isRefreshing = false
+    }
+
+    private fun refreshMembers() {
+        firebaseViewModel.getMembers(fanClubDTO?.docName.toString(), FirebaseRepository.MemberType.MEMBER_ONLY) {
+            members = it
+            recyclerViewAdapter = RecyclerViewAdapterFanClubMember(members, this)
+            recyclerView.adapter = recyclerViewAdapter
+
+            (activity as MainActivity?)?.loadingEnd()
         }
     }
 
     private fun setFanClubInfo() {
-        binding.textMemberCount.text = "${fanClubDTO?.count}/${fanClubDTO?.countMax}"
+        binding.textSubMasterCount.text = "${fanClubDTO?.subMasterCount}/${fanClubDTO?.getMaxSubMasterCount()}"
+        binding.textMemberCount.text = "${fanClubDTO?.memberCount}/${fanClubDTO?.getMaxMemberCount()}"
 
+        visibleMenu()
+    }
+
+    private fun visibleMenu() {
         when {
             isMaster() -> { // 클럽장 메뉴 활성화
                 binding.buttonDelegateMaster.visibility = View.VISIBLE
                 binding.buttonAppointSubMaster.visibility = View.VISIBLE
                 binding.buttonFireSubMaster.visibility = View.VISIBLE
+                binding.buttonDeportation.visibility = View.VISIBLE
             }
             isAdministrator() -> { // 부클럽장 메뉴 활성화
                 binding.buttonDelegateMaster.visibility = View.GONE
                 binding.buttonAppointSubMaster.visibility = View.GONE
                 binding.buttonFireSubMaster.visibility = View.GONE
+                binding.buttonDeportation.visibility = View.VISIBLE
+            }
+            else -> { // 클럽원
+                binding.buttonDelegateMaster.visibility = View.GONE
+                binding.buttonAppointSubMaster.visibility = View.GONE
+                binding.buttonFireSubMaster.visibility = View.GONE
+                binding.buttonDeportation.visibility = View.GONE
             }
         }
     }
 
     private fun isMaster() : Boolean {
-        return currentMember?.position == MemberDTO.POSITION.MASTER
+        return currentMember?.position == MemberDTO.Position.MASTER
     }
 
     private fun isAdministrator() : Boolean {
-        return currentMember?.position == MemberDTO.POSITION.MASTER || currentMember?.position == MemberDTO.POSITION.SUB_MASTER
+        return currentMember?.position == MemberDTO.Position.MASTER || currentMember?.position == MemberDTO.Position.SUB_MASTER
     }
 
     companion object {
@@ -231,42 +384,69 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(param1: FanClubDTO?, param2: MemberDTO?) =
+        fun newInstance(param1: String, param2: String) =
             FragmentFanClubMember().apply {
                 arguments = Bundle().apply {
-                    putParcelable(ARG_PARAM1, param1)
-                    putParcelable(ARG_PARAM2, param2)
+                    putString(ARG_PARAM1, param1)
+                    putString(ARG_PARAM2, param2)
                 }
             }
     }
 
     private fun selectRecyclerView() {
         if (recyclerViewAdapter?.selectItem(selectedPosition!!)) { // 선택 일 경우 메뉴 표시 및 레이아웃 어둡게
-            if (isAdministrator()) {
-                val translateUp = AnimationUtils.loadAnimation(context, R.anim.translate_up)
-                binding.layoutMenu.visibility = View.VISIBLE
-                binding.layoutMenu.startAnimation(translateUp)
-                //recyclerView.smoothSnapToPosition(position)
-            }
+            val translateUp = AnimationUtils.loadAnimation(context, R.anim.translate_up)
+            binding.layoutMenu.visibility = View.VISIBLE
+            binding.layoutMenu.startAnimation(translateUp)
+            //recyclerView.smoothSnapToPosition(position)
         } else { // 해제 일 경우 메뉴 숨김 및 레이아웃 밝게
-            if (isAdministrator()) {
-                val translateDown = AnimationUtils.loadAnimation(context, R.anim.translate_down)
-                binding.layoutMenu.visibility = View.GONE
-                binding.layoutMenu.startAnimation(translateDown)
-                //recyclerView.smoothSnapToPosition(position)
-            }
+            val translateDown = AnimationUtils.loadAnimation(context, R.anim.translate_down)
+            binding.layoutMenu.visibility = View.GONE
+            binding.layoutMenu.startAnimation(translateDown)
+            //recyclerView.smoothSnapToPosition(position)
         }
     }
 
     override fun onItemClick(item: MemberDTO, position: Int) {
         val user = (activity as MainActivity?)?.getUser()
-        if (user?.uid != item.userUid && item.position != MemberDTO.POSITION.MASTER) {
+
+        // 본인 선택 이거나 클럽장 선택 했을경우 사용자 정보 보기만 가능
+        if (user?.uid == item.userUid || item.position == MemberDTO.Position.MASTER) {
+            binding.buttonDelegateMaster.visibility = View.GONE
+            binding.buttonAppointSubMaster.visibility = View.GONE
+            binding.buttonFireSubMaster.visibility = View.GONE
+            binding.buttonDeportation.visibility = View.GONE
+        } else {
+            visibleMenu()
+
+            // 클럽장이 부클럽장 선택 했을 경우 이미 부클럽장일 경우 임명 대신 해임 메뉴 보여줌
+            if (isMaster()) {
+                if (item.position == MemberDTO.Position.SUB_MASTER) {
+                    binding.buttonAppointSubMaster.visibility = View.GONE
+                    binding.buttonFireSubMaster.visibility = View.VISIBLE
+                } else {
+                    binding.buttonAppointSubMaster.visibility = View.VISIBLE
+                    binding.buttonFireSubMaster.visibility = View.GONE
+                }
+            } else if (isAdministrator()) { // 부클럽장이 같은 부클럽장 선택 시 추방 메뉴 비활성
+                if (item.position == MemberDTO.Position.SUB_MASTER) {
+                    binding.buttonDeportation.visibility = View.GONE
+                }
+            }
+        }
+
+        selectedMember = item
+        selectedPosition = position
+        selectRecyclerView()
+
+        // 본인 또는 클럽장이 아닐때만 메뉴 표시
+        /*if (user?.uid != item.userUid && item.position != MemberDTO.Position.MASTER) {
             selectedMember = item
             selectedPosition = position
             selectRecyclerView()
 
             if (isMaster()) {
-                if (item.position == MemberDTO.POSITION.SUB_MASTER) {
+                if (item.position == MemberDTO.Position.SUB_MASTER) {
                     binding.buttonAppointSubMaster.visibility = View.GONE
                     binding.buttonFireSubMaster.visibility = View.VISIBLE
                 } else {
@@ -274,6 +454,6 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
                     binding.buttonFireSubMaster.visibility = View.GONE
                 }
             }
-        }
+        }*/
     }
 }

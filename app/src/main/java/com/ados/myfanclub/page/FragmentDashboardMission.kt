@@ -7,15 +7,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.animation.AnimationUtils
+import android.widget.RelativeLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentDashboardMissionBinding
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.viewModels
 import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R.drawable.btn_round
 import com.ados.myfanclub.SuccessCalendarWeek
@@ -24,9 +27,7 @@ import com.ados.myfanclub.dialog.EditTextModifyDialog
 import com.ados.myfanclub.dialog.MissionDialog
 import com.ados.myfanclub.dialog.QuestionDialog
 import com.ados.myfanclub.model.*
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
+import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import kotlinx.android.synthetic.main.edit_text_modify_dialog.*
 import kotlinx.android.synthetic.main.mission_dialog.*
 import kotlinx.android.synthetic.main.question_dialog.*
@@ -48,11 +49,13 @@ private const val ARG_PARAM2 = "param2"
  */
 class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
     // TODO: Rename and change types of parameters
+    private var param1: String? = null
+    private var param2: String? = null
+
     private var _binding: FragmentDashboardMissionBinding? = null
     private val binding get() = _binding!!
 
-    private var firebaseAuth : FirebaseAuth? = null
-    private var firestore : FirebaseFirestore? = null
+    private val firebaseViewModel : FirebaseViewModel by viewModels()
 
     private var fanClubDTO: FanClubDTO? = null
     private var currentMember: MemberDTO? = null
@@ -62,22 +65,20 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
     lateinit var recyclerViewPersonal : RecyclerView
     lateinit var recyclerViewPersonalAdapter : RecyclerViewAdapterMission
 
-    private var personalSchedules : ArrayList<ScheduleDTO> = arrayListOf()
-    private var personalMissions : ArrayList<DashboardMissionDTO> = arrayListOf()
-    private var fanClubSchedules : ArrayList<ScheduleDTO> = arrayListOf()
-    private var fanClubMissions : ArrayList<DashboardMissionDTO> = arrayListOf()
-
     private var isExpandClub: Boolean = true
     private var isExpandPersonal: Boolean = true
 
-    private var selectedCycle : ScheduleDTO.CYCLE = ScheduleDTO.CYCLE.DAY
+    private var selectedCycle : ScheduleDTO.Cycle = ScheduleDTO.Cycle.DAY
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            fanClubDTO = it.getParcelable(ARG_PARAM1)
-            currentMember = it.getParcelable(ARG_PARAM2)
+            param1 = it.getString(ARG_PARAM1)
+            param2 = it.getString(ARG_PARAM2)
         }
+
+        fanClubDTO = (activity as MainActivity?)?.getFanClub()
+        currentMember = (activity as MainActivity?)?.getMember()
     }
 
     override fun onCreateView(
@@ -88,68 +89,22 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
         _binding = FragmentDashboardMissionBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
 
-        firebaseAuth = FirebaseAuth.getInstance()
-        firestore = FirebaseFirestore.getInstance()
-
         recyclerViewFanClub = rootView.findViewById(R.id.rv_mission_fan_club!!)as RecyclerView
         recyclerViewFanClub.layoutManager = LinearLayoutManager(requireContext())
 
         recyclerViewPersonal = rootView.findViewById(R.id.rv_mission_personal!!)as RecyclerView
         recyclerViewPersonal.layoutManager = LinearLayoutManager(requireContext())
 
+        selectedCycle = when (param2) {
+            "week" -> ScheduleDTO.Cycle.WEEK
+            "month" -> ScheduleDTO.Cycle.MONTH
+            else -> ScheduleDTO.Cycle.DAY
+        }
+        changeTab()
         getFanClubSchedule()
         getPersonalSchedule()
-
-        /*firestore?.collection("user")?.document(firebaseAuth?.currentUser?.uid.toString())?.collection("schedule")?.orderBy("order", Query.Direction.ASCENDING)?.get()?.addOnSuccessListener { result ->
-            personalSchedules.clear()
-            personalMissions.clear()
-            println("호출1 ${personalMissions.size}")
-            for (document in result) {
-                var schedule = document.toObject(ScheduleDTO::class.java)!!
-                personalSchedules.add(schedule)
-
-                var mission = DashboardMissionDTO()
-                mission.scheduleDTO = schedule
-
-                var docName = getProgressDocName(schedule)
-
-                println("스케줄 : $schedule")
-                println("독네임 : $docName")
-                firestore?.collection("user")?.document(firebaseAuth?.currentUser?.uid.toString())?.collection("schedule")?.document(schedule.docName.toString())?.collection("progress")?.document(docName)?.get()?.addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        println("조회 성공? $task")
-                        var scheduleProgressDTO = ScheduleProgressDTO(docName, 0)
-                        if (task.result.exists()) { // document 있음
-                            scheduleProgressDTO = task.result.toObject(ScheduleProgressDTO::class.java)!!
-                        }
-
-                        mission.scheduleProgressDTO = scheduleProgressDTO
-
-                        println("프로그레스 : $scheduleProgressDTO")
-                        personalMissions.add(mission)
-                        println("호출2 ${personalMissions.size}")
-                    }
-                }
-            }
-            println("호출 순서")
-
-            timer(period = 100)
-            {
-                if (personalSchedules.size == personalMissions.size) {
-                    cancel()
-                    activity?.runOnUiThread {
-                        setAdapter()
-                        println("호출 순서22")
-                        println("호출3 ${personalMissions.size}")
-                    }
-                }
-            }
-        }?.addOnFailureListener { exception ->
-
-        }*/
-
-
-
+        observeFanClubSchedule()
+        observePersonalSchedule()
 
         return rootView
     }
@@ -159,7 +114,8 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
         super.onDestroyView()
     }
 
-    private fun toggleLayout(isExpanded: Boolean, view: View, fromRv: RecyclerView, toRv: RecyclerView): Boolean {
+    //private fun toggleLayout(isExpanded: Boolean, view: View, fromRv: RecyclerView, toRv: RecyclerView): Boolean {
+    private fun toggleLayout(isExpanded: Boolean, view: View, fromRv: RelativeLayout, toRv: RelativeLayout): Boolean {
         ToggleAnimation.toggleButton(view, isExpanded)
         if (isExpanded) {
             ToggleAnimation.expand(fromRv, toRv)
@@ -177,20 +133,38 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
             binding.textTitle.text = user?.mainTitle
         }
 
+        if (fanClubDTO == null) {
+            binding.textEmptyFanClub.text = "아직 가입된 팬클럽이 없습니다."
+        }
+
         binding.swipeRefreshLayout.setOnRefreshListener {
-            (activity as MainActivity?)?.refreshFanClubDTO { fanClub ->
-                fanClubDTO = fanClub
+            fanClubDTO = (activity as MainActivity?)?.getFanClub()
+            currentMember = (activity as MainActivity?)?.getMember()
+            getFanClubSchedule()
+            getPersonalSchedule()
 
-                (activity as MainActivity?)?.refreshMemberDTO { member ->
-                    currentMember = member
+            binding.swipeRefreshLayout.isRefreshing = false
+            Toast.makeText(activity, "새로 고침", Toast.LENGTH_SHORT).show()
+        }
 
-                    getFanClubSchedule()
-                    getPersonalSchedule()
-
-                    binding.swipeRefreshLayout.isRefreshing = false
-                    Toast.makeText(activity, "새로 고침", Toast.LENGTH_SHORT).show()
-                }
+        binding.buttonRefreshClub.setOnClickListener {
+            binding.buttonRefreshClub.animate().apply{
+                rotationBy(360f)
+                duration = 1000L
+                start()
             }
+            getFanClubSchedule()
+            Toast.makeText(activity, "새로 고침", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.buttonRefreshPersonal.setOnClickListener {
+            binding.buttonRefreshPersonal.animate().apply{
+                rotationBy(360f)
+                duration = 1000L
+                start()
+            }
+            getPersonalSchedule()
+            Toast.makeText(activity, "새로 고침", Toast.LENGTH_SHORT).show()
         }
 
         binding.textTitle.setOnClickListener {
@@ -207,7 +181,7 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                 dialog.dismiss()
 
                 val question = QuestionDTO(
-                    QuestionDTO.STAT.WARNING,
+                    QuestionDTO.Stat.WARNING,
                     "제목 변경",
                     "제목을 변경 하시겠습니까?",
                 )
@@ -222,11 +196,9 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                     questionDialog.dismiss()
 
                     user?.mainTitle = dialog.edit_content.text.toString()
-                    firestore?.collection("user")?.document(user?.uid.toString())?.set(user!!)?.addOnCompleteListener {
+                    firebaseViewModel.updateUserMainTitle(user!!) {
                         Toast.makeText(activity, "제목 변경 완료!", Toast.LENGTH_SHORT).show()
                         binding.textTitle.text = dialog.edit_content.text
-
-                        (activity as MainActivity?)?.setUser(user)
                     }
                 }
             }
@@ -236,11 +208,13 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
             if (isExpandClub) {
                 isExpandClub = false
                 binding.buttonHideClub.setImageResource(R.drawable.expend)
-                toggleLayout(isExpandClub, binding.buttonHideClub, binding.rvMissionFanClub, binding.rvMissionPersonal)
+                //toggleLayout(isExpandClub, binding.buttonHideClub, binding.rvMissionFanClub, binding.rvMissionPersonal)
+                toggleLayout(isExpandClub, binding.buttonHideClub, binding.layoutRvMissionFanClub, binding.layoutRvMissionPersonal)
             } else {
                 isExpandClub = true
                 binding.buttonHideClub.setImageResource(R.drawable.minimize)
-                toggleLayout(isExpandClub, binding.buttonHideClub, binding.rvMissionFanClub, binding.rvMissionPersonal)
+                //toggleLayout(isExpandClub, binding.buttonHideClub, binding.rvMissionFanClub, binding.rvMissionPersonal)
+                toggleLayout(isExpandClub, binding.buttonHideClub, binding.layoutRvMissionFanClub, binding.layoutRvMissionPersonal)
             }
         }
 
@@ -252,7 +226,8 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                 //binding.rvMissionPersonal.visibility = View.GONE
                 //(binding.rvMissionFanClub.layoutParams as LinearLayout.LayoutParams).weight = 90F
 
-                toggleLayout(isExpandPersonal, binding.buttonHidePersonal, binding.rvMissionPersonal, binding.rvMissionFanClub)
+                //toggleLayout(isExpandPersonal, binding.buttonHidePersonal, binding.rvMissionPersonal, binding.rvMissionFanClub)
+                toggleLayout(isExpandPersonal, binding.buttonHidePersonal, binding.layoutRvMissionPersonal, binding.layoutRvMissionFanClub)
             } else {
                 isExpandPersonal = true
 
@@ -260,25 +235,27 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                 //binding.rvMissionPersonal.visibility = View.VISIBLE
                 //(binding.rvMissionFanClub.layoutParams as LinearLayout.LayoutParams).weight = 45F
 
-                toggleLayout(isExpandPersonal, binding.buttonHidePersonal, binding.rvMissionPersonal, binding.rvMissionFanClub)
+                //toggleLayout(isExpandPersonal, binding.buttonHidePersonal, binding.rvMissionPersonal, binding.rvMissionFanClub)
+                toggleLayout(isExpandPersonal, binding.buttonHidePersonal, binding.layoutRvMissionPersonal, binding.layoutRvMissionFanClub)
             }
         }
 
-        binding.buttonSuccessCalendar.setOnClickListener {
-            val fragment = FragmentSuccessCalendarLayout()
-            parentFragmentManager.beginTransaction().apply{
-                replace(R.id.layout_fragment, fragment)
-                setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                addToBackStack(null)
-                commit()
+        binding.buttonSuccessCalendarClub.setOnClickListener {
+            if (fanClubDTO == null) {
+                Toast.makeText(activity, "가입된 팬클럽이 없습니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                callSuccessCalendar("fanClub")
             }
+        }
+
+        binding.buttonSuccessCalendarPersonal.setOnClickListener {
+            callSuccessCalendar("personal")
         }
 
         binding.textTabDay.setOnClickListener {
             if (binding.textTabDay.background == null) {
-                selectedCycle = ScheduleDTO.CYCLE.DAY
-                releaseAllTabButton()
-                setTabButton(binding.textTabDay)
+                selectedCycle = ScheduleDTO.Cycle.DAY
+                changeTab()
 
                 getFanClubSchedule()
                 getPersonalSchedule()
@@ -290,14 +267,13 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
             if (binding.textTabWeek.background == null) {
                 var oldSelectedCycle = selectedCycle
 
-                selectedCycle = ScheduleDTO.CYCLE.WEEK
-                releaseAllTabButton()
-                setTabButton(binding.textTabWeek)
+                selectedCycle = ScheduleDTO.Cycle.WEEK
+                changeTab()
 
                 getFanClubSchedule()
                 getPersonalSchedule()
 
-                if (oldSelectedCycle < ScheduleDTO.CYCLE.WEEK) {
+                if (oldSelectedCycle < ScheduleDTO.Cycle.WEEK) {
                     animRight()
                 } else {
                     animLeft()
@@ -308,14 +284,13 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
             if (binding.textTabMonth.background == null) {
                 var oldSelectedCycle = selectedCycle
 
-                selectedCycle = ScheduleDTO.CYCLE.MONTH
-                releaseAllTabButton()
-                setTabButton(binding.textTabMonth)
+                selectedCycle = ScheduleDTO.Cycle.MONTH
+                changeTab()
 
                 getFanClubSchedule()
                 getPersonalSchedule()
 
-                if (oldSelectedCycle < ScheduleDTO.CYCLE.MONTH) {
+                if (oldSelectedCycle < ScheduleDTO.Cycle.MONTH) {
                     animRight()
                 } else {
                     animLeft()
@@ -324,9 +299,8 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
         }
         binding.textTabPeriod.setOnClickListener {
             if (binding.textTabPeriod.background == null) {
-                selectedCycle = ScheduleDTO.CYCLE.PERIOD
-                releaseAllTabButton()
-                setTabButton(binding.textTabPeriod)
+                selectedCycle = ScheduleDTO.Cycle.PERIOD
+                changeTab()
 
                 getFanClubSchedule()
                 getPersonalSchedule()
@@ -336,304 +310,124 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
         }
     }
 
-    /*private fun getPersonalSchedule() {
-        firestore?.collection("user")?.document(firebaseAuth?.currentUser?.uid.toString())?.collection("schedule")?.orderBy("order", Query.Direction.ASCENDING)?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-            println("개인 스케줄 호출")
-            personalSchedules.clear()
-            personalMissions.clear()
-            if(querySnapshot == null)return@addSnapshotListener
-            for(snapshot in querySnapshot){
-                var schedule = snapshot.toObject(ScheduleDTO::class.java)!!
-                // 현재 시간이 기간내에 속한 스케줄만 표시
-                if (isScheduleVisible(schedule)) {
-                    personalSchedules.add(schedule)
+    private fun callSuccessCalendar(type: String) {
+        val cycle = when (selectedCycle) {
+            ScheduleDTO.Cycle.DAY -> "day"
+            ScheduleDTO.Cycle.WEEK -> "week"
+            ScheduleDTO.Cycle.MONTH -> "month"
+            else -> ""
+        }
+        val fragment = FragmentSuccessCalendarLayout.newInstance(type, cycle)
+        parentFragmentManager.beginTransaction().apply{
+            replace(R.id.layout_fragment, fragment)
+            setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+            addToBackStack(null)
+            commit()
+        }
+    }
 
-                    var mission = DashboardMissionDTO()
-                    mission.type = DashboardMissionDTO.TYPE.PERSONAL
-                    mission.scheduleDTO = schedule
-
-                    var docName = getProgressDocName(schedule)
-
-                    firestore?.collection("user")
-                        ?.document(firebaseAuth?.currentUser?.uid.toString())
-                        ?.collection("schedule")?.document(schedule.docName.toString())
-                        ?.collection("progress")?.document(docName)?.get()
-                        ?.addOnCompleteListener { task ->
-                            println("개인 스케줄 프로그래스 호출")
-                            if (task.isSuccessful) {
-                                var scheduleProgressDTO = ScheduleProgressDTO(docName, 0)
-                                if (task.result.exists()) { // document 있음
-                                    scheduleProgressDTO =
-                                        task.result.toObject(ScheduleProgressDTO::class.java)!!
-                                }
-
-                                mission.scheduleProgressDTO = scheduleProgressDTO
-
-                                personalMissions.add(mission)
-                            }
-                        }
-                }
-            }
-
-            timer(period = 100)
-            {
-                if (personalSchedules.size == personalMissions.size) {
-                    cancel()
-                    activity?.runOnUiThread {
-                        setAdapterPersonal()
-                    }
-                }
+    private fun observePersonalSchedule() {
+        firebaseViewModel.personalDashboardMissionDTOs.observe(requireActivity()) {
+            if (_binding != null) { // 뷰가 Destroy 되고 나서 뒤 늦게 들어오는 경우가 있기 때문에 예외 처리
+                setAdapterPersonal()
             }
         }
-    }*/
-
-    /*private fun getFanClubSchedule() {
-        if (fanClubDTO == null)
-            return
-
-        firestore?.collection("fanClub")?.document(fanClubDTO?.docName.toString())?.collection("schedule")?.orderBy("order", Query.Direction.ASCENDING)?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-            println("팬클럽 스케줄 호출")
-            fanClubSchedules.clear()
-            fanClubMissions.clear()
-            if(querySnapshot == null)return@addSnapshotListener
-            for(snapshot in querySnapshot){
-                var schedule = snapshot.toObject(ScheduleDTO::class.java)!!
-                // 현재 시간이 기간내에 속한 스케줄만 표시
-                if (isScheduleVisible(schedule)) {
-                    fanClubSchedules.add(schedule)
-
-                    var mission = DashboardMissionDTO()
-                    mission.type = DashboardMissionDTO.TYPE.FAN_CLUB
-                    mission.scheduleDTO = schedule
-
-                    var docName = getProgressDocName(schedule)
-
-                    println("스케줄 : $schedule")
-                    println("독네임 : $docName")
-                    firestore?.collection("fanClub")?.document(fanClubDTO?.docName.toString())
-                        ?.collection("member")?.document(currentMember?.userUid.toString())
-                        ?.collection("schedule")?.document(schedule.docName.toString())
-                        ?.collection("progress")?.document(docName)?.get()
-                        ?.addOnCompleteListener { task ->
-                            println("팬클럽 스케줄 프로그래스 호출")
-                            if (task.isSuccessful) {
-                                println("조회 성공? $task")
-                                var scheduleProgressDTO = ScheduleProgressDTO(docName, 0)
-                                if (task.result.exists()) { // document 있음
-                                    scheduleProgressDTO =
-                                        task.result.toObject(ScheduleProgressDTO::class.java)!!
-                                }
-
-                                mission.scheduleProgressDTO = scheduleProgressDTO
-
-                                println("프로그레스 : $scheduleProgressDTO")
-                                fanClubMissions.add(mission)
-                                println("호출2 ${fanClubMissions.size}")
-                            }
-                        }
-                }
-            }
-            println("호출 순서")
-
-            timer(period = 100)
-            {
-                if (fanClubSchedules.size == fanClubMissions.size) {
-                    cancel()
-                    activity?.runOnUiThread {
-                        setAdapterFanClub()
-                        println("호출 순서22")
-                        println("호출3 ${fanClubMissions.size}")
-                    }
-                }
-            }
-        }
-    }*/
+    }
 
     private fun getPersonalSchedule() {
         recyclerViewPersonal.visibility = View.GONE
 
-        firestore?.collection("user")?.document(firebaseAuth?.currentUser?.uid.toString())?.collection("schedule")?.orderBy("order", Query.Direction.ASCENDING)?.get()?.addOnCompleteListener { task ->
-            println("개인 스케줄 호출")
-            personalSchedules.clear()
-            personalMissions.clear()
-            if(!task.isSuccessful)return@addOnCompleteListener
+        val user = (activity as MainActivity?)?.getUser()
+        firebaseViewModel.getPersonalDashboardMission(user?.uid.toString(), selectedCycle)
+    }
 
-            for (document in task.result) {
-                var schedule = document.toObject(ScheduleDTO::class.java)!!
-                // 현재 시간이 기간내에 속한 스케줄만 표시
-                if (isScheduleVisible(schedule)) {
-                    personalSchedules.add(schedule)
-
-                    var mission = DashboardMissionDTO()
-                    mission.type = DashboardMissionDTO.TYPE.PERSONAL
-                    mission.scheduleDTO = schedule
-
-                    var docName = getProgressDocName(schedule)
-
-                    firestore?.collection("user")
-                        ?.document(firebaseAuth?.currentUser?.uid.toString())
-                        ?.collection("schedule")?.document(schedule.docName.toString())
-                        ?.collection("progress")?.document(docName)?.get()
-                        ?.addOnCompleteListener { task ->
-                            println("개인 스케줄 프로그래스 호출")
-                            if (task.isSuccessful) {
-                                var scheduleProgressDTO = ScheduleProgressDTO(docName, 0)
-                                if (task.result.exists()) { // document 있음
-                                    scheduleProgressDTO =
-                                        task.result.toObject(ScheduleProgressDTO::class.java)!!
-                                }
-
-                                mission.scheduleProgressDTO = scheduleProgressDTO
-
-                                personalMissions.add(mission)
-                            }
-                        }
-                }
-            }
-
-            timer(period = 100)
-            {
-                if (personalSchedules.size == personalMissions.size) {
-                    cancel()
-                    activity?.runOnUiThread {
-                        setAdapterPersonal()
-                    }
-                }
+    private fun observeFanClubSchedule() {
+        firebaseViewModel.fanClubDashboardMissionDTOs.observe(requireActivity()) {
+            if (_binding != null) { // 뷰가 Destroy 되고 나서 뒤 늦게 들어오는 경우가 있기 때문에 예외 처리
+                setAdapterFanClub()
             }
         }
     }
 
     private fun getFanClubSchedule() {
-        if (fanClubDTO == null)
-            return
-
         recyclerViewFanClub.visibility = View.GONE
 
-        firestore?.collection("fanClub")?.document(fanClubDTO?.docName.toString())
-            ?.collection("schedule")?.orderBy("order", Query.Direction.ASCENDING)?.get()?.addOnCompleteListener { task ->
-                println("팬클럽 스케줄 호출")
-                fanClubSchedules.clear()
-                fanClubMissions.clear()
-                if(!task.isSuccessful)return@addOnCompleteListener
-                for (document in task.result) {
-                    var schedule = document.toObject(ScheduleDTO::class.java)!!
-                    // 현재 시간이 기간내에 속한 스케줄만 표시
-                    if (isScheduleVisible(schedule)) {
-                        fanClubSchedules.add(schedule)
-
-                        var mission = DashboardMissionDTO()
-                        mission.type = DashboardMissionDTO.TYPE.FAN_CLUB
-                        mission.scheduleDTO = schedule
-                        fanClubMissions.add(mission)
-                        var position = fanClubMissions.size - 1
-
-                        var docName = getProgressDocName(schedule)
-
-                        println("스케줄 : $schedule")
-                        println("독네임 : $docName")
-                        firestore?.collection("fanClub")?.document(fanClubDTO?.docName.toString())
-                            ?.collection("member")?.document(currentMember?.userUid.toString())
-                            ?.collection("schedule")?.document(schedule.docName.toString())
-                            ?.collection("progress")?.document(docName)?.get()
-                            ?.addOnCompleteListener { task ->
-                                println("팬클럽 스케줄 프로그래스 호출")
-                                if (task.isSuccessful) {
-                                    println("조회 성공? $task")
-                                    var scheduleProgressDTO = ScheduleProgressDTO(docName, 0)
-                                    if (task.result.exists()) { // document 있음
-                                        scheduleProgressDTO =
-                                            task.result.toObject(ScheduleProgressDTO::class.java)!!
-                                    }
-
-                                    mission.scheduleProgressDTO = scheduleProgressDTO
-
-                                    println("프로그레스 : $scheduleProgressDTO")
-                                    //fanClubMissions.add(mission)
-                                    fanClubMissions[position].scheduleProgressDTO = scheduleProgressDTO
-                                    println("호출2 ${fanClubMissions.size}")
-                                }
-                            }
-                    }
-            }
-            println("팬클럽 스케줄 $fanClubSchedules")
-                println("팬클럽 미션 $fanClubMissions")
-
-            timer(period = 100)
-            {
-                if (fanClubSchedules.size == fanClubMissions.size) {
-                    var isNull = false
-                    for (i in fanClubMissions) {
-                        if (i.scheduleProgressDTO == null) {
-                            isNull = true
-                            break
-                        }
-                    }
-                    if (!isNull) {
-
-                        cancel()
-                        activity?.runOnUiThread {
-                            setAdapterFanClub()
-                            println("호출 순서22")
-                            println("호출3 ${fanClubMissions.size}")
-                        }
-                    }
-                }
-            }
+        if (fanClubDTO == null) {
+            setAdapterFanClub()
+        } else {
+            firebaseViewModel.getFanClubDashboardMission(fanClubDTO?.docName.toString(), currentMember?.userUid.toString(), selectedCycle)
         }
     }
 
     private fun setAdapterPersonal() {
-        recyclerViewPersonalAdapter = RecyclerViewAdapterMission(personalMissions, this)
+        if (firebaseViewModel.personalDashboardMissionDTOs?.value!!.size > 0) {
+            binding.textEmptyPersonal.visibility = View.GONE
+        } else {
+            binding.textEmptyPersonal.visibility = View.VISIBLE
+        }
+        recyclerViewPersonalAdapter = RecyclerViewAdapterMission(firebaseViewModel.personalDashboardMissionDTOs?.value!!, this)
         recyclerViewPersonal.adapter = recyclerViewPersonalAdapter
         recyclerViewPersonal.visibility = View.VISIBLE
     }
 
     private fun setAdapterFanClub() {
-        recyclerViewFanClubAdapter = RecyclerViewAdapterMission(fanClubMissions, this)
+        recyclerViewFanClubAdapter = if (fanClubDTO == null) {
+            val fanClubMissions: ArrayList<DashboardMissionDTO> = arrayListOf()
+            RecyclerViewAdapterMission(fanClubMissions, this)
+        } else {
+            if (firebaseViewModel.fanClubDashboardMissionDTOs?.value!!.size > 0) {
+                binding.textEmptyFanClub.visibility = View.GONE
+            } else {
+                binding.textEmptyFanClub.visibility = View.VISIBLE
+            }
+            RecyclerViewAdapterMission(firebaseViewModel.fanClubDashboardMissionDTOs?.value!!, this)
+        }
         recyclerViewFanClub.adapter = recyclerViewFanClubAdapter
         recyclerViewFanClub.visibility = View.VISIBLE
     }
 
-    // 현재 시간이 기간내에 속한 스케줄인지 확인
-    private fun isScheduleVisible(schedule: ScheduleDTO) : Boolean {
-        if (selectedCycle != schedule.cycle) {
-            return false
-        }
-
-        val calStart = Calendar.getInstance()
-        calStart.time = schedule.startDate
-        calStart.set(Calendar.HOUR, 0)
-        calStart.set(Calendar.MINUTE, 0)
-        calStart.set(Calendar.SECOND, 0)
-
-        val calEnd = Calendar.getInstance()
-        calEnd.time = schedule.endDate
-        calEnd.set(Calendar.HOUR, 23)
-        calEnd.set(Calendar.MINUTE, 59)
-        calEnd.set(Calendar.SECOND, 59)
-
-        var date = Date()
-
-        return date >= calStart.time && date <= calEnd.time
-    }
-
-    private fun getProgressDocName(schedule: ScheduleDTO) : String {
-        var docName = ""
-
+    private fun getStatisticsFieldValueName(schedule: ScheduleDTO) : Pair<String, String> {
+        var fieldName = ""
+        var valueName = ""
+        val date = Date()
         when (schedule.cycle) {
-            ScheduleDTO.CYCLE.DAY -> docName = SimpleDateFormat("yyyyMMdd").format(Date())
-            ScheduleDTO.CYCLE.WEEK -> {
-                var successCalendarWeek = SuccessCalendarWeek(Date())
+            ScheduleDTO.Cycle.DAY -> {
+                fieldName = SimpleDateFormat("yyyyMM").format(date)
+                valueName = SimpleDateFormat("dd").format(date)
+            }
+            ScheduleDTO.Cycle.WEEK -> {
+                var successCalendarWeek = SuccessCalendarWeek(date)
                 successCalendarWeek.initBaseCalendar()
                 var week = successCalendarWeek.getCurrentWeek()
                 if (week != null) {
-                    docName = "${SimpleDateFormat("yyyyMMdd").format(week.startDate)}${SimpleDateFormat("yyyyMMdd").format(week.endDate)}"
+                    //fieldName = "${SimpleDateFormat("dd").format(week.startDate)}${SimpleDateFormat("dd").format(week.endDate)}"
+                    fieldName = String.format("%04d%02d", week.year, week.month)
+                    valueName = String.format("%02d", week.week)
                 }
             }
-            ScheduleDTO.CYCLE.MONTH -> docName = SimpleDateFormat("yyyyMM").format(Date())
-            ScheduleDTO.CYCLE.PERIOD -> docName = "${SimpleDateFormat("yyMMdd").format(schedule.startDate)}${SimpleDateFormat("yyMMdd").format(schedule.endDate)}"
+            ScheduleDTO.Cycle.MONTH -> {
+                fieldName = SimpleDateFormat("yyyy").format(Date())
+                valueName = SimpleDateFormat("MM").format(date)
+            }
         }
-        return docName
+        return Pair(fieldName, valueName)
+    }
+
+    private fun changeTab() {
+        releaseAllTabButton()
+        binding.buttonSuccessCalendarClub.visibility = View.VISIBLE
+        binding.buttonSuccessCalendarPersonal.visibility = View.VISIBLE
+        when (selectedCycle) {
+            ScheduleDTO.Cycle.DAY -> setTabButton(binding.textTabDay)
+            ScheduleDTO.Cycle.WEEK -> setTabButton(binding.textTabWeek)
+            ScheduleDTO.Cycle.MONTH -> setTabButton(binding.textTabMonth)
+            ScheduleDTO.Cycle.PERIOD -> {
+                setTabButton(binding.textTabPeriod)
+                binding.buttonSuccessCalendarClub.visibility = View.GONE
+                binding.buttonSuccessCalendarPersonal.visibility = View.GONE
+            }
+        }
+
     }
 
     private fun setTabButton(textView: TextView) {
@@ -674,11 +468,11 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(param1: FanClubDTO?, param2: MemberDTO?) =
+        fun newInstance(param1: String, param2: String) =
             FragmentDashboardMission().apply {
                 arguments = Bundle().apply {
-                    putParcelable(ARG_PARAM1, param1)
-                    putParcelable(ARG_PARAM2, param2)
+                    putString(ARG_PARAM1, param1)
+                    putString(ARG_PARAM2, param2)
                 }
             }
     }
@@ -695,21 +489,89 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
         }
 
         dialog.button_mission_ok.setOnClickListener { // Ok
+            val docName = when (item.scheduleDTO?.cycle) {
+                ScheduleDTO.Cycle.DAY -> "day"
+                ScheduleDTO.Cycle.WEEK -> "week"
+                ScheduleDTO.Cycle.MONTH -> "month"
+                else -> ""
+            }
+            val fieldValue = getStatisticsFieldValueName(item.scheduleDTO!!)
+
             item.scheduleProgressDTO?.count = dialog.missionCount
+            item.scheduleProgressDTO?.countMax = item.scheduleDTO?.count
+            val user = (activity as MainActivity?)?.getUser()
             when (item.type) {
-                DashboardMissionDTO.TYPE.PERSONAL -> {
-                    firestore?.collection("user")?.document(firebaseAuth?.currentUser?.uid.toString())?.collection("schedule")?.document(item.scheduleDTO?.docName.toString())?.collection("progress")?.document(item.scheduleProgressDTO?.docName.toString())?.set(item.scheduleProgressDTO!!)?.addOnCompleteListener {
+                DashboardMissionDTO.Type.PERSONAL -> {
+                    firebaseViewModel.updatePersonalMissionProgress(user?.uid.toString(), item) {
                         recyclerViewPersonalAdapter.notifyItemChanged(position)
-                        Toast.makeText(activity,"미션 적용 완료.", Toast.LENGTH_SHORT).show()
+
+                        // 통계 정보 기록
+                        if (item.scheduleDTO?.cycle != ScheduleDTO.Cycle.PERIOD) { // 일일, 주간, 월간 통계만 냄
+                            // 스케줄들의 모든 진행률을 통계로 계산
+                            var totalPercent = 0
+                            for (mission in firebaseViewModel.personalDashboardMissionDTOs.value!!) {
+                                if (mission.scheduleDTO?.cycle == item.scheduleDTO?.cycle) {
+                                    var percent = ((mission.scheduleProgressDTO?.count?.toDouble()!! / mission.scheduleProgressDTO?.countMax!!) * 100).toInt()
+                                    totalPercent = totalPercent.plus(percent)
+                                }
+                            }
+
+                            val averagePercent = totalPercent / firebaseViewModel.personalDashboardMissionDTOs.value!!.size
+                            firebaseViewModel.updatePersonalScheduleStatistics(user?.uid.toString(), docName, fieldValue, averagePercent) {
+
+                            }
+                        }
+
+                        // 일일 퀘스트 - 개인 일일 스케줄 완료 시 적용
+                        if (!QuestDTO("개인 일일 스케줄", "개인 일일 스케줄을 1회 이상 완료 하세요.", 1, user?.questSuccessTimes?.get("1"), user?.questGemGetTimes?.get("1")).isQuestSuccess()) { // 퀘스트 완료 안했을 때 적용
+                            if (item.scheduleDTO?.cycle == ScheduleDTO.Cycle.DAY && item.scheduleDTO?.count == item.scheduleProgressDTO?.count) { // 일일 미션이고 미션 완료
+                                user?.questSuccessTimes?.set("1", Date())
+                                firebaseViewModel.updateUserQuestSuccessTimes(user!!) {
+                                    Toast.makeText(activity, "일일 과제 달성! 보상을 획득하세요!", Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                Toast.makeText(activity,"미션 적용 완료.", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            Toast.makeText(activity,"미션 적용 완료.", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
-                DashboardMissionDTO.TYPE.FAN_CLUB -> {
-                    firestore?.collection("fanClub")?.document(fanClubDTO?.docName.toString())
-                        ?.collection("member")?.document(currentMember?.userUid.toString())
-                        ?.collection("schedule")?.document(item.scheduleDTO?.docName.toString())
-                        ?.collection("progress")?.document(item.scheduleProgressDTO?.docName.toString())?.set(item.scheduleProgressDTO!!)?.addOnCompleteListener {
-                        recyclerViewFanClubAdapter.notifyItemChanged(position)
-                        Toast.makeText(activity,"팬클럽 미션 적용 완료.", Toast.LENGTH_SHORT).show()
+                DashboardMissionDTO.Type.FAN_CLUB -> {
+                    firebaseViewModel.updateFanClubMissionProgress(fanClubDTO?.docName.toString(), currentMember?.userUid.toString(), item) {
+                            recyclerViewFanClubAdapter.notifyItemChanged(position)
+
+                            // 통계 정보 기록
+                            if (item.scheduleDTO?.cycle != ScheduleDTO.Cycle.PERIOD) { // 일일, 주간, 월간 통계만 냄
+                                // 스케줄들의 모든 진행률을 통계로 계산
+                                var totalPercent = 0
+                                for (mission in firebaseViewModel.fanClubDashboardMissionDTOs?.value!!) {
+                                    if (mission.scheduleDTO?.cycle == item.scheduleDTO?.cycle) {
+                                        var percent = ((mission.scheduleProgressDTO?.count?.toDouble()!! / mission.scheduleProgressDTO?.countMax!!) * 100).toInt()
+                                        totalPercent = totalPercent.plus(percent)
+                                    }
+                                }
+
+                                val averagePercent = totalPercent / firebaseViewModel.fanClubDashboardMissionDTOs?.value!!.size
+                                firebaseViewModel.updateFanClubScheduleStatistics(fanClubDTO?.docName.toString(), currentMember?.userUid.toString(), docName, fieldValue, averagePercent) {
+
+                                }
+                            }
+
+                            // 일일 퀘스트 - 팬클럽 일일 스케줄 완료 시 적용
+                            val user = (activity as MainActivity?)?.getUser()
+                            if (!QuestDTO("팬클럽 일일 스케줄", "팬클럽 일일 스케줄을 1회 이상 완료 하세요.", 1, user?.questSuccessTimes?.get("2"), user?.questGemGetTimes?.get("2")).isQuestSuccess()) { // 퀘스트 완료 안했을 때 적용
+                                if (item.scheduleDTO?.cycle == ScheduleDTO.Cycle.DAY && item.scheduleDTO?.count == item.scheduleProgressDTO?.count) { // 일일 미션이고 미션 완료
+                                    user?.questSuccessTimes?.set("2", Date())
+                                    firebaseViewModel.updateUserQuestSuccessTimes(user!!) {
+                                        Toast.makeText(activity, "일일 과제 달성! 보상을 획득하세요!", Toast.LENGTH_SHORT).show()
+                                    }
+                                } else {
+                                    Toast.makeText(activity,"팬클럽 미션 적용 완료.", Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                Toast.makeText(activity,"팬클럽 미션 적용 완료.", Toast.LENGTH_SHORT).show()
+                            }
                     }
                 }
             }

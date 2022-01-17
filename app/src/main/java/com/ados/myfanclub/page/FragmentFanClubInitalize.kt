@@ -5,7 +5,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.FragmentTransaction
+import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentFanClubInitalizeBinding
 
@@ -55,22 +57,32 @@ class FragmentFanClubInitalize : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonCreate.setOnClickListener {
-            val fragment = FragmentFanClubCreate()
-            parentFragmentManager.beginTransaction().apply{
-                replace(R.id.layout_fragment, fragment)
-                setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                addToBackStack(null)
-                commit()
+            val user = (activity as MainActivity?)?.getUser()
+            if (user?.level!! < 7) {
+                Toast.makeText(context, "팬클럽 창설은 레벨 [ 7 ] 부터 가능합니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                val fragment = FragmentFanClubCreate()
+                parentFragmentManager.beginTransaction().apply {
+                    replace(R.id.layout_fragment, fragment)
+                    setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                    addToBackStack(null)
+                    commit()
+                }
             }
         }
 
         binding.buttonJoin.setOnClickListener {
-            val fragment = FragmentFanClubJoin()
-            parentFragmentManager.beginTransaction().apply{
-                replace(R.id.layout_fragment, fragment)
-                setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                addToBackStack(null)
-                commit()
+            val user = (activity as MainActivity?)?.getUser()
+            if (user?.level!! < 3) {
+                Toast.makeText(context, "팬클럽 가입은 레벨 [ 3 ] 부터 가능합니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                val fragment = FragmentFanClubJoin()
+                parentFragmentManager.beginTransaction().apply {
+                    replace(R.id.layout_fragment, fragment)
+                    setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                    addToBackStack(null)
+                    commit()
+                }
             }
         }
     }

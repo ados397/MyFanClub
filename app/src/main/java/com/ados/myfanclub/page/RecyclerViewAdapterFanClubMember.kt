@@ -42,9 +42,9 @@ class RecyclerViewAdapterFanClubMember(private val items: ArrayList<MemberDTO>, 
                 imageCheckout.setImageResource(item.getCheckoutImage())
 
                 when (item.position) {
-                    MemberDTO.POSITION.MASTER -> layoutPosition.setBackgroundColor(ContextCompat.getColor(context!!, R.color.master))
-                    MemberDTO.POSITION.SUB_MASTER -> layoutPosition.setBackgroundColor(ContextCompat.getColor(context!!, R.color.sub_master))
-                    MemberDTO.POSITION.MEMBER -> layoutPosition.setBackgroundColor(ContextCompat.getColor(context!!, R.color.member))
+                    MemberDTO.Position.MASTER -> layoutPosition.setBackgroundColor(ContextCompat.getColor(context!!, R.color.master))
+                    MemberDTO.Position.SUB_MASTER -> layoutPosition.setBackgroundColor(ContextCompat.getColor(context!!, R.color.sub_master))
+                    MemberDTO.Position.MEMBER -> layoutPosition.setBackgroundColor(ContextCompat.getColor(context!!, R.color.member))
                     //MemberDTO.POSITION.MASTER -> layoutPosition.setBackgroundColor(Color.parseColor("#FFD500"))
                     //MemberDTO.POSITION.SUB_MASTER -> layoutPosition.setBackgroundColor(Color.parseColor("#FF8C00"))
                     //MemberDTO.POSITION.MEMBER -> layoutPosition.setBackgroundColor(Color.parseColor("#0099FF"))

@@ -66,10 +66,30 @@ class FragmentSuccessCalendarLayout : Fragment() {
 
         //val firstFragmentStateAdapter = MyPagerAdapterSuccessCalendar(requireActivity())
         //binding.viewpager.adapter = firstFragmentStateAdapter
+        if (param1.equals("fanClub")) {
+            binding.textTitle.text = "팬클럽 목표달성 통계"
+        } else if (param1.equals("personal")) {
+            binding.textTitle.text = "개인 목표달성 통계"
+        }
+
         binding.viewpager.orientation = ViewPager2.ORIENTATION_VERTICAL
 
         binding.viewpager.apply {
-            setPagerAdapter(0)
+            releaseAllTabButton()
+            when {
+                param2.equals("week") -> {
+                    setPagerAdapter(1)
+                    setTabButton(binding.textTabWeek)
+                }
+                param2.equals("month") -> {
+                    setPagerAdapter(2)
+                    setTabButton(binding.textTabMonth)
+                }
+                else -> {
+                    setPagerAdapter(0)
+                    setTabButton(binding.textTabDay)
+                }
+            }
             //setPageTransformer(ZoomOutPageTransformer())
         }
 
@@ -79,21 +99,18 @@ class FragmentSuccessCalendarLayout : Fragment() {
 
         binding.textTabDay.setOnClickListener {
             setPagerAdapter(0)
+            releaseAllTabButton()
             setTabButton(binding.textTabDay)
-            releaseTabButton(binding.textTabMonth)
-            releaseTabButton(binding.textTabWeek)
         }
         binding.textTabWeek.setOnClickListener {
             setPagerAdapter(1)
+            releaseAllTabButton()
             setTabButton(binding.textTabWeek)
-            releaseTabButton(binding.textTabDay)
-            releaseTabButton(binding.textTabMonth)
         }
         binding.textTabMonth.setOnClickListener {
             setPagerAdapter(2)
+            releaseAllTabButton()
             setTabButton(binding.textTabMonth)
-            releaseTabButton(binding.textTabDay)
-            releaseTabButton(binding.textTabWeek)
         }
     }
 
@@ -108,7 +125,7 @@ class FragmentSuccessCalendarLayout : Fragment() {
     }
 
     private fun callBackPressed() {
-        val fragment = FragmentDashboardMission()
+        val fragment = FragmentDashboardMission.newInstance("", param2!!)
         parentFragmentManager.beginTransaction().apply{
             replace(R.id.layout_fragment, fragment)
             setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
@@ -119,7 +136,7 @@ class FragmentSuccessCalendarLayout : Fragment() {
 
     private fun setPagerAdapter(pageIndex: Int) {
         //binding.viewpager.adapter = MyPagerAdapterSuccessCalendar(context as FragmentActivity, pageIndex)
-        binding.viewpager.adapter = MyPagerAdapterSuccessCalendar(childFragmentManager, viewLifecycleOwner.lifecycle, pageIndex)
+        binding.viewpager.adapter = MyPagerAdapterSuccessCalendar(childFragmentManager, viewLifecycleOwner.lifecycle, pageIndex, param1!!)
         binding.viewpager.currentItem = Int.MAX_VALUE / 2
     }
 
@@ -131,6 +148,12 @@ class FragmentSuccessCalendarLayout : Fragment() {
     private fun releaseTabButton(textView: TextView) {
         textView.background = null
         textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+    }
+
+    private fun releaseAllTabButton() {
+        releaseTabButton(binding.textTabDay)
+        releaseTabButton(binding.textTabWeek)
+        releaseTabButton(binding.textTabMonth)
     }
 
     companion object {

@@ -5,11 +5,15 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.KeyEvent.KEYCODE_ENTER
+import android.view.Window
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import com.ados.myfanclub.databinding.ActivityLoginBinding
+import com.ados.myfanclub.dialog.TermsOfUseDialog
 import com.ados.myfanclub.model.UserDTO
+import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.facebook.*
 import com.facebook.login.LoginManager
 import com.facebook.login.LoginResult
@@ -21,7 +25,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.android.synthetic.main.terms_of_use_dialog.*
 import java.util.*
 
 
@@ -29,8 +33,8 @@ class LoginActivity : AppCompatActivity() {
     private var _binding: ActivityLoginBinding? = null
     private val binding get() = _binding!!
 
+    private val firebaseViewModel : FirebaseViewModel by viewModels()
     private var firebaseAuth : FirebaseAuth? = null
-    private var firestore : FirebaseFirestore? = null
     private var googleSignInClient : GoogleSignInClient? = null
 
     private lateinit var resultLauncher: ActivityResultLauncher<Intent>
@@ -42,13 +46,10 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         firebaseAuth = FirebaseAuth.getInstance()
-        firestore = FirebaseFirestore.getInstance()
 
         // 구글 로그인 처리
         resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            println("리절트 ${result.resultCode}")
             if (result.resultCode == RESULT_OK) {
-                println("오케이~")
                 var result = Auth.GoogleSignInApi.getSignInResultFromIntent(result.data)
                 if (result.isSuccess) {
                     var account = result.signInAccount
@@ -67,7 +68,20 @@ class LoginActivity : AppCompatActivity() {
         callbackManager = CallbackManager.Factory.create()
 
         binding.buttonJoin.setOnClickListener {
-            startActivity(Intent(this, JoinActivity::class.java))
+
+            val dialog = TermsOfUseDialog(this)
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            dialog.setCanceledOnTouchOutside(false)
+            dialog.show()
+            dialog.button_terms_of_use_cancel.setOnClickListener { // No
+                dialog.dismiss()
+
+                startActivity(Intent(this, JoinActivity::class.java))
+            }
+        }
+
+        binding.buttonFindPassword.setOnClickListener {
+            startActivity(Intent(this, FindPasswordActivity::class.java))
         }
 
         binding.editPassword.setOnKeyListener { view, i, keyEvent ->
@@ -97,16 +111,17 @@ class LoginActivity : AppCompatActivity() {
 
         LoginManager.getInstance().registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
             override fun onSuccess(result: LoginResult?) {
+                println("페이스북 onSuccess")
                 handleFacebookAccessToken(result?.accessToken)
 
             }
 
             override fun onCancel() {
-
+                println("페이스북 onCancel")
             }
 
             override fun onError(error: FacebookException?) {
-
+                println("페이스북 onError")
             }
 
         })
@@ -124,9 +139,16 @@ class LoginActivity : AppCompatActivity() {
             else -> {
                 firebaseAuth?.signInWithEmailAndPassword(email, binding.editPassword.text.toString())?.addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        firestore?.collection("user")?.document(firebaseAuth?.uid!!)?.get()?.addOnCompleteListener { task ->
+                        firebaseViewModel.getUser(firebaseAuth?.uid!!) { userDTO ->
+                            if (userDTO != null) {
+                                callMainActivity(userDTO)
+                                Toast.makeText(this, "로그인 성공", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(this, "로그인에 실패하였습니다. 관리자에게 문의 하세요.", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        /*firestore?.collection("user")?.document(firebaseAuth?.uid!!)?.get()?.addOnCompleteListener { task ->
                             if (task.isSuccessful) {
-                                println("조회 성공? $task")
                                 if (task.result.exists()) { // document 있음
                                     var user = task.result.toObject(UserDTO::class.java)!!
                                     callMainActivity(user)
@@ -135,7 +157,7 @@ class LoginActivity : AppCompatActivity() {
                                     Toast.makeText(this, "로그인에 실패하였습니다. 관리자에게 문의 하세요.", Toast.LENGTH_SHORT).show()
                                 }
                             }
-                        }
+                        }*/
                     } else if (!task.exception?.message.isNullOrEmpty()) {
                         //Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
                         Toast.makeText(this, "로그인에 실패하였습니다. 이메일과 비밀번호를 확인해보세요.", Toast.LENGTH_SHORT).show()
@@ -152,7 +174,44 @@ class LoginActivity : AppCompatActivity() {
 
     private fun firebaseAuthWithGoogle(account : GoogleSignInAccount?) {
         // 구글 로그인은 동일한 이메일로 로그인한 계정(페이스북, 이메일)이 있어도 로그인이 되어버리기 때문에 이미 가입된 정보가 있는지 확인해서 없을때만 처리
-        firestore?.collection("user")?.get()?.addOnCompleteListener { task ->
+        firebaseViewModel.findUserFromEmail(account?.email.toString()) { userDTO ->
+            if (userDTO != null) { // 로그인한 구글 계정과 동일한 이메일의 사용자 존재
+                if (userDTO.loginType != UserDTO.LoginType.GOOGLE) { // 구글 로그인이 아니라면 다른 방법으로 이미 가입한 사용자
+                    Toast.makeText(this, "이미 가입된 이메일 입니다.", Toast.LENGTH_SHORT).show()
+                    googleSignInClient?.signOut()?.addOnCompleteListener {
+
+                    }
+                    return@findUserFromEmail
+                }
+            }
+
+            var credential = GoogleAuthProvider.getCredential(account?.idToken,null)
+            firebaseAuth?.signInWithCredential(credential)?.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    var addUser = UserDTO()
+                    addUser.uid = firebaseAuth?.currentUser?.uid
+                    addUser.userId = firebaseAuth?.currentUser?.email
+                    addUser.loginType = UserDTO.LoginType.GOOGLE
+                    addUser.level = 1
+                    addUser.exp = 0L
+                    addUser.paidGem = 0
+                    addUser.freeGem = 0
+                    addUser.aboutMe = ""
+                    addUser.mainTitle = ""
+                    addUser.premiumExpireTime = Date()
+                    addUser.createTime = Date()
+
+                    Toast.makeText(this, "구글 로그인 성공", Toast.LENGTH_SHORT).show()
+                    loginOrJoin(addUser)
+                } else if (!task.exception?.message.isNullOrEmpty()) {
+                    //Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(this, "구글 로그인에 실패하였습니다. 이메일과 비밀번호를 확인해보세요.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "이미 가입된 이메일 입니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        /*firestore?.collection("user")?.get()?.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 for (document in task.result) {
                     var user = document.toObject(UserDTO::class.java)!!
@@ -172,8 +231,21 @@ class LoginActivity : AppCompatActivity() {
                 var credential = GoogleAuthProvider.getCredential(account?.idToken,null)
                 firebaseAuth?.signInWithCredential(credential)?.addOnCompleteListener { task ->
                     if (task.isSuccessful) {
+                        var addUser = UserDTO()
+                        addUser.uid = firebaseAuth?.currentUser?.uid
+                        addUser.userId = firebaseAuth?.currentUser?.email
+                        addUser.loginType = UserDTO.LoginType.GOOGLE
+                        addUser.level = 1
+                        addUser.exp = 0L
+                        addUser.paidGem = 0
+                        addUser.freeGem = 0
+                        addUser.aboutMe = ""
+                        addUser.mainTitle = ""
+                        addUser.premiumExpireTime = Date()
+                        addUser.createTime = Date()
+
                         Toast.makeText(this, "구글 로그인 성공", Toast.LENGTH_SHORT).show()
-                        loginOrJoin(UserDTO(firebaseAuth?.currentUser?.uid, firebaseAuth?.currentUser?.email, UserDTO.LoginType.GOOGLE, null, 1, 0.0, null, null, "", "", Date()))
+                        loginOrJoin(addUser)
                     } else if (!task.exception?.message.isNullOrEmpty()) {
                         //Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
                         //Toast.makeText(this, "구글 로그인에 실패하였습니다. 이메일과 비밀번호를 확인해보세요.", Toast.LENGTH_SHORT).show()
@@ -181,15 +253,28 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
             }
-        }
+        }*/
     }
 
     private fun handleFacebookAccessToken(token : AccessToken?){
         var credential = FacebookAuthProvider.getCredential(token?.token!!)
         firebaseAuth?.signInWithCredential(credential)?.addOnCompleteListener { task ->
             if (task.isSuccessful) {
+                var addUser = UserDTO()
+                addUser.uid = firebaseAuth?.currentUser?.uid
+                addUser.userId = firebaseAuth?.currentUser?.email
+                addUser.loginType = UserDTO.LoginType.FACEBOOK
+                addUser.level = 1
+                addUser.exp = 0L
+                addUser.paidGem = 0
+                addUser.freeGem = 0
+                addUser.aboutMe = ""
+                addUser.mainTitle = ""
+                addUser.premiumExpireTime = Date()
+                addUser.createTime = Date()
+
                 Toast.makeText(this, "페이스북 로그인 성공", Toast.LENGTH_SHORT).show()
-                loginOrJoin(UserDTO(firebaseAuth?.currentUser?.uid, firebaseAuth?.currentUser?.email, UserDTO.LoginType.FACEBOOK, null, 1, 0.0, null, null, "", "", Date()))
+                loginOrJoin(addUser)
             } else if (!task.exception?.message.isNullOrEmpty()) {
                 //Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
                 Toast.makeText(this, "페이스북 로그인에 실패하였습니다. 동일한 이메일을 사용하는 사용자가 이미 존재할 수 있습니다.", Toast.LENGTH_SHORT).show()
@@ -197,11 +282,20 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun loginOrJoin(userDTO: UserDTO) {
-        println("유저정보 ${userDTO}")
-        firestore?.collection("user")?.document(userDTO.uid!!)?.get()?.addOnCompleteListener { task ->
+    private fun loginOrJoin(user: UserDTO) {
+        firebaseViewModel.getUser(user.uid!!) { userDTO ->
+            if (userDTO != null) {
+                if (userDTO.nickname.isNullOrEmpty()) { // 닉네임이 없으면 회원 가입 페이지로 이동
+                    callJoinActivity(userDTO)
+                } else {
+                    callMainActivity(userDTO)
+                }
+            } else {
+                callJoinActivity(user)
+            }
+        }
+        /*firestore?.collection("user")?.document(userDTO.uid!!)?.get()?.addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                println("조회 성공? $task")
                 if (task.result.exists()) { // document 있음
                     var user = task.result.toObject(UserDTO::class.java)!!
                     if (user.nickname.isNullOrEmpty()) { // 닉네임이 없으면 회원 가입 페이지로 이동
@@ -210,11 +304,10 @@ class LoginActivity : AppCompatActivity() {
                         callMainActivity(user)
                     }
                 } else { // document 없으면 회원 가입 페이지로 이동
-                    println("조회 실패")
                     callJoinActivity(userDTO)
                 }
             }
-        }
+        }*/
     }
 
     private fun callJoinActivity(user: UserDTO) {

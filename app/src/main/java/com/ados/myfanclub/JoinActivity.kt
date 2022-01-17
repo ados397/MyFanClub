@@ -4,11 +4,12 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.core.widget.doAfterTextChanged
 import com.ados.myfanclub.databinding.ActivityJoinBinding
 import com.ados.myfanclub.model.UserDTO
+import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import java.util.*
 
 
@@ -17,14 +18,14 @@ class JoinActivity : AppCompatActivity() {
     private val binding get() = _binding!!
 
     private var firebaseAuth : FirebaseAuth? = null
-    private var firestore : FirebaseFirestore? = null
+    private val firebaseViewModel : FirebaseViewModel by viewModels()
 
     private var emailOK: Boolean = false
     private var passwordOK: Boolean = false
     private var passwordConfirmOK: Boolean = false
     private var nicknameOK: Boolean = false
 
-    private var userDTO: UserDTO? = null
+    private var currentUser: UserDTO? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,12 +33,10 @@ class JoinActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         firebaseAuth = FirebaseAuth.getInstance()
-        firestore = FirebaseFirestore.getInstance()
 
-
-        userDTO = intent.getParcelableExtra("user")
-        if (userDTO != null) { // null 이 아니라면 소셜 로그인, 이메일, 비밀번호는 입력하지 않음
-            binding.editEmail.setText(userDTO?.userId)
+        currentUser = intent.getParcelableExtra("user")
+        if (currentUser != null) { // null 이 아니라면 소셜 로그인, 이메일, 비밀번호는 입력하지 않음
+            binding.editEmail.setText(currentUser?.userId)
             binding.editEmail.isEnabled = false
             emailOK = true
 
@@ -59,82 +58,46 @@ class JoinActivity : AppCompatActivity() {
             var nickname = binding.editNickname.text.toString().trim()
             var password = binding.editPassword.text.toString().trim()
 
-            firestore?.collection("user")?.get()?.addOnCompleteListener { task ->
-                if(task.isSuccessful){
-                    for (document in task.result) {
-                        var user = document.toObject(UserDTO::class.java)!!
-                        when {
-                            user.userId!! == email -> {
-                                Toast.makeText(this, "이미 가입된 이메일 입니다.", Toast.LENGTH_SHORT).show()
-                                return@addOnCompleteListener
-                            }
-                            user.nickname!! == nickname -> {
-                                Toast.makeText(this, "닉네임이 이미 존재합니다.", Toast.LENGTH_SHORT).show()
-                                return@addOnCompleteListener
-                            }
-                        }
-                    }
-
-                    if (userDTO != null) { // null 이 아니라면 소셜 로그인, 이미 로그인 처리는 되어 있음, firestore에 데이터 기록 후 메인페이지 이동
-                        writeFirestoreAndFinish(UserDTO(firebaseAuth?.currentUser?.uid, email, userDTO?.loginType, nickname, 1, 0.0, null, null, "", "", Date()))
-                    } else {
-                        firebaseAuth?.createUserWithEmailAndPassword(email, password)?.addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                writeFirestoreAndFinish(UserDTO(firebaseAuth?.currentUser?.uid, email, UserDTO.LoginType.EMAIL, nickname, 1, 0.0, null, null, "", "", Date()))
-                            } else if (!task.exception?.message.isNullOrEmpty()) {
-                                Toast.makeText(this, "회원가입에 실패하였습니다. 잠시 후 다시 시도해 보세요.", Toast.LENGTH_SHORT).show()
-                                //Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-                }
-            }
-
-            /*firestore?.collection("user")?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                for (snapshot in querySnapshot!!.documents) {
-                    println("기존:${snapshot.getString("userId")!!}, 신규:${email}")
-                    when {
-                        snapshot.getString("userId")!!.contains(email) -> {
-                            Toast.makeText(this, "이미 가입된 이메일 입니다.", Toast.LENGTH_SHORT).show()
-                            return@addSnapshotListener
-                        }
-                        snapshot.getString("nickName")!!.contains(nickname) -> {
-                            Toast.makeText(this, "닉네임이 이미 존재합니다.", Toast.LENGTH_SHORT).show()
-                            return@addSnapshotListener
-                        }
-                    }
-                }
-
-                firebaseAuth?.createUserWithEmailAndPassword(email, password)?.addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        writeFirestore(UserDTO(firebaseAuth?.currentUser?.uid, email, nickname, null))
-                        Toast.makeText(this, "회원가입이 완료 되었습니다.", Toast.LENGTH_SHORT).show()
-                        finish()
-                    } else if (!task.exception?.message.isNullOrEmpty()) {
-                        Toast.makeText(this, "회원가입에 실패하였습니다. 잠시 후 다시 시도해 보세요.", Toast.LENGTH_SHORT).show()
-                        //Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-            }*/
-
-            /*firestore?.collection("user")?.whereEqualTo("userId", binding.editEmail.text)?.get()?.addOnCompleteListener { task ->
-                if(task.isSuccessful){
-
+            firebaseViewModel.findUserFromEmail(email) { userDTO ->
+                if (userDTO != null) {
                     Toast.makeText(this, "이미 가입된 이메일 입니다.", Toast.LENGTH_SHORT).show()
+                } else {
+                    firebaseViewModel.isUsedUserNickname(nickname) { isUsed ->
+                        if (isUsed) {
+                            Toast.makeText(this, "닉네임이 이미 존재합니다.", Toast.LENGTH_SHORT).show()
+                        } else {
+                            var addUser = UserDTO()
+                            addUser.userId = email
+                            addUser.nickname = nickname
+                            addUser.level = 1
+                            addUser.exp = 0L
+                            addUser.paidGem = 0
+                            addUser.freeGem = 0
+                            addUser.mainTitle = ""
+                            addUser.aboutMe = ""
+                            addUser.premiumExpireTime = Date()
+                            addUser.createTime = Date()
+
+                            if (currentUser != null) { // null 이 아니라면 소셜 로그인, 이미 로그인 처리는 되어 있음, firestore 데이터 기록 후 메인페이지 이동
+                                addUser.uid = firebaseAuth?.currentUser?.uid
+                                addUser.loginType = currentUser?.loginType
+                                writeFirestoreAndFinish(addUser)
+                            } else {
+                                firebaseAuth?.createUserWithEmailAndPassword(email, password)?.addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        addUser.uid = firebaseAuth?.currentUser?.uid
+                                        addUser.loginType = UserDTO.LoginType.EMAIL
+                                        writeFirestoreAndFinish(addUser)
+                                    } else if (!task.exception?.message.isNullOrEmpty()) {
+                                        Toast.makeText(this, "회원가입에 실패하였습니다. 잠시 후 다시 시도해 보세요.", Toast.LENGTH_SHORT).show()
+                                        //Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
-            firestore?.collection("user")?.whereEqualTo("nickName", binding.editNickname.text)?.get()?.addOnCompleteListener { task ->
-                if(task.isSuccessful){
-
-                    Toast.makeText(this, "닉네임이 이미 존재합니다.", Toast.LENGTH_SHORT).show()
-                }
-            }*/
-
-
-            // 이미 존재하는 닉네임 입니다.
-
-
         }
 
         binding.editEmail.doAfterTextChanged {
@@ -203,7 +166,7 @@ class JoinActivity : AppCompatActivity() {
     }
 
     private fun writeFirestoreAndFinish(user: UserDTO) {
-        firestore?.collection("user")?.document(user.uid.toString())?.set(user)?.addOnCompleteListener {
+        firebaseViewModel.updateUser(user) {
             Toast.makeText(this, "회원가입이 완료 되었습니다.", Toast.LENGTH_SHORT).show()
             var intent = Intent(this, MainActivity::class.java)
             intent.putExtra("user", user)

@@ -7,6 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="purple">#9D00FF</color>
     <color name="text">#FF222222</color>
     <color name="text_sub">#5E5E5E</color>
     <color name="text_red">#FF0000</color>
@@ -15,7 +16,8 @@
     <color name="button_disable">#E0E0E0</color>
     <color name="dialog">#474747</color>
     <color name="charge_back">#333333</color>
-    <color name="charge_back2">#00246D</color>
+    <color name="charge_back2">#0E285C</color>
+    <color name="premium">#E854C5</color>
     <color name="exp">#D60165</color>
     <color name="rank1">#FFFFA2</color>
     <color name="rank2">#C4EDFF</color>
@@ -28,14 +30,20 @@
     <color name="progress_40">#F79256</color>
     <color name="progress_70">#03DAC5</color>
     <color name="progress_100">#0099FF</color>
-    <color name="display_board_1">#00FFEA</color>
-    <color name="display_board_2">#90FFCA</color>
-    <color name="display_board_3">#37BEFD</color>
-    <color name="display_board_4">#FFFFFF</color>
-    <color name="display_board_5">#FFE699 </color>
+    <color name="progress_background_0">#FF9FBD</color>
+    <color name="progress_background_40">#FDE3D3</color>
+    <color name="progress_background_70">#BEF5F0</color>
+    <color name="progress_background_100">#BDE5FF</color>
+    <color name="display_board_1">#FFFFFF</color>
+    <color name="display_board_2">#FFE699 </color>
+    <color name="display_board_3">#FF9B00</color>
+    <color name="display_board_4">#90FFCA</color>
+    <color name="display_board_5">#37BEFD</color>
     <color name="display_board_6">#FFF400 </color>
     <color name="display_board_7">#95FF00</color>
-    <color name="display_board_8">#FF9B00</color>
+    <color name="display_board_8">#00FFEA</color>
     <color name="display_board_9">#FC00FF</color>
-    <color name="display_board_10">#FF0081 </color>
+    <color name="display_board_10">#FF0081</color>
+    <color name="card_view_1">#FBF9EC</color>
+    <color name="card_view_2">#EDFBEC</color>
 </resources>

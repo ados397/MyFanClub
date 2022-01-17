@@ -21,7 +21,11 @@ class RecyclerViewAdapterFanClubSymbol(private val items: ArrayList<Int>, var cl
 
         items[position].let { item ->
             with(holder) {
-                appName.text = "${position+1}"
+                if (position > 0) {
+                    number.text = "$position"
+                } else {
+                    number.text = "이미지 추가"
+                }
 
                 //Glide.with(holder.itemView.context).load(item.iconImage).apply(
                     //RequestOptions().centerCrop()).into(iconImage)
@@ -64,7 +68,7 @@ class RecyclerViewAdapterFanClubSymbol(private val items: ArrayList<Int>, var cl
     inner class ViewHolder(private val viewBinding: ListItemFanClubSymbolBinding) : RecyclerView.ViewHolder(viewBinding.root) {
         var mainLayout = viewBinding.layoutFanClubSymbol
         var imgSymbol = viewBinding.imgSymbol
-        val appName = viewBinding.textAppName
+        val number = viewBinding.textNumber
 
         fun initalize(item: Int, action:OnFanClubSymbolClickListener) {
             /*itemView.setOnClickListener {

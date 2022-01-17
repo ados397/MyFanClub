@@ -5,14 +5,32 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
+import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.viewModels
 import com.ados.myfanclub.MainActivity
+import com.ados.myfanclub.MySharedPreferences
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentAccountInfoBinding
-import com.ados.myfanclub.model.FanClubDTO
-import com.ados.myfanclub.model.MemberDTO
+import com.ados.myfanclub.dialog.*
+import com.ados.myfanclub.model.*
+import com.ados.myfanclub.repository.FirebaseRepository
+import com.ados.myfanclub.util.AdsRewardManager
+import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
+import com.ados.myfanclub.viewmodel.FirebaseViewModel
+import com.bumptech.glide.Glide
+import kotlinx.android.synthetic.main.exp_up_user_dialog.*
+import kotlinx.android.synthetic.main.gem_question_dialog.*
+import kotlinx.android.synthetic.main.get_item_dialog.*
+import kotlinx.android.synthetic.main.level_up_action_user_dialog.*
+import kotlinx.android.synthetic.main.level_up_user_dialog.*
 import kotlinx.android.synthetic.main.question_dialog.*
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.concurrent.thread
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -26,18 +44,41 @@ private const val ARG_PARAM2 = "param2"
  */
 class FragmentAccountInfo : Fragment() {
     // TODO: Rename and change types of parameters
+    private var param1: String? = null
+    private var param2: String? = null
+
+    var decimalFormat: DecimalFormat = DecimalFormat("###,###")
+
     private var _binding: FragmentAccountInfoBinding? = null
     private val binding get() = _binding!!
 
+    // 뷰모델 연결
+    private val firebaseViewModel : FirebaseViewModel by viewModels()
+    private val firebaseStorageViewModel : FirebaseStorageViewModel by viewModels()
+
+    // AD
+    private var adsRewardManagerExp: AdsRewardManager? = null
+    private var adsRewardManagerGem: AdsRewardManager? = null
+
     private var fanClubDTO: FanClubDTO? = null
     private var currentMember: MemberDTO? = null
+    private var currentUser: UserDTO? = null
+    private var toast : Toast? = null
+
+    private val sharedPreferences: MySharedPreferences by lazy {
+        MySharedPreferences(requireContext())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            fanClubDTO = it.getParcelable(ARG_PARAM1)
-            currentMember = it.getParcelable(ARG_PARAM2)
+            param1 = it.getString(ARG_PARAM1)
+            param2 = it.getString(ARG_PARAM2)
         }
+
+        currentUser = (activity as MainActivity?)?.getUser()
+        fanClubDTO = (activity as MainActivity?)?.getFanClub()
+        currentMember = (activity as MainActivity?)?.getMember()
     }
 
     override fun onCreateView(
@@ -48,6 +89,9 @@ class FragmentAccountInfo : Fragment() {
         _binding = FragmentAccountInfoBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
 
+        val adPolicyDTO = (activity as MainActivity?)?.getAdPolicy()
+        adsRewardManagerExp = AdsRewardManager(requireActivity(), adPolicyDTO!!, AdsRewardManager.RewardType.REWARD_USER_EXP)
+        adsRewardManagerGem = AdsRewardManager(requireActivity(), adPolicyDTO!!, AdsRewardManager.RewardType.REWARD_USER_GEM)
 
         return rootView
     }
@@ -60,16 +104,20 @@ class FragmentAccountInfo : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val user = (activity as MainActivity?)?.getUser()
-        binding.textNickname.text = user?.nickname
-        binding.textUserId.text = "(${user?.userId})"
-        binding.textCreateTime.text = "가입 ${SimpleDateFormat("yyyy.MM.dd").format(user?.createTime)}"
-        binding.textLevel.text = "Lv. ${user?.level}"
-        binding.editAboutMe.setText(user?.aboutMe)
+        setUserInfo()
 
-        binding.buttonSettings.setOnClickListener {
-            val fragment = FragmentAccountSettings.newInstance(fanClubDTO, currentMember)
-            //fragment.scheduleDTO = selectedSchedule!!
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            (activity as MainActivity?)?.loading()
+
+            currentUser = (activity as MainActivity?)?.getUser()
+            setUserInfo()
+            binding.swipeRefreshLayout.isRefreshing = false
+
+            (activity as MainActivity?)?.loadingEnd()
+        }
+
+        binding.buttonRank.setOnClickListener {
+            val fragment = FragmentAccountRank()
             parentFragmentManager.beginTransaction().apply{
                 replace(R.id.layout_fragment, fragment)
                 setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -77,6 +125,344 @@ class FragmentAccountInfo : Fragment() {
                 commit()
             }
         }
+
+        binding.buttonSettings.setOnClickListener {
+            val fragment = FragmentAccountSettings()
+            parentFragmentManager.beginTransaction().apply{
+                replace(R.id.layout_fragment, fragment)
+                setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                addToBackStack(null)
+                commit()
+            }
+        }
+
+        binding.buttonCheckout.setOnClickListener {
+            if (currentUser?.isCheckout()!!) {
+                Toast.makeText(activity, "이미 출석체크 하였습니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                val question = QuestionDTO(
+                    QuestionDTO.Stat.INFO,
+                    "출석체크",
+                    "오늘 출석체크를 하시겠습니까?",
+                )
+                val questionDialog = QuestionDialog(requireContext(), question)
+                questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                questionDialog.setCanceledOnTouchOutside(false)
+                questionDialog.show()
+                questionDialog.button_question_cancel.setOnClickListener { // No
+                    questionDialog.dismiss()
+                }
+                questionDialog.button_question_ok.setOnClickListener { // Ok
+                    questionDialog.dismiss()
+                    (activity as MainActivity?)?.loading()
+
+                    // 오늘날짜 출석체크 등록
+                    val date = Date()
+                    currentUser?.checkoutTime = date
+                    firebaseViewModel.updateUserCheckout(currentUser?.uid.toString()) {
+                        var exp = (activity as MainActivity?)?.getPreferences()?.rewardUserExp!!
+                        if (currentUser?.isPremium()!!) { // 프리미엄 패키지 사용중이라면 경험치 두배
+                            exp = exp.times(2)
+                        }
+
+                        // 경험치 추가 적용
+                        applyExp(exp, 0, null)
+
+                        // 일일 퀘스트 - 팬클럽 출석체크 완료 시 적용
+                        if (!QuestDTO("개인 출석체크", "개인 출석체크를 완료 하세요.", 1, currentUser?.questSuccessTimes?.get("3"), currentUser?.questGemGetTimes?.get("3")).isQuestSuccess()) { // 퀘스트 완료 안했을 때 적용
+                            currentUser?.questSuccessTimes?.set("3", date)
+                            firebaseViewModel.updateUserQuestSuccessTimes(currentUser!!) {
+                                Toast.makeText(activity, "일일 과제 달성! 보상을 획득하세요!", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        binding.buttonLevelUp.setOnClickListener {
+            // 디이아 소모 작업 전에는 사용자 최신 정보로 갱신
+            // 갱신 안하면 우편에서 받은 다이아 적용이 안됨
+            currentUser = (activity as MainActivity?)?.getUser()
+            val preferencesDTO = (activity as MainActivity?)?.getPreferences()
+
+            val dialog = LevelUpActionUserDialog(requireContext())
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            dialog.setCanceledOnTouchOutside(false)
+            dialog.preferencesDTO = preferencesDTO
+            dialog.oldUserDTO = currentUser?.copy()
+            dialog.newUserDTO = currentUser?.copy()
+            dialog.show()
+
+            dialog.button_level_up_action_user_cancel.setOnClickListener {
+                dialog.dismiss()
+            }
+
+            dialog.button_up_exp_user.setOnClickListener {
+                val question = GemQuestionDTO("다이아를 사용해 경험치를 올립니다.", dialog.useGemCount)
+                val questionDialog = GemQuestionDialog(requireContext(), question)
+                questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                questionDialog.setCanceledOnTouchOutside(false)
+                questionDialog.show()
+                questionDialog.button_gem_question_cancel.setOnClickListener { // No
+                    questionDialog.dismiss()
+                }
+                questionDialog.button_gem_question_ok.setOnClickListener { // Ok
+                    questionDialog.dismiss()
+                    dialog.dismiss()
+
+                    (activity as MainActivity?)?.loading()
+                    val availableExpGem = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_AVAILABLE_USER_EXP_GEM, preferencesDTO?.availableUserExpGem!!)
+                    sharedPreferences.putAdCount(MySharedPreferences.PREF_KEY_AVAILABLE_USER_EXP_GEM, availableExpGem.minus(dialog.useGemCount))
+                    applyExp(dialog.addExp, dialog.useGemCount, null)
+                }
+            }
+
+            dialog.button_get_user_exp_ad.setOnClickListener {
+                val rewardExpCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_EXP_COUNT, preferencesDTO?.rewardUserExpCount!!)
+                when {
+                    rewardExpCount <= 0 -> {
+                        callToast("오늘은 더 이상 광고를 시청할 수 없습니다.")
+                    }
+                    dialog.isRunTimerUserExp -> { // 타이머가 동작중이면 광고 시청 불가능
+                        callToast("아직 광고를 시청할 수 없습니다.")
+                    }
+                    else -> {
+                        if (adsRewardManagerExp != null) {
+                            adsRewardManagerExp?.callReward {
+                                if (it) {
+                                    rewardExp(dialog)
+                                } else {
+                                    callToast("아직 광고를 시청할 수 없습니다.")
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+
+            dialog.button_get_user_gem_ad.setOnClickListener {
+                val rewardGemCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_GEM_COUNT, preferencesDTO?.rewardUserGemCount!!)
+                when {
+                    rewardGemCount <= 0 -> {
+                        callToast("오늘은 더 이상 광고를 시청할 수 없습니다.")
+                    }
+                    dialog.isRunTimerUserGem -> { // 타이머가 동작중이면 광고 시청 불가능
+                        callToast("아직 광고를 시청할 수 없습니다.")
+                    }
+                    else -> {
+                        if (adsRewardManagerGem != null) {
+                            adsRewardManagerGem?.callReward {
+                                if (it) {
+                                    rewardGem(dialog)
+                                } else {
+                                    callToast("아직 광고를 시청할 수 없습니다.")
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun rewardExp(dialog: LevelUpActionUserDialog) {
+        (activity as MainActivity?)?.loading()
+        //Toast.makeText(activity, "보상 $rewardAmount, $rewardType", Toast.LENGTH_SHORT).show()
+
+        //val rewardExpCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_EXP_COUNT, preferencesDTO?.rewardUserExpCount!!)
+        val preferencesDTO = (activity as MainActivity?)?.getPreferences()
+        val rewardExpCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_EXP_COUNT, preferencesDTO?.rewardUserExpCount!!)
+        sharedPreferences.putAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_EXP_COUNT, rewardExpCount.minus(1))
+
+        sharedPreferences.putLong(MySharedPreferences.PREF_KEY_REWARD_USER_EXP_TIME, System.currentTimeMillis())
+
+        //var exp = preferencesDTO?.rewardUserExp!!
+        var exp = preferencesDTO?.rewardUserExp!!
+        if (currentUser?.isPremium()!!) { // 프리미엄 패키지 사용중이라면 경험치 두배
+            exp = exp.times(2)
+        }
+        applyExp(exp, 0, dialog)
+        Toast.makeText(activity, "보상 획득 완료!", Toast.LENGTH_SHORT).show()
+
+        // 일일 퀘스트 - 개인 무료 경험치 광고 시청 시 적용
+        if (!QuestDTO("개인 무료 경험치 광고", "개인 무료 경험치 광고를 1회 이상 시청 하세요.", 1, currentUser?.questSuccessTimes?.get("5"), currentUser?.questGemGetTimes?.get("5")).isQuestSuccess()) { // 퀘스트 완료 안했을 때 적용
+            currentUser?.questSuccessTimes?.set("5", Date())
+            firebaseViewModel.updateUserQuestSuccessTimes(currentUser!!) {
+                Toast.makeText(activity, "일일 과제 달성! 보상을 획득하세요!", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun rewardGem(dialog: LevelUpActionUserDialog) {
+        //val rewardGemCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_GEM_COUNT, preferencesDTO?.rewardUserGemCount!!)
+        val preferencesDTO = (activity as MainActivity?)?.getPreferences()
+        val rewardGemCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_GEM_COUNT, preferencesDTO?.rewardUserGemCount!!)
+        sharedPreferences.putAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_GEM_COUNT, rewardGemCount.minus(1))
+
+        sharedPreferences.putLong(MySharedPreferences.PREF_KEY_REWARD_USER_GEM_TIME, System.currentTimeMillis())
+
+        //addGem(preferencesDTO?.rewardUserGem!!, dialog)
+        addGem(preferencesDTO?.rewardUserGem!!, dialog)
+        Toast.makeText(activity, "보상 획득 완료!", Toast.LENGTH_SHORT).show()
+
+        // 일일 퀘스트 - 개인 무료 다이아 광고 시청 시 적용
+        if (!QuestDTO("개인 무료 다이아 광고", "개인 무료 다이아 광고를 1회 이상 시청 하세요.", 1, currentUser?.questSuccessTimes?.get("6"), currentUser?.questGemGetTimes?.get("6")).isQuestSuccess()) { // 퀘스트 완료 안했을 때 적용
+            currentUser?.questSuccessTimes?.set("6", Date())
+            firebaseViewModel.updateUserQuestSuccessTimes(currentUser!!) {
+                Toast.makeText(activity, "일일 과제 달성! 보상을 획득하세요!", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun setUserInfo() {
+        if (currentUser?.imgProfile != null) {
+            firebaseStorageViewModel.getUserProfile(currentUser?.uid.toString()) { uri ->
+                if (_binding != null) { // 메인 탭에서 바로 사용자 정보 탭 이동 시 팬클럽 뷰가 Destroy 되고 나서 뒤 늦게 들어오는 경우가 있기 때문에 예외 처리
+                    Glide.with(requireContext()).load(uri).fitCenter().into(binding.imgProfile)
+                }
+            }
+        }
+
+        binding.textNickname.text = currentUser?.nickname
+        binding.textUserId.text = "(${currentUser?.userId})"
+        binding.textCreateTime.text = "가입 ${SimpleDateFormat("yyyy.MM.dd").format(currentUser?.createTime)}"
+        binding.textLevel.text = "Lv. ${currentUser?.level}"
+        binding.textExp.text = "${decimalFormat.format(currentUser?.exp)}/${decimalFormat.format(currentUser?.getNextLevelExp())}"
+        binding.editAboutMe.setText(currentUser?.aboutMe)
+
+        var percent = ((currentUser?.exp?.toDouble()!! / currentUser?.getNextLevelExp()!!) * 100).toInt()
+        binding.progressPercent.progress = percent
+
+        binding.imgCheckout.setImageResource(currentUser?.getCheckoutImage()!!)
+    }
+
+    // 경험치 적용
+    private fun applyExp(exp: Long, gemCount: Int, dialog: LevelUpActionUserDialog?) {
+        // 경험치 증가 적용
+        val date = Date()
+        val oldUser = currentUser?.copy()
+        firebaseViewModel.addUserExp(currentUser?.uid.toString(), exp, gemCount) { userDTO ->
+            if (userDTO != null) {
+                currentUser = userDTO
+
+                // 레벨업 했다면 팬클럽에도 적용
+                if (currentUser?.level!! > oldUser?.level!!) {
+                    // 가입한 팬클럽이 있을 경우 레벨업 적용
+                    if (fanClubDTO != null && currentMember != null) {
+                        currentMember?.userLevel = currentUser?.level
+                        firebaseViewModel.updateMemberLevel(fanClubDTO?.docName.toString(), currentMember!!) {
+                        }
+                    }
+                }
+                var log = LogDTO("[경험치 증가] 경험치 [$exp] 증가 (exp : ${oldUser?.exp} -> ${currentUser?.exp}), (level : ${oldUser?.level} -> ${currentUser?.level})", date)
+                firebaseViewModel.writeUserLog(currentUser?.uid.toString(), log) { }
+
+                if (gemCount > 0) {
+                    log.log = "[다이아 차감] ($gemCount)다이아로 ($exp)경험치 구매 (paidGem : ${oldUser?.paidGem} -> ${currentUser?.paidGem}, freeGem : ${oldUser?.freeGem} -> ${currentUser?.freeGem})"
+                    firebaseViewModel.writeUserLog(currentUser?.uid.toString(), log) { }
+                }
+
+                (activity as MainActivity?)?.loadingEnd()
+
+                val expUpDialog = ExpUpUserDialog(requireContext())
+                expUpDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                expUpDialog.setCanceledOnTouchOutside(false)
+                expUpDialog.userDTO = oldUser
+                expUpDialog.addExp = exp
+                expUpDialog.gemCount = gemCount
+                expUpDialog.show()
+
+                thread(start = true) {
+                    Thread.sleep(1300)
+
+                    activity?.runOnUiThread {
+                        setUserInfo()
+                        if (currentUser?.level!! > oldUser?.level!!) { // 레벨업 했다면 레벨업 대화상자 호출
+                            expUpDialog.dismiss()
+                            val levelDialog = LevelUpUserDialog(requireContext())
+                            levelDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                            levelDialog.setCanceledOnTouchOutside(false)
+                            levelDialog.oldUserDTO = oldUser
+                            levelDialog.newUserDTO = currentUser
+                            levelDialog.show()
+
+                            // 레벨업 보상 다이아 우편으로 지급
+                            val levelUpGemCount = currentUser?.getLevelUpGemCount()
+                            val docName = "master${System.currentTimeMillis()}"
+                            val calendar= Calendar.getInstance()
+                            calendar.add(Calendar.DATE, 7)
+                            var mail = MailDTO(docName,"레벨업 보상", "${currentUser?.level} 레벨 달성 보상 다이아가 지급되었습니다.", "시스템", MailDTO.Item.FREE_GEM, levelUpGemCount, date, calendar.time)
+                            firebaseViewModel.sendUserMail(currentUser?.uid.toString(), mail) {
+                                var log = LogDTO("[레벨업 보상] 레벨 ${currentUser?.level} 달성 보상 다이아 $levelUpGemCount 개 우편 발송, 유효기간 : ${SimpleDateFormat("yyyy.MM.dd HH:mm").format(calendar.time)}까지", date)
+                                firebaseViewModel.writeUserLog(currentUser?.uid.toString(), log) { }
+                            }
+
+                            levelDialog.button_level_up_user_ok.setOnClickListener {
+                                levelDialog.dismiss()
+
+                                if (dialog != null) {
+                                    dialog.oldUserDTO = currentUser?.copy()
+                                    dialog.newUserDTO = currentUser?.copy()
+                                    dialog.setInfo()
+                                }
+                            }
+                        } else {
+                            expUpDialog.button_exp_up_user_ok.visibility = View.VISIBLE
+                        }
+                    }
+                }
+
+                expUpDialog.button_exp_up_user_ok.setOnClickListener {
+                    expUpDialog.dismiss()
+
+                    if (dialog != null) {
+                        dialog.oldUserDTO = currentUser?.copy()
+                        dialog.newUserDTO = currentUser?.copy()
+                        dialog.setInfo()
+                    }
+                }
+
+                (activity as MainActivity?)?.loadingEnd()
+            }
+        }
+    }
+
+    private fun addGem(gemCount: Int, dialog: LevelUpActionUserDialog?) {
+        currentUser = (activity as MainActivity?)?.getUser()
+        val oldFreeGemCount = currentUser?.freeGem!!
+        firebaseViewModel.addUserGem(currentUser?.uid.toString(), 0, gemCount) { userDTO ->
+            if (userDTO != null) {
+                var log = LogDTO("[사용자 무료 다이아 획득] 다이아 $gemCount 획득 (freeGem : $oldFreeGemCount -> ${currentUser?.freeGem})", Date())
+                firebaseViewModel.writeUserLog(currentUser?.uid.toString(), log) { }
+
+                val getDialog = GetItemDialog(requireContext())
+                getDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                getDialog.setCanceledOnTouchOutside(false)
+                getDialog.mailDTO = MailDTO("", "", "", "", MailDTO.Item.FREE_GEM, gemCount)
+                getDialog.show()
+
+                getDialog.button_get_item_ok.setOnClickListener {
+                    getDialog.dismiss()
+
+                    if (dialog != null) {
+                        dialog.oldUserDTO = currentUser?.copy()
+                        dialog.newUserDTO = currentUser?.copy()
+                        dialog.setInfo()
+                    }
+                }
+            }
+
+        }
+    }
+
+    private fun callToast(message: String) {
+        if (toast == null) {
+            toast = Toast.makeText(context, message, Toast.LENGTH_SHORT)
+        }
+        toast?.show()
     }
 
     companion object {
@@ -90,11 +476,11 @@ class FragmentAccountInfo : Fragment() {
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(param1: FanClubDTO?, param2: MemberDTO?) =
+        fun newInstance(param1: String, param2: String) =
             FragmentAccountInfo().apply {
                 arguments = Bundle().apply {
-                    putParcelable(ARG_PARAM1, param1)
-                    putParcelable(ARG_PARAM2, param2)
+                    putString(ARG_PARAM1, param1)
+                    putString(ARG_PARAM2, param2)
                 }
             }
     }

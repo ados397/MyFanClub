@@ -11,17 +11,18 @@ import androidx.core.view.size
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.viewModels
+import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentScheduleAddBinding
 import com.ados.myfanclub.dialog.SelectAppDialog
 import com.ados.myfanclub.model.FanClubDTO
 import com.ados.myfanclub.model.MemberDTO
 import com.ados.myfanclub.model.ScheduleDTO
+import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.applikeysolutions.cosmocalendar.selection.OnDaySelectedListener
 import com.applikeysolutions.cosmocalendar.selection.RangeSelectionManager
 import com.applikeysolutions.cosmocalendar.utils.SelectionType
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.select_app_dialog.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -39,13 +40,15 @@ private const val ARG_PARAM2 = "param2"
  */
 class FragmentScheduleAdd : Fragment() {
     // TODO: Rename and change types of parameters
+    private var param1: String? = null
+    private var param2: String? = null
+
     private var _binding: FragmentScheduleAddBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var callback: OnBackPressedCallback
 
-    private var firebaseAuth : FirebaseAuth? = null
-    private var firestore : FirebaseFirestore? = null
+    private val firebaseViewModel : FirebaseViewModel by viewModels()
 
     private var fanClubDTO: FanClubDTO? = null
     private var currentMember: MemberDTO? = null
@@ -61,8 +64,13 @@ class FragmentScheduleAdd : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            fanClubDTO = it.getParcelable(ARG_PARAM1)
-            currentMember = it.getParcelable(ARG_PARAM2)
+            param1 = it.getString(ARG_PARAM1)
+            param2 = it.getString(ARG_PARAM2)
+
+            if (param1.equals("fanClub")) {
+                fanClubDTO = (activity as MainActivity?)?.getFanClub()
+                currentMember = (activity as MainActivity?)?.getMember()
+            }
         }
     }
 
@@ -73,9 +81,6 @@ class FragmentScheduleAdd : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentScheduleAddBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
-
-        firebaseAuth = FirebaseAuth.getInstance()
-        firestore = FirebaseFirestore.getInstance()
 
         binding.layoutSelectApp.visibility = View.GONE
         binding.editUrl.visibility = View.GONE
@@ -115,22 +120,22 @@ class FragmentScheduleAdd : Fragment() {
             binding.editPurpose.setText(scheduleDTO.purpose)
             binding.textPurposeLen.text = "${binding.editPurpose.text.length}/300"
             when (scheduleDTO.action) {
-                ScheduleDTO.ACTION.APP -> {
+                ScheduleDTO.Action.APP -> {
                     binding.textSelectedApp.text = scheduleDTO.appDTO?.appName
                     binding.radioApp.isChecked = true
                     selectActionApp()
                 }
-                ScheduleDTO.ACTION.URL -> {
+                ScheduleDTO.Action.URL -> {
                     binding.editUrl.setText(scheduleDTO.url)
                     binding.radioUrl.isChecked = true
                     selectActionUrl()
                 }
             }
             when (scheduleDTO.cycle) {
-                ScheduleDTO.CYCLE.DAY -> binding.radioDay.isChecked = true
-                ScheduleDTO.CYCLE.WEEK -> binding.radioWeek.isChecked = true
-                ScheduleDTO.CYCLE.MONTH -> binding.radioMonth.isChecked = true
-                ScheduleDTO.CYCLE.PERIOD -> binding.radioPeriod.isChecked = true
+                ScheduleDTO.Cycle.DAY -> binding.radioDay.isChecked = true
+                ScheduleDTO.Cycle.WEEK -> binding.radioWeek.isChecked = true
+                ScheduleDTO.Cycle.MONTH -> binding.radioMonth.isChecked = true
+                ScheduleDTO.Cycle.PERIOD -> binding.radioPeriod.isChecked = true
             }
             binding.editCount.setText(scheduleDTO.count.toString())
 
@@ -291,19 +296,19 @@ class FragmentScheduleAdd : Fragment() {
         binding.radioGroupCycle.setOnCheckedChangeListener { radioGroup, i ->
             when(i) {
                 R.id.radio_day -> {
-                    scheduleDTO.cycle = ScheduleDTO.CYCLE.DAY
+                    scheduleDTO.cycle = ScheduleDTO.Cycle.DAY
                     cycleOK = true
                 }
                 R.id.radio_week -> {
-                    scheduleDTO.cycle = ScheduleDTO.CYCLE.WEEK
+                    scheduleDTO.cycle = ScheduleDTO.Cycle.WEEK
                     cycleOK = true
                 }
                 R.id.radio_month -> {
-                    scheduleDTO.cycle = ScheduleDTO.CYCLE.MONTH
+                    scheduleDTO.cycle = ScheduleDTO.Cycle.MONTH
                     cycleOK = true
                 }
                 R.id.radio_period -> {
-                    scheduleDTO.cycle = ScheduleDTO.CYCLE.PERIOD
+                    scheduleDTO.cycle = ScheduleDTO.Cycle.PERIOD
                     cycleOK = true
                 }
             }
@@ -324,10 +329,10 @@ class FragmentScheduleAdd : Fragment() {
 
             // 수행할 동작에 따라 나머지는 비활성화
             when (scheduleDTO.action) {
-                ScheduleDTO.ACTION.APP -> {
+                ScheduleDTO.Action.APP -> {
                     scheduleDTO.url = ""
                 }
-                ScheduleDTO.ACTION.URL -> {
+                ScheduleDTO.Action.URL -> {
                     scheduleDTO.appDTO = null
                 }
             }
@@ -336,7 +341,6 @@ class FragmentScheduleAdd : Fragment() {
             scheduleDTO.alarmDTO.alarmHour = binding.timepickerAlarm.currentHour
             scheduleDTO.alarmDTO.alarmMinute = binding.timepickerAlarm.currentMinute
 
-            //firestore?.collection("user")?.document(firebaseAuth?.currentUser?.uid.toString())?.collection("schedule")?.document()?.set(scheduleDTO)?.addOnCompleteListener {
             if (fanClubDTO == null) {
                 setPersonalSchedule()
             } else {
@@ -361,14 +365,15 @@ class FragmentScheduleAdd : Fragment() {
     }
 
     private fun setPersonalSchedule() {
-        firestore?.collection("user")?.document(firebaseAuth?.currentUser?.uid.toString())?.collection("schedule")?.document(scheduleDTO.docName.toString())?.set(scheduleDTO)?.addOnCompleteListener {
+        val user = (activity as MainActivity?)?.getUser()!!
+        firebaseViewModel.updatePersonalSchedule(user.uid.toString(), scheduleDTO) {
             Toast.makeText(activity,"스케줄 저장 완료", Toast.LENGTH_SHORT).show()
             finishFragment()
         }
     }
 
     private fun setFanClubSchedule() {
-        firestore?.collection("fanClub")?.document(fanClubDTO?.docName.toString())?.collection("schedule")?.document(scheduleDTO.docName.toString())?.set(scheduleDTO)?.addOnCompleteListener {
+        firebaseViewModel.updateFanClubSchedule(fanClubDTO?.docName.toString(), scheduleDTO) {
             Toast.makeText(activity,"팬클럽 스케줄 저장 완료", Toast.LENGTH_SHORT).show()
             finishFragment()
         }
@@ -379,7 +384,7 @@ class FragmentScheduleAdd : Fragment() {
         binding.editUrl.visibility = View.GONE
         binding.textUrlError.visibility = View.GONE
 
-        scheduleDTO.action = ScheduleDTO.ACTION.APP
+        scheduleDTO.action = ScheduleDTO.Action.APP
         actionOK = scheduleDTO.appDTO != null
         visibleOkButton()
     }
@@ -389,7 +394,7 @@ class FragmentScheduleAdd : Fragment() {
         binding.editUrl.visibility = View.VISIBLE
         binding.textUrlError.visibility = View.VISIBLE
 
-        scheduleDTO.action = ScheduleDTO.ACTION.URL
+        scheduleDTO.action = ScheduleDTO.Action.URL
         isValidUrlEdit()
     }
 
@@ -412,17 +417,7 @@ class FragmentScheduleAdd : Fragment() {
     }
 
     private fun finishFragment() {
-        val fragment = FragmentScheduleList.newInstance(fanClubDTO, currentMember)
-        parentFragmentManager.beginTransaction().apply{
-            replace(R.id.layout_fragment, fragment)
-            setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
-            addToBackStack(null)
-            commit()
-        }
-    }
-
-    private fun finishFragmentFanClub() {
-        val fragment = FragmentFanClubSchedule()
+        val fragment = FragmentScheduleList.newInstance(param1!!, param2!!)
         parentFragmentManager.beginTransaction().apply{
             replace(R.id.layout_fragment, fragment)
             setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
@@ -534,12 +529,14 @@ class FragmentScheduleAdd : Fragment() {
     private fun showCalendar() {
         binding.scrollView.visibility = View.GONE
         binding.layoutOk.visibility = View.GONE
+        binding.scrollViewCalendar.visibility = View.VISIBLE
         binding.layoutCalendar.visibility = View.VISIBLE
     }
 
     private fun hideCalendar() {
         binding.scrollView.visibility = View.VISIBLE
         binding.layoutOk.visibility = View.VISIBLE
+        binding.scrollViewCalendar.visibility = View.GONE
         binding.layoutCalendar.visibility = View.GONE
     }
 
@@ -681,8 +678,6 @@ class FragmentScheduleAdd : Fragment() {
     // 유효성 체크
     private fun visibleOkButton() {
         binding.buttonOk.isEnabled = titleOK && rangeOK && purposeOK && actionOK && cycleOK && countOK
-
-        println("오케이 $titleOK && $rangeOK && $purposeOK && $actionOK && $cycleOK && $countOK")
     }
 
     companion object {
@@ -696,11 +691,11 @@ class FragmentScheduleAdd : Fragment() {
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(param1: FanClubDTO?, param2: MemberDTO?) =
+        fun newInstance(param1: String, param2: String) =
             FragmentScheduleAdd().apply {
                 arguments = Bundle().apply {
-                    putParcelable(ARG_PARAM1, param1)
-                    putParcelable(ARG_PARAM2, param2)
+                    putString(ARG_PARAM1, param1)
+                    putString(ARG_PARAM2, param2)
                 }
             }
     }

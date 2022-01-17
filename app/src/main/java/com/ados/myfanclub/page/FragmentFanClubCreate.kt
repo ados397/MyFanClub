@@ -1,6 +1,7 @@
 package com.ados.myfanclub.page
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -9,18 +10,20 @@ import android.view.ViewGroup
 import android.view.Window
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.viewModels
 import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentFanClubCreateBinding
+import com.ados.myfanclub.dialog.GemQuestionDialog
+import com.ados.myfanclub.dialog.LoadingDialog
 import com.ados.myfanclub.dialog.SelectFanClubSymbolDialog
-import com.ados.myfanclub.model.FanClubDTO
-import com.ados.myfanclub.model.MemberDTO
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.android.synthetic.main.question_dialog.*
-import kotlinx.android.synthetic.main.select_fan_club_symbol_dialog.*
+import com.ados.myfanclub.model.*
+import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
+import com.ados.myfanclub.viewmodel.FirebaseViewModel
+import kotlinx.android.synthetic.main.gem_question_dialog.*
 import java.util.*
 
 // TODO: Rename parameter arguments, choose names that match
@@ -41,12 +44,31 @@ class FragmentFanClubCreate : Fragment() {
     private var _binding: FragmentFanClubCreateBinding? = null
     private val binding get() = _binding!!
 
-    private var firebaseAuth : FirebaseAuth? = null
-    private var firestore : FirebaseFirestore? = null
+    private val firebaseViewModel : FirebaseViewModel by viewModels()
+    private val firebaseStorageViewModel : FirebaseStorageViewModel by viewModels()
 
     private lateinit var callback: OnBackPressedCallback
 
-    private var symbolImage: String = "reward_icon_01"
+    private var loadingDialog : LoadingDialog? = null
+
+    private var fanClubDTO: FanClubDTO? = null
+    private var currentMember: MemberDTO? = null
+
+    private var symbolImage: String = "reward_icon_25"
+    private var symbolImageCustomBitmap: Bitmap? = null
+
+    private var nameOK: Boolean = false
+    private var descriptionOK: Boolean = false
+
+    private val resultLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            symbolImageCustomBitmap = (activity as MainActivity?)?.getBitmap(uri)
+            binding.imgSymbol.setImageBitmap(symbolImageCustomBitmap)
+        } else {
+            symbolImageCustomBitmap = null
+            Toast.makeText(context, "이미지를 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,9 +85,6 @@ class FragmentFanClubCreate : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentFanClubCreateBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
-
-        firebaseAuth = FirebaseAuth.getInstance()
-        firestore = FirebaseFirestore.getInstance()
 
         return rootView
     }
@@ -90,71 +109,147 @@ class FragmentFanClubCreate : Fragment() {
 
             dialog.setOnDismissListener {
                 if (dialog.isOK && !dialog.selectedSymbol.isNullOrEmpty()) {
-                    symbolImage = dialog.selectedSymbol
-                    var imageID = requireContext().resources.getIdentifier(symbolImage, "drawable", requireContext().packageName)
-                    if (imageID != null) {
-                        binding.imgSymbol.setImageResource(imageID)
+                    if (dialog.isAddImage) {
+                        resultLauncher.launch("image/*")
+                    } else {
+                        symbolImage = dialog.selectedSymbol
+                        symbolImageCustomBitmap = null
+                        var imageID = requireContext().resources.getIdentifier(symbolImage, "drawable", requireContext().packageName)
+                        if (imageID != null) {
+                            binding.imgSymbol.setImageResource(imageID)
+                        }
                     }
                 }
             }
         }
 
         binding.buttonOk.setOnClickListener {
-            var name = binding.editName.text.toString()
-            firestore?.collection("fanClub")?.get()?.addOnCompleteListener { task ->
-                if(task.isSuccessful){
-                    for (document in task.result) {
-                        var fanclub = document.toObject(FanClubDTO::class.java)!!
-                        when {
-                            fanclub.name!! == name -> {
-                                Toast.makeText(activity, "팬클럽이 이미 존재합니다.", Toast.LENGTH_SHORT).show()
-                                return@addOnCompleteListener
+            val question = GemQuestionDTO("다이아를 사용해 팬클럽을 창설 합니다.", 300)
+            val questionDialog = GemQuestionDialog(requireContext(), question)
+            questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            questionDialog.setCanceledOnTouchOutside(false)
+            questionDialog.show()
+            questionDialog.button_gem_question_cancel.setOnClickListener { // No
+                questionDialog.dismiss()
+            }
+            questionDialog.button_gem_question_ok.setOnClickListener { // Ok
+                questionDialog.dismiss()
+
+                var user = (activity as MainActivity?)?.getUser()!!
+                val preferencesDTO = (activity as MainActivity?)?.getPreferences()!!
+
+                if ((user.paidGem!! + user.freeGem!!) < preferencesDTO.priceFanClubCreate!!) {
+                    Toast.makeText(activity, "다이아가 부족합니다.", Toast.LENGTH_SHORT).show()
+                } else {
+                    var name = binding.editName.text.toString().trim()
+                    var description = binding.editDescription.text.toString().trim()
+
+                    firebaseViewModel.isUsedFanClubName(name) { isUsed ->
+                        if (isUsed) {
+                            Toast.makeText(activity, "팬클럽이 이미 존재합니다.", Toast.LENGTH_SHORT).show()
+                        } else {
+                            (activity as MainActivity?)?.loading()
+                            val date = Date()
+                            val alphabets = ('a'..'z').toMutableList()
+                            val docName = "${alphabets[Random().nextInt(alphabets.size)]}${System.currentTimeMillis()}"
+                            // 팬클럽 창설 시 회원이 1명이기 때문에 count 는 1로 설정
+                            fanClubDTO = FanClubDTO(false, docName, name, null, description, "", symbolImage, null, 1, 0L, 0L, user.uid, user.nickname, 1, 0, date)
+                            if (symbolImageCustomBitmap != null) {
+                                fanClubDTO?.imgSymbolCustom = fanClubDTO?.getSymbolCustomImageName()
+                            }
+
+                            firebaseViewModel.updateFanClub(fanClubDTO!!) {
+                                if (symbolImageCustomBitmap != null) { // 사용자 직접 이미지 업로드
+                                    firebaseStorageViewModel.setFanClubSymbol(docName, symbolImageCustomBitmap!!) {
+                                        if (!it) {
+                                            Toast.makeText(activity, "팬클럽 창설에 실패했습니다. 잠시 후 다시 시도해 주세요.", Toast.LENGTH_SHORT).show()
+                                        } else { // 이미지 업로드 성공
+                                            // 클럽장은 팬클럽 창설 시 100,000의 기여도로 시작
+                                            val member = MemberDTO(false, user.uid, user.nickname, user.level, user.aboutMe, 100000, MemberDTO.Position.MASTER, date, date, null, user.token)
+                                            firebaseViewModel.updateMember(docName, member) {
+                                                // 팬클럽 ID 등록 및 기존 신청 리스트 초기화
+                                                user.fanClubId = docName
+                                                firebaseViewModel.updateUserFanClubApproval(user) {
+                                                    // 다이아 차감
+                                                    val oldPaidGemCount = user.paidGem!!
+                                                    val oldFreeGemCount = user.freeGem!!
+                                                    firebaseViewModel.useUserGem(user.uid.toString(), preferencesDTO.priceFanClubCreate!!) {
+                                                        var log = LogDTO("[다이아 차감] 팬클럽 창설로 ${preferencesDTO.priceFanClubCreate} 다이아 사용, 팬클럽 명 : $name($docName), (paidGem : $oldPaidGemCount -> ${user?.paidGem}, freeGem : $oldFreeGemCount -> ${user?.freeGem})", Date())
+                                                        firebaseViewModel.writeUserLog(user?.uid.toString(), log) { }
+
+                                                        (activity as MainActivity?)?.loadingEnd()
+                                                        Toast.makeText(activity, "팬클럽 창설 완료!", Toast.LENGTH_SHORT).show()
+                                                        //moveFanClubMain()
+                                                    }
+                                                }
+                                            }
+                                            (activity as MainActivity?)?.loadingEnd()
+                                        }
+                                    }
+                                } else { // 제공된 심볼 중에서 선택
+                                    // 클럽장은 팬클럽 창설 시 100,000의 기여도로 시작
+                                    val member = MemberDTO(false, user.uid, user.nickname, user.level, user.aboutMe, 100000, MemberDTO.Position.MASTER, date, date, null, user.token)
+                                    firebaseViewModel.updateMember(docName, member) {
+                                        // 팬클럽 ID 등록 및 기존 신청 리스트 초기화
+                                        user.fanClubId = docName
+                                        firebaseViewModel.updateUserFanClubApproval(user) {
+                                            // 다이아 차감
+                                            val oldPaidGemCount = user.paidGem!!
+                                            val oldFreeGemCount = user.freeGem!!
+                                            firebaseViewModel.useUserGem(user.uid.toString(), preferencesDTO.priceFanClubCreate!!) {
+                                                var log = LogDTO("[다이아 차감] 팬클럽 창설로 ${preferencesDTO.priceFanClubCreate} 다이아 사용, 팬클럽 명 : $name($docName), (paidGem : $oldPaidGemCount -> ${user?.paidGem}, freeGem : $oldFreeGemCount -> ${user?.freeGem})", Date())
+                                                firebaseViewModel.writeUserLog(user?.uid.toString(), log) { }
+
+                                                (activity as MainActivity?)?.loadingEnd()
+                                                Toast.makeText(activity, "팬클럽 창설 완료!", Toast.LENGTH_SHORT).show()
+                                                //moveFanClubMain()
+                                            }
+                                        }
+                                    }
+                                    (activity as MainActivity?)?.loadingEnd()
+                                }
                             }
                         }
                     }
-
-                    val alphabets = ('a'..'z').toMutableList()
-                    val docName = "${alphabets[Random().nextInt(alphabets.size)]}${System.currentTimeMillis()}"
-                    val user = (activity as MainActivity?)?.getUser()
-                    // 팬클럽 창설 시 회원이 1명이기 때문에 count 는 1로 설정
-                    var fanClubDTO = FanClubDTO(false, docName, name, binding.editDescription.text.toString(), "", symbolImage, 1, 0.0, user?.uid, user?.nickname, 1, 10, Date())
-                    firestore?.collection("fanClub")?.document(docName)?.set(fanClubDTO)?.addOnCompleteListener {
-                        user?.fanClubId = docName
-                        firestore?.collection("user")?.document(user?.uid!!)?.set(user)?.addOnCompleteListener {
-                            //Toast.makeText(activity, "팬클럽 창설 완료!", Toast.LENGTH_SHORT).show()
-                            //moveFanClubMain()
-                            (activity as MainActivity?)?.setUser(user)
-                        }
-                        val member = MemberDTO(false, user?.uid, user?.nickname, user?.level, user?.aboutMe, 0, MemberDTO.POSITION.MASTER, Date(), Date(), false)
-                        firestore?.collection("fanClub")?.document(docName)?.collection("member")?.document(user?.uid.toString())?.set(member)?.addOnCompleteListener {
-                            Toast.makeText(activity, "팬클럽 창설 완료!", Toast.LENGTH_SHORT).show()
-                            moveFanClubMain()
-                        }
-                    }
-
-                    /*if (userDTO != null) { // null 이 아니라면 소셜 로그인, 이미 로그인 처리는 되어 있음, firestore에 데이터 기록 후 메인페이지 이동
-                        writeFirestoreAndFinish(UserDTO(firebaseAuth?.currentUser?.uid, email, userDTO?.loginType, nickname, null))
-                    } else {
-                        firebaseAuth?.createUserWithEmailAndPassword(email, password)?.addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                writeFirestoreAndFinish(UserDTO(firebaseAuth?.currentUser?.uid, email, UserDTO.LoginType.EMAIL, nickname, null))
-                            } else if (!task.exception?.message.isNullOrEmpty()) {
-                                Toast.makeText(this, "회원가입에 실패하였습니다. 잠시 후 다시 시도해 보세요.", Toast.LENGTH_SHORT).show()
-                                //Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }*/
                 }
             }
         }
 
         binding.editName.doAfterTextChanged {
+            var name = binding.editName.text.toString().trim()
+            if (!isValidName(name)) {
+                binding.textNameError.text = "사용할 수 없는 문자열이 포함되어 있습니다."
+                binding.editName.setBackgroundResource(R.drawable.edit_rectangle_red)
+                nameOK = false
+            } else {
+                binding.textNameError.text = ""
+                binding.editName.setBackgroundResource(R.drawable.edit_rectangle)
+                nameOK = true
+            }
             binding.textNameLen.text = "${binding.editName.text.length}/30"
+            visibleOkButton()
         }
 
         binding.editDescription.doAfterTextChanged {
+            var description = binding.editDescription.text.toString().trim()
+            descriptionOK = if (description.isNullOrEmpty()) {
+                binding.editDescription.setBackgroundResource(R.drawable.edit_rectangle_red)
+                false
+            } else {
+                binding.editDescription.setBackgroundResource(R.drawable.edit_rectangle)
+                true
+            }
             binding.textDescriptionLen.text = "${binding.editDescription.text.length}/30"
+            visibleOkButton()
         }
+    }
+
+    private fun createFanClub() {
+
+    }
+
+    private fun visibleOkButton() {
+        binding.buttonOk.isEnabled = nameOK && descriptionOK
     }
 
     override fun onAttach(context: Context) {
@@ -178,6 +273,7 @@ class FragmentFanClubCreate : Fragment() {
     }
 
     private fun moveFanClubMain() {
+        //val fragment = FragmentFanClubMain()
         val fragment = FragmentFanClubMain()
         parentFragmentManager.beginTransaction().apply{
             replace(R.id.layout_fragment, fragment)
@@ -185,6 +281,11 @@ class FragmentFanClubCreate : Fragment() {
             addToBackStack(null)
             commit()
         }
+    }
+
+    private fun isValidName(name: String) : Boolean {
+        val exp = Regex("^[가-힣ㄱ-ㅎa-zA-Z0-9.~!@#\$%^&*\\[\\](){}|_ -]{1,30}\$")
+        return !name.isNullOrEmpty() && exp.matches(name)
     }
 
     companion object {

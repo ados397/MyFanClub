@@ -87,7 +87,7 @@ class SuccessCalendarWeek(date: Date) {
             calStart.set(Calendar.SECOND, 0)
 
             calEnd.time = week.endDate
-            calEnd.set(Calendar.HOUR, 23)
+            calEnd.set(Calendar.HOUR_OF_DAY, 23)
             calEnd.set(Calendar.MINUTE, 59)
             calEnd.set(Calendar.SECOND, 59)
 
@@ -106,7 +106,9 @@ class SuccessCalendarWeek(date: Date) {
         // 현재 달의 1일이 월화수목 중 하나라면 첫 째주, 금토일 중 하나라면 저번달 마지막 주
         // 금 - 6, 토 - 7, 일 - 1 즉 1일이 저번달의 마지막 주 이므로 다음주 월요일을 1째주로 지정
         var dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
-        var month = calendar.get(Calendar.MONTH)
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val realMonth = month + 1 // 0부터 시작하기 때문에 눈에 보이는 실제 값은 +1을 해줘야 함
         var startDate = Date()
 
         //println("날짜 ${calendar.time}, dayOfWeek $dayOfWeek")
@@ -131,7 +133,7 @@ class SuccessCalendarWeek(date: Date) {
 
         calendar.add(Calendar.DATE, 6)
         var endDate = calendar.time
-        weekList.add(WeekDTO(1, startDate, endDate))
+        weekList.add(WeekDTO(1, year, realMonth, startDate, endDate))
 
         for (i in 2..5) {
             calendar.add(Calendar.DATE, 1)
@@ -148,7 +150,7 @@ class SuccessCalendarWeek(date: Date) {
                 }
             }
 
-            weekList.add(WeekDTO(i, startDate, endDate))
+            weekList.add(WeekDTO(i, year, realMonth, startDate, endDate))
         }
     }
 

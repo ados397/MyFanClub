@@ -19,7 +19,6 @@
             android:layout_marginBottom="5dp"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_toLeftOf="@+id/button_success_calendar"
             android:fontFamily="@font/font"
             android:maxLines="1"
             app:autoSizeTextType="uniform"
@@ -28,26 +27,6 @@
             app:autoSizeStepGranularity="1sp"
             android:textColor="@color/text"
             android:text="제목을 정해주세요" />
-
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/button_success_calendar"
-            app:cardElevation="0dp"
-            app:rippleColor="#fff"
-            android:backgroundTint="@android:color/transparent"
-            android:clickable="true"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginLeft="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="5dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-            <ImageView
-                android:src="@drawable/pie_chart"
-                android:layout_width="30dp"
-                android:layout_height="30dp"/>
-        </com.google.android.material.card.MaterialCardView>
 
     </RelativeLayout>
 
@@ -125,8 +104,8 @@
 
         <RelativeLayout
             android:id="@+id/layout_title_club"
-            android:layout_weight="5"
-            android:layout_marginTop="5dp"
+            android:layout_weight="6"
+            android:layout_marginTop="2dp"
             android:layout_width="match_parent"
             android:layout_height="0dp">
 
@@ -140,54 +119,137 @@
                 android:textColor="@color/black" />
 
             <ImageView
+                android:id="@+id/button_refresh_club"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="13dp"
+                android:layout_toLeftOf="@id/button_success_calendar_club"
+                android:src="@drawable/refresh" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/button_success_calendar_club"
+                app:cardElevation="0dp"
+                app:rippleColor="#fff"
+                android:backgroundTint="@android:color/transparent"
+                android:clickable="true"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@id/button_hide_club"
+                android:layout_marginRight="13dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/pie_chart" />
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <ImageView
                 android:id="@+id/button_hide_club"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_marginRight="5dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
+                android:layout_marginRight="15dp"
                 android:src="@drawable/minimize" />
         </RelativeLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_mission_fan_club"
-            android:background="#FAF6FF"
-            android:layout_weight="45"
+        <RelativeLayout
+            android:id="@+id/layout_rv_mission_fan_club"
+            android:layout_weight="44"
             android:layout_width="match_parent"
-            android:layout_height="0dp"/>
+            android:layout_height="0dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_mission_fan_club"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#FAF6FF" />
+
+            <TextView
+                android:id="@+id/text_empty_fan_club"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:fontFamily="@font/font"
+                android:text="등록된 팬클럽 스케줄이 없습니다."
+                android:textColor="@color/text_sub" />
+        </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/layout_title_personal"
-            android:layout_weight="5"
-            android:layout_marginTop="5dp"
+            android:layout_weight="6"
+            android:layout_marginTop="2dp"
             android:layout_width="match_parent"
             android:layout_height="0dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
                 android:layout_marginLeft="10dp"
-                android:text="개인 목표"
-                android:textColor="@color/black"
                 android:fontFamily="@font/font"
-                android:layout_centerVertical="true" />
+                android:text="개인 목표"
+                android:textColor="@color/black" />
+
+            <ImageView
+                android:id="@+id/button_refresh_personal"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="13dp"
+                android:layout_toLeftOf="@id/button_success_calendar_personal"
+                android:src="@drawable/refresh" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/button_success_calendar_personal"
+                app:cardElevation="0dp"
+                app:rippleColor="#fff"
+                android:backgroundTint="@android:color/transparent"
+                android:clickable="true"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@id/button_hide_personal"
+                android:layout_marginRight="13dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/pie_chart" />
+            </com.google.android.material.card.MaterialCardView>
 
             <ImageView
                 android:id="@+id/button_hide_personal"
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="5dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="15dp"
                 android:src="@drawable/minimize" />
         </RelativeLayout>
 
+        <RelativeLayout
+            android:id="@+id/layout_rv_mission_personal"
+            android:layout_weight="44"
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_mission_personal"
             android:background="#FDFFEC"
-            android:layout_weight="45"
             android:layout_width="match_parent"
-            android:layout_height="0dp"/>
+            android:layout_height="match_parent"/>
+
+            <TextView
+                android:id="@+id/text_empty_personal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:fontFamily="@font/font"
+                android:text="개인 스케줄을 추가해 보세요."
+                android:textColor="@color/text_sub" />
+
+        </RelativeLayout>
 
     </LinearLayout>
 

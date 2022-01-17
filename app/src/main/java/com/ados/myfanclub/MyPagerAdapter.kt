@@ -7,26 +7,24 @@ import com.ados.myfanclub.model.FanClubDTO
 import com.ados.myfanclub.model.MemberDTO
 import com.ados.myfanclub.page.*
 
-class MyPagerAdapter(fa: FragmentActivity, fanClub: FanClubDTO?, member: MemberDTO?) : FragmentStateAdapter(fa) {
+class MyPagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
     private val NUM_PAGES = 4
-    private val fanClubDTO = fanClub
-    private val memberDTO = member
 
     override fun getItemCount(): Int  = NUM_PAGES
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
             0 -> {
-                FragmentPageDashboard.newInstance(fanClubDTO, memberDTO)
+                FragmentPageDashboard.newInstance("", "day")
             }
             1 -> {
-                FragmentPageFanClub.newInstance(fanClubDTO, memberDTO)
+                FragmentPageFanClub()
             }
             2 -> {
-                FragmentPageSchedule.newInstance(null, null)
+                FragmentPageSchedule.newInstance("personal", "")
             }
             else -> {
-                FragmentPageAccount.newInstance(fanClubDTO, memberDTO)
+                FragmentPageAccount()
             }
         }
     }

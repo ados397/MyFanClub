@@ -1,7 +1,34 @@
 <resources>
     <string name="app_name">마이팬클럽</string>
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
+    <string name="default_notification_channel_name" translatable="true">MyFanClub</string>
+    <string name="msg_token_fmt" translatable="true">토큰 : %s</string>
     <string name="facebook_app_id">276508297626756</string>
     <string name="fb_login_protocol_scheme">fb276508297626756</string>
 
+    <string name="admob_app_id">ca-app-pub-1859147676618347~4418573881</string>
+    <string name="admob_banner_id">ca-app-pub-1859147676618347/4227002193</string>
+    <string name="admob_banner_id_for_test">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="admob_interstitial_id">ca-app-pub-1859147676618347/3815938659</string>
+    <string name="admob_interstitial_id_for_test">ca-app-pub-3940256099942544/1033173712</string>
+    <string name="admob_reward_user_gem_id">ca-app-pub-1859147676618347/1390738250</string>
+    <string name="admob_reward_user_exp_id">ca-app-pub-1859147676618347/7026208312</string>
+    <string name="admob_reward_fan_club_gem_id">ca-app-pub-1859147676618347/6963656802</string>
+    <string name="admob_reward_fan_club_exp_id">ca-app-pub-1859147676618347/9398248450</string>
+    <string name="admob_reward_id_for_test">ca-app-pub-3940256099942544/5224354917</string>
+    <string name="admob_native_id">ca-app-pub-1859147676618347/2613348252</string>
+    <string name="admob_native_id_for_test">ca-app-pub-3940256099942544/2247696110</string>
+
+    <string name="cauly_ad_unit_id_play_store">5ja4etfN</string>
+    <string name="cauly_ad_unit_id_one_store">5ja4etfN</string>
+    <string name="cauly_ad_unit_id_for_test">CAULY</string>
+    <string name="facebook_Reward_ad_id">291696078707763_291699465374091</string>
+
+    <string name="adtype_admob">admob</string>
+    <string name="adtype_cauly">cauly</string>
+    <string name="adtype_adfit">adfit</string>
+    <string name="adtype_facebook">facebook</string>
+    <string name="adtype_unity">unity</string>
+    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

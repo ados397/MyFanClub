@@ -23,21 +23,61 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/text_name"
-                android:gravity="center"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
+            <RelativeLayout
+                android:id="@+id/layout_name"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp">
+
+                <TextView
+                    android:id="@+id/text_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:fontFamily="@font/font"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:text="팬클럽 명"
+                    android:textColor="@color/text"
+                    app:autoSizeMaxTextSize="30sp"
+                    app:autoSizeMinTextSize="10sp"
+                    app:autoSizeStepGranularity="1sp"
+                    app:autoSizeTextType="uniform" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/button_settings"
+                    android:checkable="true"
+                    app:cardElevation="0dp"
+                    app:rippleColor="#fff"
+                    android:backgroundTint="@android:color/transparent"
+                    android:clickable="true"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="15dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:id="@+id/img_settings"
+                        android:src="@drawable/settings"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"/>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </RelativeLayout>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_modify_name"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/btn_round4"
                 android:fontFamily="@font/font"
-                android:maxLines="1"
-                app:autoSizeTextType="uniform"
-                app:autoSizeMinTextSize="10sp"
-                app:autoSizeMaxTextSize="30sp"
-                app:autoSizeStepGranularity="1sp"
-                android:textColor="@color/text"
-                android:text="팬클럽 명" />
+                android:text="변경"
+                android:textColor="@color/text" />
 
             <RelativeLayout
                 android:paddingLeft="10dp"
@@ -56,20 +96,33 @@
                         android:id="@+id/img_symbol"
                         android:layout_width="100dp"
                         android:layout_height="100dp"
+                        android:layout_marginBottom="10dp"
                         android:layout_gravity="center"
                         android:src="@drawable/reward_icon_25" />
 
                     <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/button_modify_image"
+                        android:id="@+id/button_modify_symbol"
                         android:layout_width="wrap_content"
                         android:layout_height="25dp"
                         android:layout_gravity="center"
-                        android:layout_marginTop="5dp"
-                        android:layout_marginBottom="10dp"
+                        android:layout_marginBottom="5dp"
                         android:background="@drawable/btn_round4"
                         android:fontFamily="@font/font"
                         android:text="변경"
                         android:textColor="@color/text" />
+
+                    <TextView
+                        android:id="@+id/text_level"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:background="@drawable/btn_round5"
+                        android:fontFamily="@font/font"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:text="Lv. 99"
+                        android:textColor="@color/white"
+                        android:textSize="20sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -80,7 +133,7 @@
                     android:paddingLeft="10dp"
                     android:paddingRight="5dp">
 
-                    <TextView
+                    <!-- <TextView
                         android:id="@+id/text_level"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -95,7 +148,7 @@
                         android:textSize="20sp" />
 
                     <ProgressBar
-                        android:id="@+id/progress_percent"
+                        android:id="@+id/progress_percent_"
                         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -105,13 +158,13 @@
                         android:progress="50" />
 
                     <TextView
-                        android:id="@+id/text_exp"
+                        android:id="@+id/text_exp_"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="right"
                         android:fontFamily="@font/font"
                         android:text="300/500"
-                        android:textColor="@color/text" />
+                        android:textColor="@color/text" /> -->
 
                     <LinearLayout
                         android:id="@+id/layout_checkout"
@@ -136,7 +189,7 @@
                                 android:textColor="@color/text" />
 
                             <TextView
-                                android:id="@+id/text_checkout"
+                                android:id="@+id/text_checkout_count"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginLeft="5dp"
@@ -228,11 +281,74 @@
                                     android:textColor="@color/text" />
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/button_reward"
+                            android:layout_width="130dp"
+                            android:layout_height="30dp"
+                            android:layout_marginTop="5dp"
+                            android:backgroundTint="@android:color/transparent"
+                            android:clickable="true"
+                            app:cardElevation="0dp"
+                            app:rippleColor="#fff">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@drawable/btn_round4"
+                                android:gravity="center"
+                                android:orientation="horizontal"
+                                android:padding="5dp">
+
+                                <ImageView
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_gravity="center"
+                                    android:layout_marginLeft="10dp"
+                                    android:src="@drawable/diamond" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:layout_marginLeft="10dp"
+                                    android:layout_marginRight="10dp"
+                                    android:fontFamily="@font/font"
+                                    android:text="보상받기"
+                                    android:textColor="@color/text" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
                     </LinearLayout>
 
 
                 </LinearLayout>
             </RelativeLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <ProgressBar
+                    android:id="@+id/progress_percent"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/button_donation"
+                    android:layout_gravity="center"
+                    android:max="100"
+                    android:progress="50" />
+
+                <TextView
+                    android:id="@+id/text_exp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:fontFamily="@font/font"
+                    android:text="300/500"
+                    android:textColor="@color/text" />
+            </LinearLayout>
 
             <RelativeLayout
                 android:padding="10dp"
@@ -243,12 +359,51 @@
                     android:id="@+id/text_notice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="7dp"
                     android:fontFamily="@font/font"
                     android:text="공지사항"
                     android:textColor="@color/text"
                     android:textSize="16sp" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/button_send_notice"
+                    android:layout_width="150dp"
+                    android:layout_height="30dp"
+                    android:layout_toRightOf="@+id/text_notice"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="0dp"
+                    android:backgroundTint="@android:color/transparent"
+                    android:clickable="true"
+                    app:cardElevation="0dp"
+                    app:rippleColor="#fff">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/btn_round4"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="5dp">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="10dp"
+                            android:src="@drawable/ads" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:fontFamily="@font/font"
+                            android:text="전체 공지 발송"
+                            android:textColor="@color/text" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/button_modify_notice"

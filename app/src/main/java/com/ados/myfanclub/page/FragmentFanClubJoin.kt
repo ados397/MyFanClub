@@ -6,25 +6,27 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.view.animation.AnimationUtils
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.FragmentTransaction
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentFanClubJoinBinding
-import com.ados.myfanclub.model.FanClubDTO
-import com.ados.myfanclub.model.MemberDTO
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
+import com.ados.myfanclub.dialog.QuestionDialog
+import com.ados.myfanclub.model.*
+import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
+import com.ados.myfanclub.viewmodel.FirebaseViewModel
+import com.bumptech.glide.Glide
+import kotlinx.android.synthetic.main.question_dialog.*
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.random.Random
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -44,14 +46,13 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
     private var _binding: FragmentFanClubJoinBinding? = null
     private val binding get() = _binding!!
 
-    private var firestore : FirebaseFirestore? = null
+    private val firebaseViewModel : FirebaseViewModel by viewModels()
+    private val firebaseStorageViewModel : FirebaseStorageViewModel by viewModels()
 
     private lateinit var callback: OnBackPressedCallback
 
     lateinit var recyclerView : RecyclerView
     lateinit var recyclerViewAdapter : RecyclerViewAdapterFanClub
-
-    private var fanClubs : ArrayList<FanClubDTO> = arrayListOf()
 
     private var selectedFanClub: FanClubDTO? = null
     private var selectedPosition: Int? = 0
@@ -72,8 +73,6 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
         _binding = FragmentFanClubJoinBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
 
-        firestore = FirebaseFirestore.getInstance()
-
         recyclerView = rootView.findViewById(R.id.rv_fan_club!!)as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
@@ -81,9 +80,9 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
         binding.layoutMenu.visibility = View.GONE
 
         searchFanClub()
-
-
-
+        firebaseViewModel.fanClubDTOs.observe(requireActivity()) {
+            setAdapter()
+        }
 
         return rootView
     }
@@ -115,60 +114,73 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
         }
 
         binding.buttonRequest.setOnClickListener {
-            val user = (activity as MainActivity?)?.getUser()
-            firestore?.collection("fanClub")?.document(selectedFanClub?.docName.toString())?.collection("member")?.document(user?.uid.toString())?.get()?.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    if (task.result.exists()) { // document 있음
+            val user = (activity as MainActivity?)?.getUser()!!
+            if (isBlockFanClubJoin(user)) {
+                val question = QuestionDTO(
+                    QuestionDTO.Stat.WARNING,
+                    "팬클럽 가입",
+                    "팬클럽 탈퇴 혹은 추방 시, 24시간이 지나야 팬클럽에 가입 요청할 수 있습니다.\n\n탈퇴일 [${SimpleDateFormat("yyyy.MM.dd HH:mm").format(user?.fanClubQuitDate)}]",
+                )
+                val questionDialog = QuestionDialog(requireContext(), question)
+                questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                questionDialog.setCanceledOnTouchOutside(false)
+                questionDialog.show()
+                questionDialog.showButtonOk(false)
+                questionDialog.setButtonCancel("확인")
+                questionDialog.button_question_cancel.setOnClickListener { // No
+                    questionDialog.dismiss()
+                }
+            } else if (user.fanClubRequestId.size > 100) {
+                Toast.makeText(activity, "더 이상 팬클럽 가입 신청을 할 수 없습니다. 가입 승인을 기다려 주세요.", Toast.LENGTH_SHORT).show()
+            } else { // 팬클럽 탈퇴 후 24시간이 지나야 재 가입이 가능
+                firebaseViewModel.getMember(selectedFanClub?.docName.toString(), user.uid.toString()) { memberDTO ->
+                    if (memberDTO != null) {
                         Toast.makeText(activity, "이미 가입 요청을 한 팬클럽 입니다!", Toast.LENGTH_SHORT).show()
-                    } else { // document 없으면 회원 가입 페이지로 이동
-                        val member = MemberDTO(false, user?.uid, user?.nickname, user?.level, user?.aboutMe, 0, MemberDTO.POSITION.GUEST, Date(), null, false)
-                        firestore?.collection("fanClub")?.document(selectedFanClub?.docName.toString())?.collection("member")?.document(user?.uid.toString())?.set(member)?.addOnCompleteListener {
-                            Toast.makeText(activity, "팬클럽 가입 요청 완료!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        val member = MemberDTO(false, user?.uid, user?.nickname, user?.level, user?.aboutMe, 0, MemberDTO.Position.GUEST, Date(), null, null, user?.token)
+                        firebaseViewModel.updateMember(selectedFanClub?.docName.toString(), member) {
+                            user.fanClubRequestId.add(selectedFanClub?.docName.toString())
+                            firebaseViewModel.updateUserFanClubRequestId(user) { }
                         }
                     }
+                    selectRecyclerView()
                 }
-                selectRecyclerView()
             }
         }
     }
 
-    private fun searchFanClub() {
-        var query = binding.searchView.query
-        var collection: Query? = null
-
-        collection = if (query.isNullOrEmpty()) { // 검색어가 없을 경우 랜덤으로 팬클럽 표시
-            // 팬클럽 생성 시간이 특정날짜 기준 이하인 팬클럽을 랜덤으로 획득
-            // 오늘날짜 - 팬클럽 15개 이상 생성된 날짜 중 랜덤 값
-            val startDate = SimpleDateFormat("yyyyMMdd").parse("20210905").time
-            val calendar= Calendar.getInstance()
-            val range = ((calendar.time.time - startDate) / (24 * 60 * 60 * 1000)).toInt()
-            val random = Random.nextInt(0, range)
-            calendar.add(Calendar.DATE, -random)
-
-            println("랜덤 : $random, 레인지 : $range, ${calendar.time}, $calendar")
-
-            firestore?.collection("fanClub")?.whereLessThan("createTime", calendar.time)?.limit(15)
-        } else { // 검색어에 해당하는 팬클럽 표시
-            firestore?.collection("fanClub")
-        }
-        //firestore?.collection("fanClub")?.get()?.addOnCompleteListener { task ->
-        collection?.get()?.addOnCompleteListener { task ->
-            fanClubs.clear()
-            if (task.isSuccessful) {
-                for (document in task.result) {
-                    var fanClub = document.toObject(FanClubDTO::class.java)!!
-                    if (!query.isNullOrEmpty()) {
-                        if (fanClub.name!!.contains(query)) {
-                            fanClubs.add(fanClub)
-                        }
-                    } else {
-                        fanClubs.add(fanClub)
+    private fun setAdapter() {
+        recyclerViewAdapter = RecyclerViewAdapterFanClub(firebaseViewModel.fanClubDTOs.value!!, this)
+        recyclerView.adapter = recyclerViewAdapter
+        for (index in 0 until firebaseViewModel.fanClubDTOs.value!!.size) {
+            if (firebaseViewModel.fanClubDTOs.value!![index].imgSymbolCustom != null) {
+                firebaseStorageViewModel.getFanClubSymbol(firebaseViewModel.fanClubDTOs.value!![index].docName.toString()) { uri ->
+                    if (uri != null) {
+                        recyclerViewAdapter.updateSymbol(index, uri)
                     }
                 }
-                recyclerViewAdapter = RecyclerViewAdapterFanClub(fanClubs, this)
-                recyclerView.adapter = recyclerViewAdapter
             }
         }
+    }
+
+    private fun isBlockFanClubJoin(user: UserDTO) : Boolean {
+        // 팬클럽 탈퇴 후 24시간이 지나야 재 가입이 가능
+        var isBlock = false
+        if (user.fanClubQuitDate != null) {
+            val calendar= Calendar.getInstance()
+            calendar.time = user.fanClubQuitDate
+            calendar.add(Calendar.DATE, 1)
+
+            if (Date() < calendar.time) {
+                isBlock = true
+            }
+        }
+        return isBlock
+    }
+
+    private fun searchFanClub() {
+        var query = binding.searchView.query.trim()
+        firebaseViewModel.getFanClubsSearch(query.toString())
     }
 
     override fun onAttach(context: Context) {
@@ -191,17 +203,21 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
         }
     }
 
-    private fun setSelectFanClubInfo() {
+    private fun setSelectFanClubInfo(item: FanClubExDTO) {
         if (selectedFanClub != null) {
-            var imageID = requireContext().resources.getIdentifier(selectedFanClub?.imgSymbol, "drawable", requireContext().packageName)
-            if (imageID > 0) {
-                binding.imgSymbol.setImageResource(imageID)
+            if (item.imgSymbolCustomUri != null) {
+                Glide.with(requireContext()).load(item.imgSymbolCustomUri).fitCenter().into(binding.imgSymbol)
+            } else {
+                var imageID = requireContext().resources.getIdentifier(selectedFanClub?.imgSymbol, "drawable", requireContext().packageName)
+                if (imageID > 0) {
+                    binding.imgSymbol.setImageResource(imageID)
+                }
             }
 
             binding.textName.text = selectedFanClub?.name
             binding.textLevel.text = "Lv. ${selectedFanClub?.level}"
             binding.textMaster.text = selectedFanClub?.masterNickname
-            binding.textCount.text = "${selectedFanClub?.count}/${selectedFanClub?.countMax}"
+            binding.textCount.text = "${selectedFanClub?.memberCount}/${selectedFanClub?.getMaxMemberCount()}"
             binding.editDescription.setText(selectedFanClub?.description)
         }
     }
@@ -252,10 +268,10 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
         }
     }
 
-    override fun onItemClick(item: FanClubDTO, position: Int) {
-        selectedFanClub = item
+    override fun onItemClick(item: FanClubExDTO, position: Int) {
+        selectedFanClub = item.fanClubDTO
         selectedPosition = position
-        setSelectFanClubInfo()
+        setSelectFanClubInfo(item)
         selectRecyclerView()
     }
 }

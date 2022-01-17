@@ -7,7 +7,7 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:orientation="vertical"
-        android:padding="10dp"
+        android:paddingTop="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
         <TextView
@@ -18,26 +18,42 @@
             android:layout_height="wrap_content"
             android:text="1월"
             android:textSize="20sp"/>
-        <ProgressBar
-            android:id="@+id/progress_percent"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:progress="30"
-            android:indeterminate="false"
-            android:progressBackgroundTint="#FBE7C6"
-            android:progressDrawable="@drawable/circle_progressbar"
-            android:progressTint="#edbf41"
-            android:layout_gravity="center"
-            android:layout_width="36dp"
-            android:layout_height="36dp"/>
-        <TextView
-            android:id="@+id/text_percent"
-            android:fontFamily="@font/font"
-            android:layout_gravity="center"
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="30%"
-            android:textSize="16sp"
-            android:textColor="#FF0000"/>
+            android:layout_height="wrap_content">
+
+            <ProgressBar
+                android:id="@+id/progress_percent"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:progress="30"
+                android:indeterminate="false"
+                android:progressBackgroundTint="@color/progress_background_70"
+                android:progressDrawable="@drawable/circle_progressbar"
+                android:progressTint="@color/progress_70"
+                android:layout_centerHorizontal="true"
+                android:layout_width="36dp"
+                android:layout_height="36dp"/>
+
+            <TextView
+                android:id="@+id/text_percent"
+                android:fontFamily="@font/font"
+                android:layout_centerHorizontal="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/progress_percent"
+                android:text="30%"
+                android:textSize="16sp"
+                android:textColor="#FF0000"/>
+
+            <ImageView
+                android:id="@+id/img_complete"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_centerInParent="true"
+                android:layout_marginLeft="5dp"
+                android:src="@drawable/complete" />
+        </RelativeLayout>
+
     </LinearLayout>
 
 </RelativeLayout>

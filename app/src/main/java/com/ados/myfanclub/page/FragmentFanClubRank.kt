@@ -9,14 +9,18 @@ import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentFanClubRankBinding
 import com.ados.myfanclub.model.FanClubDTO
+import com.ados.myfanclub.model.FanClubExDTO
 import com.ados.myfanclub.model.MemberDTO
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
+import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
+import com.ados.myfanclub.viewmodel.FirebaseViewModel
+import com.bumptech.glide.Glide
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -30,17 +34,20 @@ private const val ARG_PARAM2 = "param2"
  */
 class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
     // TODO: Rename and change types of parameters
+    private var param1: String? = null
+    private var param2: String? = null
+
     private var _binding: FragmentFanClubRankBinding? = null
     private val binding get() = _binding!!
 
-    private var firestore : FirebaseFirestore? = null
+    private val firebaseViewModel : FirebaseViewModel by viewModels()
+    private val firebaseStorageViewModel : FirebaseStorageViewModel by viewModels()
 
     lateinit var recyclerView : RecyclerView
     lateinit var recyclerViewAdapter : RecyclerViewAdapterFanClubRank
 
     private var fanClubDTO: FanClubDTO? = null
     private var currentMember: MemberDTO? = null
-    private var fanClubs : ArrayList<FanClubDTO> = arrayListOf()
 
     private var selectedFanClub: FanClubDTO? = null
     private var selectedPosition: Int? = 0
@@ -48,9 +55,12 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            fanClubDTO = it.getParcelable(ARG_PARAM1)
-            currentMember = it.getParcelable(ARG_PARAM2)
+            param1 = it.getString(ARG_PARAM1)
+            param2 = it.getString(ARG_PARAM2)
         }
+
+        fanClubDTO = (activity as MainActivity?)?.getFanClub()
+        currentMember = (activity as MainActivity?)?.getMember()
     }
 
     override fun onCreateView(
@@ -61,8 +71,6 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
         _binding = FragmentFanClubRankBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
 
-        firestore = FirebaseFirestore.getInstance()
-
         recyclerView = rootView.findViewById(R.id.rv_fan_club_rank!!)as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
@@ -70,6 +78,7 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
         binding.layoutMenu.visibility = View.GONE
 
         refresh()
+        observeFanClubs()
 
         return rootView
     }
@@ -105,34 +114,53 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(param1: FanClubDTO?, param2: MemberDTO?) =
+        fun newInstance(param1: String, param2: String) =
             FragmentFanClubRank().apply {
                 arguments = Bundle().apply {
-                    putParcelable(ARG_PARAM1, param1)
-                    putParcelable(ARG_PARAM2, param2)
+                    putString(ARG_PARAM1, param1)
+                    putString(ARG_PARAM2, param2)
                 }
             }
     }
 
-    private fun refresh() {
-        firestore?.collection("fanClub")?.orderBy("exp", Query.Direction.DESCENDING)?.get()?.addOnCompleteListener { task ->
-            fanClubs.clear()
-            if (task.isSuccessful) {
-                for (document in task.result) {
-                    var fanClub = document.toObject(FanClubDTO::class.java)!!
-                    fanClubs.add(fanClub)
+    private fun setAdapter() {
+        recyclerViewAdapter = RecyclerViewAdapterFanClubRank(firebaseViewModel.fanClubDTOs.value!!, this)
+        recyclerView.adapter = recyclerViewAdapter
+        for (index in 0 until firebaseViewModel.fanClubDTOs.value!!.size) {
+            if (firebaseViewModel.fanClubDTOs.value!![index].imgSymbolCustom != null) {
+                firebaseStorageViewModel.getFanClubSymbol(firebaseViewModel.fanClubDTOs.value!![index].docName.toString()) { uri ->
+                    if (uri != null) {
+                        recyclerViewAdapter.updateSymbol(index, uri)
+                    }
                 }
-                recyclerViewAdapter = RecyclerViewAdapterFanClubRank(fanClubs, this)
-                recyclerView.adapter = recyclerViewAdapter
+            }
+        }
+        (activity as MainActivity?)?.loadingEnd()
+    }
+
+    private fun refresh() {
+        (activity as MainActivity?)?.loading()
+        firebaseViewModel.getFanClubs()
+        closeLayout()
+    }
+
+    private fun observeFanClubs() {
+        firebaseViewModel.fanClubDTOs.observe(requireActivity()) {
+            if (_binding != null) { // 메인 탭에서 바로 사용자 정보 탭 이동 시 팬클럽 뷰가 Destroy 되고 나서 뒤 늦게 들어오는 경우가 있기 때문에 예외 처리
+                setAdapter()
             }
         }
     }
 
-    private fun setSelectFanClubInfo() {
+    private fun setSelectFanClubInfo(item: FanClubExDTO) {
         if (selectedFanClub != null) {
-            var imageID = requireContext().resources.getIdentifier(selectedFanClub?.imgSymbol, "drawable", requireContext().packageName)
-            if (imageID > 0) {
-                binding.imgSymbol.setImageResource(imageID)
+            if (item.imgSymbolCustomUri != null) {
+                Glide.with(requireContext()).load(item.imgSymbolCustomUri).fitCenter().into(binding.imgSymbol)
+            } else {
+                var imageID = requireContext().resources.getIdentifier(selectedFanClub?.imgSymbol, "drawable", requireContext().packageName)
+                if (imageID > 0) {
+                    binding.imgSymbol.setImageResource(imageID)
+                }
             }
 
             when (selectedPosition) {
@@ -165,7 +193,7 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
             binding.textName.text = selectedFanClub?.name
             binding.textLevel.text = "Lv. ${selectedFanClub?.level}"
             binding.textMaster.text = selectedFanClub?.masterNickname
-            binding.textCount.text = "${selectedFanClub?.count}/${selectedFanClub?.countMax}"
+            binding.textCount.text = "${selectedFanClub?.memberCount}/${selectedFanClub?.getMaxMemberCount()}"
             binding.editDescription.setText(selectedFanClub?.description)
         }
     }
@@ -196,10 +224,10 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
         }
     }
 
-    override fun onItemClick(item: FanClubDTO, position: Int) {
-        selectedFanClub = item
+    override fun onItemClick(item: FanClubExDTO, position: Int) {
+        selectedFanClub = item.fanClubDTO
         selectedPosition = position
-        setSelectFanClubInfo()
+        setSelectFanClubInfo(item)
         selectRecyclerView()
     }
 }

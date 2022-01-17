@@ -9,9 +9,9 @@
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
-        android:layout_above="@+id/layout_menu"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_above="@+id/layout_menu">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_fan_club_rank"
@@ -44,6 +44,23 @@
                 android:padding="5dp">
 
                 <LinearLayout
+                    android:id="@+id/layout_symbol"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/img_symbol"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginBottom="5dp"
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:src="@drawable/reward_icon_25" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_below="@id/layout_symbol"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
@@ -74,13 +91,6 @@
                             app:autoSizeMinTextSize="10sp"
                             app:autoSizeStepGranularity="1sp"
                             app:autoSizeTextType="uniform" />
-
-                        <ImageView
-                            android:id="@+id/img_symbol"
-                            android:layout_marginTop="4dp"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:src="@drawable/reward_icon_25" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -232,6 +242,7 @@
             android:background="@drawable/btn_ripple"
             android:fontFamily="@font/font"
             android:text="확인"
+            android:textSize="18sp"
             android:textColor="#0090FF" />
 
     </LinearLayout>

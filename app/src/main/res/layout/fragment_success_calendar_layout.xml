@@ -32,11 +32,12 @@
         </com.google.android.material.card.MaterialCardView>
 
         <TextView
-            android:fontFamily="@font/font"
+            android:id="@+id/text_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/button_back"
+            android:fontFamily="@font/font"
             android:text="목표달성 통계"
             android:textColor="@color/text"
             android:textSize="20sp" />

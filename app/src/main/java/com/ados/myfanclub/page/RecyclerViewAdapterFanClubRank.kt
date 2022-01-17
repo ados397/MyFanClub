@@ -3,6 +3,7 @@ package com.ados.myfanclub.page
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.ListItemFanClubRankBinding
 import com.ados.myfanclub.model.FanClubDTO
+import com.ados.myfanclub.model.FanClubExDTO
 import com.bumptech.glide.Glide
 import java.text.DecimalFormat
 
@@ -18,6 +20,14 @@ class RecyclerViewAdapterFanClubRank(private val items: ArrayList<FanClubDTO>, v
 
     var decimalFormat: DecimalFormat = DecimalFormat("###,###")
     var context: Context? = null
+
+    private val itemsEx: ArrayList<FanClubExDTO> = arrayListOf()
+
+    init {
+        for (it in items) {
+            itemsEx.add(FanClubExDTO(it))
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         context = parent.context
@@ -30,9 +40,9 @@ class RecyclerViewAdapterFanClubRank(private val items: ArrayList<FanClubDTO>, v
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.initializes(items[position], clickListener)
+        holder.initializes(itemsEx[position], clickListener)
 
-        items[position].let { item ->
+        itemsEx[position].let { item ->
             with(holder) {
                 if (imgRank != null) {
                     when (position) {
@@ -70,23 +80,28 @@ class RecyclerViewAdapterFanClubRank(private val items: ArrayList<FanClubDTO>, v
                     }
                 }
 
-                var imageID = itemView.context.resources.getIdentifier(item.imgSymbol, "drawable", itemView.context.packageName)
-                if (imgSymbol != null && imageID > 0) {
-                    //iconImage?.setImageResource(item)
-                    Glide.with(imgSymbol.context)
-                        .asBitmap()
-                        .load(imageID) ///feed in path of the image
-                        .fitCenter()
-                        .into(holder.imgSymbol)
+                if (item.imgSymbolCustomUri != null) {
+                    Glide.with(imgSymbol.context).load(item.imgSymbolCustomUri).fitCenter().into(holder.imgSymbol)
+                } else {
+                    var imageID = itemView.context.resources.getIdentifier(item.fanClubDTO?.imgSymbol, "drawable", itemView.context.packageName)
+                    if (imgSymbol != null && imageID > 0) {
+                        //iconImage?.setImageResource(item)
+                        Glide.with(imgSymbol.context)
+                            .asBitmap()
+                            .load(imageID) ///feed in path of the image
+                            .fitCenter()
+                            .into(holder.imgSymbol)
+                    }
                 }
 
-                name.text = "${item.name}"
-                level.text = "Lv. ${item.level}"
-                exp.text = "${decimalFormat.format(item.exp)}"
-                count.text = "${item.count}/${item.countMax}"
-                description.text = item.description
+                name.text = "${item.fanClubDTO?.name}"
+                level.text = "Lv. ${item.fanClubDTO?.level}"
+                //exp.text = "${decimalFormat.format(item.getTotalExp())}"
+                exp.text = "${decimalFormat.format(item.fanClubDTO?.expTotal)}"
+                count.text = "${item.fanClubDTO?.memberCount}/${item.fanClubDTO?.getMaxMemberCount()}"
+                description.text = item.fanClubDTO?.description
 
-                if (item.isSelected) {
+                if (item.fanClubDTO?.isSelected == true) {
                     mainLayout.setBackgroundColor(Color.parseColor("#BBD5F8"))
                 } else {
                     mainLayout.setBackgroundColor(Color.parseColor("#FFFFFF"))
@@ -95,17 +110,22 @@ class RecyclerViewAdapterFanClubRank(private val items: ArrayList<FanClubDTO>, v
         }
     }
 
+    fun updateSymbol(position: Int, uri: Uri?) {
+        itemsEx[position].imgSymbolCustomUri = uri
+        notifyItemChanged(position)
+    }
+
     // 이미 선택된 항목을 선택할 경우 선택을 해제하고 false 반환, 아닐경우 해당항목 선택 후 true 반환
     fun selectItem(position: Int) : Boolean {
-        return if (items[position].isSelected) {
-            items[position].isSelected = false
+        return if (itemsEx[position].fanClubDTO?.isSelected == true) {
+            itemsEx[position].fanClubDTO?.isSelected = false
             notifyDataSetChanged()
             false
         } else {
-            for (item in items) {
-                item.isSelected = false
+            for (item in itemsEx) {
+                item.fanClubDTO?.isSelected = false
             }
-            items[position].isSelected = true
+            itemsEx[position].fanClubDTO?.isSelected = true
             notifyDataSetChanged()
             true
         }
@@ -123,7 +143,7 @@ class RecyclerViewAdapterFanClubRank(private val items: ArrayList<FanClubDTO>, v
         var cardView = viewBinding.cardView
         var mainLayout = viewBinding.layoutMain
 
-        fun initializes(item: FanClubDTO, action:OnFanClubRankItemClickListener) {
+        fun initializes(item: FanClubExDTO, action:OnFanClubRankItemClickListener) {
             viewBinding.layoutMain.setOnClickListener {
                 action.onItemClick(item, adapterPosition)
             }
@@ -132,5 +152,5 @@ class RecyclerViewAdapterFanClubRank(private val items: ArrayList<FanClubDTO>, v
 }
 
 interface OnFanClubRankItemClickListener {
-    fun onItemClick(item: FanClubDTO, position: Int)
+    fun onItemClick(item: FanClubExDTO, position: Int)
 }

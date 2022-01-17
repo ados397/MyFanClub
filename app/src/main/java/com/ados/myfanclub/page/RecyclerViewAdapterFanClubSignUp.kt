@@ -32,6 +32,14 @@ class RecyclerViewAdapterFanClubSignUp(private val items: ArrayList<MemberDTO>, 
         }
     }
 
+    // 체크 모두 해제
+    fun releaseCheckAll() {
+        for (item in items) {
+           item.isSelected = false
+        }
+        notifyDataSetChanged()
+    }
+
     // 체크된 항목이 하나라도 있으면 true 반환 함수
     fun isChecked() : Boolean {
         for (item in items) {

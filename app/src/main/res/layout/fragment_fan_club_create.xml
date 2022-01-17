@@ -44,54 +44,70 @@
     </RelativeLayout>
 
     <LinearLayout
-        android:orientation="vertical"
-        android:layout_below="@+id/layout_title"
-        android:layout_margin="10dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/layout_title"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="vertical">
 
         <TextView
-            android:text="팬클럽 심볼을 선택하세요."
-            android:textSize="16sp"
-            android:fontFamily="@font/font"
-            android:layout_marginBottom="5dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:fontFamily="@font/font"
+            android:text="팬클럽 심볼을 선택하세요."
+            android:textColor="@color/text"
+            android:textSize="16sp" />
 
         <ImageView
             android:id="@+id/img_symbol"
-            android:src="@drawable/reward_icon_25"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="15dp"
-            android:padding="10dp"
             android:background="@drawable/edit_rectangle"
-            android:layout_width="128dp"
-            android:layout_height="128dp"/>
+            android:padding="10dp"
+            android:src="@drawable/reward_icon_25" />
 
         <TextView
-            android:text="팬클럽 이름"
-            android:fontFamily="@font/font"
-            android:textSize="16sp"
-            android:layout_marginBottom="5dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:fontFamily="@font/font"
+            android:text="팬클럽 이름"
+            android:textColor="@color/text"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/edit_name"
-            android:hint="생성할 팬클럽 이름을 입력하세요."
-            android:textColor="@color/text"
-            android:maxLength="30"
-            android:maxLines="1"
-            android:inputType="text"
-            android:fontFamily="@font/font"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:background="@drawable/edit_rectangle"
+            android:fontFamily="@font/font"
+            android:hint="생성할 팬클럽 이름을 입력하세요."
+            android:inputType="text"
+            android:maxLength="30"
+            android:maxLines="1"
+            android:textColor="@color/text"
             android:textCursorDrawable="@drawable/edit_cursor"
             android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/text_name_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="5dp"
+            android:fontFamily="@font/font"
+            android:text=""
+            android:textColor="@color/text_red"
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/text_name_len"
@@ -104,25 +120,26 @@
             android:text="0/30" />
 
         <TextView
-            android:text="팬클럽 소개"
-            android:textSize="16sp"
-            android:fontFamily="@font/font"
-            android:layout_marginBottom="5dp"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:fontFamily="@font/font"
+            android:textColor="@color/text"
+            android:text="팬클럽 소개"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/edit_description"
-            android:textColor="@color/text"
-            android:maxLength="600"
-            android:hint="팬클럽 소개를 해주세요."
-            android:fontFamily="@font/font"
-            android:lines="3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:background="@drawable/edit_rectangle"
+            android:fontFamily="@font/font"
+            android:hint="팬클럽 소개를 해주세요."
+            android:lines="3"
+            android:maxLength="600"
+            android:textColor="@color/text"
             android:textCursorDrawable="@drawable/edit_cursor"
             android:textSize="16sp" />
 
@@ -146,7 +163,7 @@
 
         <Button
             android:id="@+id/button_ok"
-            android:fontFamily="@font/font"
+            android:enabled="false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
@@ -155,6 +172,7 @@
             android:layout_marginEnd="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
+            android:fontFamily="@font/font"
             android:text="팬클럽 창설" />
 
     </RelativeLayout>

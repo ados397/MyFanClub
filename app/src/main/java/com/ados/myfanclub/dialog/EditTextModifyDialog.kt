@@ -24,6 +24,8 @@ class EditTextModifyDialog(context: Context, var item: EditTextDTO) : Dialog(con
         setContentView(binding.root)
 
         binding.buttonModifyOk.isEnabled = false
+        binding.imgModifyOk.visibility = View.GONE
+        binding.imgModifyCancel.visibility = View.GONE
 
         binding.textTitle.text = item.title
         binding.editContent.setText(item.content)
@@ -33,23 +35,34 @@ class EditTextModifyDialog(context: Context, var item: EditTextDTO) : Dialog(con
         }
 
         binding.editContent.doAfterTextChanged {
-            val content = binding.editContent.text.toString()
+            val content = binding.editContent.text.toString().trim()
             if (item.regex != null) {
                 if (!isValid(content)) {
                     binding.textContentError.text = item.regexErrorMsg
                     binding.editContent.setBackgroundResource(R.drawable.edit_rectangle_red)
+
+                    binding.buttonModifyOk.isEnabled = false
+                    binding.textModifyOk.setTextColor(ContextCompat.getColor(context, R.color.text_disable))
                 } else {
                     binding.textContentError.text = ""
                     binding.editContent.setBackgroundResource(R.drawable.edit_rectangle)
-                }
-            }
 
-            if (item.content != content) {
-                binding.buttonModifyOk.isEnabled = true
-                binding.buttonModifyOk.setTextColor(ContextCompat.getColor(context, R.color.text))
+                    if (item.content != content) {
+                        binding.buttonModifyOk.isEnabled = true
+                        binding.textModifyOk.setTextColor(ContextCompat.getColor(context, R.color.text))
+                    } else {
+                        binding.buttonModifyOk.isEnabled = false
+                        binding.textModifyOk.setTextColor(ContextCompat.getColor(context, R.color.text_disable))
+                    }
+                }
             } else {
-                binding.buttonModifyOk.isEnabled = false
-                binding.buttonModifyOk.setTextColor(ContextCompat.getColor(context, R.color.text_disable))
+                if (item.content != content) {
+                    binding.buttonModifyOk.isEnabled = true
+                    binding.textModifyOk.setTextColor(ContextCompat.getColor(context, R.color.text))
+                } else {
+                    binding.buttonModifyOk.isEnabled = false
+                    binding.textModifyOk.setTextColor(ContextCompat.getColor(context, R.color.text_disable))
+                }
             }
 
             binding.textContentLen.text = "${binding.editContent.text.length}/${item.length}"
@@ -62,15 +75,15 @@ class EditTextModifyDialog(context: Context, var item: EditTextDTO) : Dialog(con
     }
 
     fun setButtonOk(name: String) {
-        binding.buttonModifyOk.text = name
+        binding.textModifyOk.text = name
     }
 
     fun setButtonCancel(name: String) {
-        binding.buttonModifyCancel.text = name
+        binding.textModifyCancel.text = name
     }
 
     fun showButtonOk(visible: Boolean) {
-        if (visible == true) {
+        if (visible) {
             binding.buttonModifyOk.visibility = View.VISIBLE
         } else {
             binding.buttonModifyOk.visibility = View.GONE
@@ -78,10 +91,26 @@ class EditTextModifyDialog(context: Context, var item: EditTextDTO) : Dialog(con
     }
 
     fun showButtonCancel(visible: Boolean) {
-        if (visible == true) {
+        if (visible) {
             binding.buttonModifyCancel.visibility = View.VISIBLE
         } else {
             binding.buttonModifyCancel.visibility = View.GONE
+        }
+    }
+
+    fun showImgOk(visible: Boolean) {
+        if (visible) {
+            binding.imgModifyOk.visibility = View.VISIBLE
+        } else {
+            binding.imgModifyOk.visibility = View.GONE
+        }
+    }
+
+    fun showImgCancel(visible: Boolean) {
+        if (visible) {
+            binding.imgModifyCancel.visibility = View.VISIBLE
+        } else {
+            binding.imgModifyCancel.visibility = View.GONE
         }
     }
 

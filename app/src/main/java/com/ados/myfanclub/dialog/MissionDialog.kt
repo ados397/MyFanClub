@@ -37,6 +37,13 @@ class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
         //window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
+        when (dashboardMissionDTO?.scheduleDTO?.cycle) {
+            ScheduleDTO.Cycle.DAY -> binding.imgScheduleType.setImageResource(R.drawable.schedule_day)
+            ScheduleDTO.Cycle.WEEK -> binding.imgScheduleType.setImageResource(R.drawable.schedule_week)
+            ScheduleDTO.Cycle.MONTH -> binding.imgScheduleType.setImageResource(R.drawable.schedule_month)
+            ScheduleDTO.Cycle.PERIOD -> binding.imgScheduleType.setImageResource(R.drawable.schedule_period)
+        }
+
         binding.textTitle.text = dashboardMissionDTO?.scheduleDTO?.title
         binding.editPurpose.setText(dashboardMissionDTO?.scheduleDTO?.purpose)
         binding.textRange.text = "${SimpleDateFormat("yyyy.MM.dd").format(dashboardMissionDTO?.scheduleDTO?.startDate)} ~ ${SimpleDateFormat("yyyy.MM.dd").format(dashboardMissionDTO?.scheduleDTO?.endDate)}"
@@ -44,17 +51,16 @@ class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
         missionCount = dashboardMissionDTO?.scheduleProgressDTO?.count!!
         missionCountMax = dashboardMissionDTO?.scheduleDTO?.count!!
 
-        binding.textRate.text = "${missionCount}/${missionCountMax}"
-        getPercent()
+        refreshRate()
 
         when (dashboardMissionDTO?.scheduleDTO?.action) { // 앱 실행
-            ScheduleDTO.ACTION.APP -> {
+            ScheduleDTO.Action.APP -> {
                 binding.textExecute.text = "앱 실행"
                 binding.imgIcon.setImageResource(R.drawable.app)
                 binding.textAppName.visibility = View.VISIBLE
                 binding.textAppName.text = "[${dashboardMissionDTO?.scheduleDTO?.appDTO?.appName}]"
             }
-            ScheduleDTO.ACTION.URL -> {
+            ScheduleDTO.Action.URL -> {
                 binding.textExecute.text = "링크 실행"
                 binding.imgIcon.setImageResource(R.drawable.link)
                 binding.textAppName.visibility = View.GONE
@@ -62,83 +68,31 @@ class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
         }
 
         binding.buttonMinus100.setOnClickListener {
-            if (missionCount > 0) {
-                if (missionCount - 100 < 0) {
-                    missionCount = 0
-                } else {
-                    missionCount = missionCount.minus(100)
-                }
-                println("미션 카운트 $missionCount")
-                binding.textRate.text = "${missionCount}/${missionCountMax}"
-
-                getPercent()
-            }
+            minusCount(100)
         }
         binding.buttonMinus10.setOnClickListener {
-            if (missionCount > 0) {
-                if (missionCount - 10 < 0) {
-                    missionCount = 0
-                } else {
-                    missionCount = missionCount.minus(10)
-                }
-                println("미션 카운트 $missionCount")
-                binding.textRate.text = "${missionCount}/${missionCountMax}"
-
-                getPercent()
-            }
+            minusCount(10)
         }
         binding.buttonMinus.setOnClickListener {
-            if (missionCount > 0) {
-                missionCount--
-                binding.textRate.text = "${missionCount}/${missionCountMax}"
-
-                getPercent()
-            }
+            minusCount(1)
         }
         binding.buttonPlus.setOnClickListener {
-            if (missionCount < missionCountMax) {
-                missionCount++
-                binding.textRate.text = "${missionCount}/${missionCountMax}"
-
-                getPercent()
-            }
+            plusCount(1)
         }
         binding.buttonPlus10.setOnClickListener {
-            if (missionCount < missionCountMax) {
-                if (missionCount + 10 > missionCountMax) {
-                    missionCount = missionCountMax
-                } else {
-                    missionCount = missionCount.plus(10)
-                }
-                println("미션 카운트 $missionCount")
-                binding.textRate.text = "${missionCount}/${missionCountMax}"
-
-                getPercent()
-            }
+            plusCount(10)
         }
         binding.buttonPlus100.setOnClickListener {
-            if (missionCount < missionCountMax) {
-                if (missionCount + 100 > missionCountMax) {
-                    missionCount = missionCountMax
-                } else {
-                    missionCount = missionCount.plus(100)
-                }
-                println("미션 카운트 $missionCount")
-                binding.textRate.text = "${missionCount}/${missionCountMax}"
-
-                getPercent()
-            }
+            plusCount(100)
         }
         binding.buttonMax.setOnClickListener {
             missionCount = missionCountMax
-            binding.textRate.text = "${missionCount}/${missionCountMax}"
-
-            getPercent()
+            refreshRate()
         }
 
         binding.buttonExecute.setOnClickListener {
             when (dashboardMissionDTO?.scheduleDTO?.action) { // 앱 실행
-                ScheduleDTO.ACTION.APP -> {
+                ScheduleDTO.Action.APP -> {
                     val linePackage = dashboardMissionDTO?.scheduleDTO?.appDTO?.packageName.toString()
                     val intentLine = context.packageManager.getLaunchIntentForPackage(linePackage) // 인텐트에 패키지 주소 저장
 
@@ -149,7 +103,7 @@ class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
                         context.startActivity(intentPlayStore) // 플레이스토어로 이동
                     }
                 }
-                ScheduleDTO.ACTION.URL -> {
+                ScheduleDTO.Action.URL -> {
                     val address = dashboardMissionDTO?.scheduleDTO?.url
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(address))
                     context.startActivity(intent)
@@ -159,9 +113,36 @@ class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
 
 
         binding.editPurpose.setOnTouchListener { view, motionEvent ->
-            //binding.scrollView.requestDisallowInterceptTouchEvent(true)
+            binding.scrollView.requestDisallowInterceptTouchEvent(true)
             false
         }
+    }
+
+    private fun plusCount(count: Int) {
+        if (missionCount < missionCountMax) {
+            missionCount = if (missionCount + count > missionCountMax) {
+                missionCountMax
+            } else {
+                missionCount.plus(count)
+            }
+            refreshRate()
+        }
+    }
+
+    private fun minusCount(count: Int) {
+        if (missionCount > 0) {
+            missionCount = if (missionCount - count < 0) {
+                0
+            } else {
+                missionCount.minus(count)
+            }
+            refreshRate()
+        }
+    }
+
+    private fun refreshRate() {
+        binding.textRate.text = "${missionCount}/${missionCountMax}"
+        getPercent()
     }
 
     private fun getPercent() {
@@ -189,7 +170,7 @@ class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
         }
     }
 
-    fun setPercent(color: Int) {
+    private fun setPercent(color: Int) {
         binding.textPercent.setTextColor(color)
         binding.progressPercent.progressDrawable.setColorFilter(color, PorterDuff.Mode.SRC_IN)
 

@@ -35,7 +35,7 @@
                 android:shadowRadius="15.0"
                 android:singleLine="true"
                 android:text="전광판 텍스트"
-                android:textColor="@color/display_board_1"
+                android:textColor="@color/display_board_8"
                 android:textSize="20sp" />
         </RelativeLayout>
 

@@ -78,14 +78,15 @@
                     android:layout_marginRight="15dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
+
                     <ProgressBar
-                        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                         android:id="@+id/progress_percent"
-                        android:max="100"
-                        android:progress="50"
-                        android:layout_centerHorizontal="true"
+                        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:max="100"
+                        android:progress="50" />
 
                     <TextView
                         android:id="@+id/text_percent"
@@ -99,11 +100,10 @@
 
                     <ImageView
                         android:id="@+id/img_complete"
-                        android:src="@drawable/complete"
-                        android:layout_centerHorizontal="true"
-                        android:layout_centerVertical="true"
                         android:layout_width="35dp"
-                        android:layout_height="35dp"/>
+                        android:layout_height="35dp"
+                        android:layout_centerInParent="true"
+                        android:src="@drawable/complete" />
                 </RelativeLayout>
             </LinearLayout>
         </RelativeLayout>

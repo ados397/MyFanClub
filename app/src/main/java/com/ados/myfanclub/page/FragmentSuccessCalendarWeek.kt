@@ -1,14 +1,20 @@
 package com.ados.myfanclub.page
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R
+import com.ados.myfanclub.SuccessCalendarWeek
 import com.ados.myfanclub.databinding.FragmentSuccessCalendarBinding
+import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -19,7 +25,7 @@ private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [FragmentSuccessCalendar.newInstance] factory method to
+ * Use the [FragmentSuccessCalendarDay.newInstance] factory method to
  * create an instance of this fragment.
  */
 class FragmentSuccessCalendarWeek : Fragment() {
@@ -29,6 +35,8 @@ class FragmentSuccessCalendarWeek : Fragment() {
 
     private var _binding: FragmentSuccessCalendarBinding? = null
     private val binding get() = _binding!!
+
+    private val firebaseViewModel : FirebaseViewModel by viewModels()
 
     var pageIndex = Int.MAX_VALUE
     lateinit var currentDate: Date
@@ -81,8 +89,58 @@ class FragmentSuccessCalendarWeek : Fragment() {
             time
         }
 
-        recyclerViewAdapterWeek = RecyclerViewAdapterSuccessCalendarWeek(date)
-        recyclerView.adapter = recyclerViewAdapterWeek
+        var successCalendarWeek = SuccessCalendarWeek(date)
+        successCalendarWeek.initBaseCalendar()
+
+        val fieldName = SimpleDateFormat("yyyyMM").format(date)
+
+        if (param1.equals("fanClub")) {
+            val fanClubDTO = (activity as MainActivity?)?.getFanClub()
+            val currentMember = (activity as MainActivity?)?.getMember()
+            firebaseViewModel.getFanClubScheduleStatistics(fanClubDTO?.docName.toString(), currentMember?.userUid.toString(), "week", fieldName)
+        } else if (param1.equals("personal")) {
+            val user = (activity as MainActivity?)?.getUser()
+            firebaseViewModel.getPersonalScheduleStatistics(user?.uid.toString(), "week", fieldName)
+        }
+
+        firebaseViewModel.scheduleStatistics.observe(requireActivity()) {
+            recyclerViewAdapterWeek = RecyclerViewAdapterSuccessCalendarWeek(firebaseViewModel.scheduleStatistics.value!!, successCalendarWeek)
+            recyclerView.adapter = recyclerViewAdapterWeek
+
+            var total = 0
+            for (it in firebaseViewModel.scheduleStatistics.value!!) {
+                total = total.plus(it.value)
+            }
+            val percent = total.toDouble() / successCalendarWeek.weekList.size.toDouble()
+            binding.progressPercent.progress = percent.toInt()
+            binding.textPercent.text = "${String.format("%.1f", percent)}%"
+
+            if (binding.progressPercent.progress < 100) {
+                binding.imgComplete.visibility = View.GONE
+                when {
+                    binding.progressPercent.progress < 40 -> {
+                        binding.progressPercent.progressBackgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.progress_background_0))
+                        binding.progressPercent.progressTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.progress_0))
+                        binding.textPercent.setTextColor(ContextCompat.getColor(requireContext(), R.color.progress_0))
+                    }
+                    binding.progressPercent.progress < 70 -> {
+                        binding.progressPercent.progressBackgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.progress_background_40))
+                        binding.progressPercent.progressTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.progress_40))
+                        binding.textPercent.setTextColor(ContextCompat.getColor(requireContext(), R.color.progress_40))
+                    }
+                    else -> {
+                        binding.progressPercent.progressBackgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.progress_background_70))
+                        binding.progressPercent.progressTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.progress_70))
+                        binding.textPercent.setTextColor(ContextCompat.getColor(requireContext(), R.color.progress_70))
+                    }
+                }
+            } else {
+                binding.imgComplete.visibility = View.VISIBLE
+                binding.progressPercent.progressBackgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.progress_background_100))
+                binding.progressPercent.progressTintList = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.progress_100))
+                binding.textPercent.setTextColor(ContextCompat.getColor(requireContext(), R.color.progress_100))
+            }
+        }
 
         currentDate = date
 

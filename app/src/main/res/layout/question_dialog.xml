@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
     android:layout_height="match_parent">
 
     <RelativeLayout
@@ -54,7 +56,8 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="1" />
-        <androidx.appcompat.widget.AppCompatButton
+
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/button_question_ok"
             android:layout_width="wrap_content"
             android:layout_height="25dp"
@@ -62,11 +65,42 @@
             android:layout_marginTop="7dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
-            android:background="@drawable/btn_round4"
-            android:fontFamily="@font/font"
-            android:text="확인"
-            android:textColor="@color/text" />
-        <androidx.appcompat.widget.AppCompatButton
+            android:backgroundTint="@android:color/transparent"
+            android:clickable="true"
+            app:cardElevation="0dp"
+            app:rippleColor="#fff">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/btn_round4"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingLeft="30dp"
+                android:paddingTop="2dp"
+                android:paddingRight="30dp"
+                android:paddingBottom="2dp">
+
+                <ImageView
+                    android:id="@+id/img_question_ok"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/diamond" />
+
+                <TextView
+                    android:id="@+id/text_question_ok"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/font"
+                    android:text="확인"
+                    android:textColor="@color/text" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/button_question_cancel"
             android:layout_width="wrap_content"
             android:layout_height="25dp"
@@ -74,10 +108,40 @@
             android:layout_marginTop="7dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
-            android:background="@drawable/btn_round4"
-            android:fontFamily="@font/font"
-            android:text="취소"
-            android:textColor="@color/text" />
+            android:backgroundTint="@android:color/transparent"
+            android:clickable="true"
+            app:cardElevation="0dp"
+            app:rippleColor="#fff">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/btn_round4"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingLeft="30dp"
+                android:paddingTop="2dp"
+                android:paddingRight="30dp"
+                android:paddingBottom="2dp">
+
+                <ImageView
+                    android:id="@+id/img_question_cancel"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_gravity="center"
+                    android:layout_marginRight="5dp"
+                    android:src="@drawable/diamond" />
+
+                <TextView
+                    android:id="@+id/text_question_cancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/font"
+                    android:text="취소"
+                    android:textColor="@color/text" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
     </LinearLayout>
 
 

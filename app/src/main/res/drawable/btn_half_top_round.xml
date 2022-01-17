@@ -6,10 +6,10 @@
                 android:topLeftRadius="15dp"
                 android:topRightRadius="15dp"
                 />
-            <solid android:color="#FF0000"></solid>
+            <solid android:color="@color/purple"></solid>
             <stroke
                 android:width="0.5dp"
-                android:color="#FF0000" />
+                android:color="@color/purple" />
         </shape>
     </item>
 </selector>

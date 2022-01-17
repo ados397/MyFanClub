@@ -1,13 +1,15 @@
 package com.ados.myfanclub.model
 
+import com.ados.myfanclub.SuccessCalendarWeek
+import java.text.SimpleDateFormat
 import java.util.*
 
 data class DashboardMissionDTO(
-    var type: TYPE = TYPE.PERSONAL,
+    var type: Type = Type.PERSONAL,
     var scheduleDTO: ScheduleDTO? = null,
     var scheduleProgressDTO: ScheduleProgressDTO? = null
 ) {
-    enum class TYPE {
+    enum class Type {
         PERSONAL, FAN_CLUB
     }
 }
@@ -20,20 +22,60 @@ data class ScheduleDTO(
     var startDate: Date? = null,
     var endDate: Date? = null,
     var purpose: String? = null,
-    var action: ACTION? = null,
+    var action: Action? = null,
     var appDTO: AppDTO? = null,
     var url: String? = null,
-    var cycle: CYCLE? = CYCLE.DAY,
+    var cycle: Cycle? = Cycle.DAY,
     var count: Long? = 0L,
     var isAlarm: Boolean? = false,
     var alarmDTO: AlarmDTO = AlarmDTO()
 ) {
-    enum class ACTION {
+    enum class Action {
         APP, URL
     }
 
-    enum class CYCLE {
+    enum class Cycle {
         DAY, WEEK, MONTH, PERIOD
+    }
+
+    fun getProgressDocName() : String {
+        var docName = ""
+        when (cycle) {
+            Cycle.DAY -> docName = SimpleDateFormat("yyyyMMdd").format(Date())
+            Cycle.WEEK -> {
+                var successCalendarWeek = SuccessCalendarWeek(Date())
+                successCalendarWeek.initBaseCalendar()
+                var week = successCalendarWeek.getCurrentWeek()
+                if (week != null) {
+                    docName = "${SimpleDateFormat("yyyyMMdd").format(week.startDate)}${SimpleDateFormat("yyyyMMdd").format(week.endDate)}"
+                }
+            }
+            Cycle.MONTH -> docName = SimpleDateFormat("yyyyMM").format(Date())
+            Cycle.PERIOD -> docName = "${SimpleDateFormat("yyMMdd").format(startDate)}${SimpleDateFormat("yyMMdd").format(endDate)}"
+        }
+        return docName
+    }
+
+    fun isScheduleVisible(selectedCycle: Cycle) : Boolean {
+        if (selectedCycle != cycle) {
+            return false
+        }
+
+        val calStart = Calendar.getInstance()
+        calStart.time = startDate
+        calStart.set(Calendar.HOUR, 0)
+        calStart.set(Calendar.MINUTE, 0)
+        calStart.set(Calendar.SECOND, 0)
+
+        val calEnd = Calendar.getInstance()
+        calEnd.time = endDate
+        calEnd.set(Calendar.HOUR_OF_DAY, 23)
+        calEnd.set(Calendar.MINUTE, 59)
+        calEnd.set(Calendar.SECOND, 59)
+
+        var date = Date()
+
+        return date >= calStart.time && date <= calEnd.time
     }
 }
 
@@ -66,5 +108,6 @@ data class AlarmDTO(
 
 data class ScheduleProgressDTO(
     var docName: String? = null, // 날짜형식 (일: "20210907", 주:"2021090920210912" , 월: "202109", 기간: "210909210930"")
-    var count: Long? = 0L
+    var count: Long? = 0L,
+    var countMax: Long? = 0L
 ) {}

@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".page.FragmentSuccessCalendar">
+    tools:context=".page.FragmentSuccessCalendarDay">
 
     <TextView
         android:id="@+id/text_year_month"
@@ -15,6 +15,7 @@
         android:text="2020년 01월"
         android:textSize="25sp"
         android:textStyle="bold"
+        android:textColor="@color/text"
         android:gravity="center_vertical|start"
         android:layout_marginStart="20dp"
         />
@@ -108,23 +109,39 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/text_total"
-                android:fontFamily="@font/font"
-                android:text="8월 달성률"
-                android:textSize="24sp"
-                android:layout_gravity="center"
+            <RelativeLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/text_total"
+                    android:fontFamily="@font/font"
+                    android:text="8월 달성률"
+                    android:textSize="24sp"
+                    android:textColor="@color/text"
+                    android:layout_centerVertical="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <ImageView
+                    android:visibility="gone"
+                    android:id="@+id/img_complete"
+                    android:layout_width="65dp"
+                    android:layout_height="65dp"
+                    android:layout_centerInParent="true"
+                    android:layout_marginLeft="5dp"
+                    android:src="@drawable/complete" />
+            </RelativeLayout>
+
             <ProgressBar
                 android:id="@+id/progress_percent"
                 style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                 android:progress="70"
                 android:indeterminate="false"
-                android:progressBackgroundTint="#FBE7C6"
+                android:progressBackgroundTint="@color/progress_background_70"
                 android:progressDrawable="@drawable/circle_progressbar"
-                android:progressTint="#edbf41"
-                android:gravity="center_horizontal|top"
+                android:progressTint="@color/progress_70"
+                android:layout_gravity="center_vertical"
                 android:layout_marginLeft="10dp"
                 android:layout_width="38dp"
                 android:layout_height="38dp"/>
@@ -137,7 +154,7 @@
                 android:text="70%"
                 android:textSize="20sp"
                 android:textColor="#FF0000"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center_vertical"/>
 
         </LinearLayout>
     </RelativeLayout>

@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.databinding.FragmentPageScheduleBinding
 
 import com.ados.myfanclub.R
@@ -24,6 +25,9 @@ private const val ARG_PARAM2 = "param2"
  */
 class FragmentPageSchedule : Fragment() {
     // TODO: Rename and change types of parameters
+    private var param1: String? = null
+    private var param2: String? = null
+
     private var _binding: FragmentPageScheduleBinding? = null
     private val binding get() = _binding!!
 
@@ -33,8 +37,14 @@ class FragmentPageSchedule : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            fanClubDTO = it.getParcelable(ARG_PARAM1)
-            currentMember = it.getParcelable(ARG_PARAM2)
+            param1 = it.getString(ARG_PARAM1)
+            param2 = it.getString(ARG_PARAM2)
+
+            if (param1.equals("fanClub")) {
+                fanClubDTO = (activity as MainActivity?)?.getFanClub()
+                currentMember = (activity as MainActivity?)?.getMember()
+            }
+
         }
     }
 
@@ -47,7 +57,8 @@ class FragmentPageSchedule : Fragment() {
 
         var rootView = binding.root.rootView
 
-        val fragment = FragmentScheduleList.newInstance(fanClubDTO, currentMember)
+        println("언제 들어오나?? 페이지5555555")
+        val fragment = FragmentScheduleList.newInstance(param1!!, param2!!)
         childFragmentManager.beginTransaction().replace(R.id.layout_fragment, fragment).commit()
 
         return rootView
@@ -61,20 +72,11 @@ class FragmentPageSchedule : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //binding.buttonAddSchedule.setOnClickListener {
+    }
 
-            //(activity as MainActivity?)!!.changeFregment()
-            //val transaction = childFragmentManager.beginTransaction()
-            //val transaction = requireFragmentManager().beginTransaction()
-            val fragment = FragmentScheduleAdd()
-            //transaction.replace(R.id.layout_main, fragment)
-            //transaction.addToBackStack(null)
-            //transaction.commit()
-            /*childFragmentManager.beginTransaction()
-                .replace(R.id., fragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .commit()*/
-        //}
+    // 관리자 없다면 삭제되었다면 새로고침
+    fun isRemoveAdmin() : Boolean {
+        return (parentFragment as FragmentFanClubMain?)?.isRemoveAdmin()!!
     }
 
     companion object {
@@ -88,11 +90,11 @@ class FragmentPageSchedule : Fragment() {
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(param1: FanClubDTO?, param2: MemberDTO?) =
+        fun newInstance(param1: String, param2: String) =
             FragmentPageSchedule().apply {
                 arguments = Bundle().apply {
-                    putParcelable(ARG_PARAM1, param1)
-                    putParcelable(ARG_PARAM2, param2)
+                    putString(ARG_PARAM1, param1)
+                    putString(ARG_PARAM2, param2)
                 }
             }
     }

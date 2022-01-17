@@ -8,9 +8,9 @@
 
     <RelativeLayout
         android:id="@+id/layout_title"
-        android:background="@color/charge_back2"
         android:layout_width="match_parent"
-        android:layout_height="40dp">
+        android:layout_height="40dp"
+        android:background="@color/charge_back">
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/button_back"
@@ -29,16 +29,16 @@
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@drawable/arrow_back" />
+                android:src="@drawable/arrow_back_white" />
         </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:id="@+id/text_page_title"
-            android:fontFamily="@font/font"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/button_back"
+            android:fontFamily="@font/font"
             android:text="다이아 구매"
             android:textColor="@color/white"
             android:textSize="20sp" />
@@ -58,25 +58,29 @@
 
             <LinearLayout
                 android:orientation="horizontal"
-                android:padding="5dp"
+                android:padding="10dp"
                 android:weightSum="10"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <LinearLayout
+                    android:id="@+id/layout_gem_pack1"
                     android:orientation="vertical"
-                    android:layout_marginRight="5dp"
+                    android:layout_marginRight="10dp"
                     android:layout_weight="5"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content">
 
                     <TextView
+                        android:id="@+id/text_gem_pack1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/btn_half_top_round"
                         android:fontFamily="@font/font_title"
                         android:gravity="center"
-                        android:padding="10dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="5dp"
+                        android:textSize="12sp"
                         android:text="40 + 10 다이아"
                         android:textColor="@color/white" />
 
@@ -84,7 +88,6 @@
                         android:background="@color/charge_back"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
-
                         <ImageView
                             android:layout_width="120dp"
                             android:layout_height="120dp"
@@ -98,10 +101,14 @@
                             android:src="@drawable/diamond_pack1" />
 
                         <ImageView
-                            android:src="@drawable/first_buy"
-                            android:layout_margin="5dp"
+                            android:id="@+id/img_first_buy_pack1"
                             android:layout_width="64dp"
-                            android:layout_height="64dp"/>
+                            android:layout_height="64dp"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:layout_marginBottom="5dp"
+                            android:src="@drawable/first_buy" />
                     </RelativeLayout>
 
                     <TextView
@@ -110,24 +117,29 @@
                         android:background="@drawable/btn_half_bottom_round"
                         android:fontFamily="@font/font_title"
                         android:gravity="center"
-                        android:padding="10dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="7dp"
                         android:text="\\ 1,200"
                         android:textColor="@color/text_gold" />
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/layout_gem_pack2"
                     android:orientation="vertical"
                     android:layout_weight="5"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content">
 
                     <TextView
+                        android:id="@+id/text_gem_pack2"
                         android:text="200 + 50 다이아"
                         android:textColor="@color/white"
+                        android:textSize="12sp"
                         android:fontFamily="@font/font_title"
                         android:background="@drawable/btn_half_top_round"
                         android:gravity="center"
-                        android:padding="10dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="5dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
 
@@ -146,6 +158,16 @@
                             android:layout_height="120dp"
                             android:layout_centerHorizontal="true"
                             android:src="@drawable/diamond_pack2" />
+
+                        <ImageView
+                            android:id="@+id/img_first_buy_pack2"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:layout_marginBottom="5dp"
+                            android:src="@drawable/first_buy" />
                     </RelativeLayout>
 
                     <TextView
@@ -154,7 +176,8 @@
                         android:fontFamily="@font/font_title"
                         android:background="@drawable/btn_half_bottom_round"
                         android:gravity="center"
-                        android:padding="10dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="7dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>
@@ -163,26 +186,30 @@
 
             <LinearLayout
                 android:orientation="horizontal"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
                 android:weightSum="10"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <LinearLayout
+                    android:id="@+id/layout_gem_pack3"
                     android:orientation="vertical"
-                    android:layout_marginRight="5dp"
+                    android:layout_marginRight="10dp"
                     android:layout_weight="5"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content">
 
                     <TextView
+                        android:id="@+id/text_gem_pack3"
                         android:text="750\n+250 다이아"
                         android:textColor="@color/white"
+                        android:textSize="12sp"
                         android:fontFamily="@font/font_title"
                         android:background="@drawable/btn_half_top_round"
                         android:gravity="center"
-                        android:padding="10dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="5dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
 
@@ -190,19 +217,27 @@
                         android:background="@color/charge_back"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
-
                         <ImageView
                             android:layout_width="160dp"
                             android:layout_height="160dp"
                             android:layout_centerHorizontal="true"
                             android:src="@drawable/diamond_pack_back" />
-
                         <ImageView
                             android:layout_width="130dp"
                             android:layout_height="130dp"
                             android:layout_centerHorizontal="true"
                             android:layout_marginTop="10dp"
                             android:src="@drawable/diamond_pack3" />
+
+                        <ImageView
+                            android:id="@+id/img_first_buy_pack3"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:layout_marginBottom="5dp"
+                            android:src="@drawable/first_buy" />
                     </RelativeLayout>
 
                     <TextView
@@ -211,24 +246,29 @@
                         android:fontFamily="@font/font_title"
                         android:background="@drawable/btn_half_bottom_round"
                         android:gravity="center"
-                        android:padding="10dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="7dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/layout_gem_pack4"
                     android:orientation="vertical"
                     android:layout_weight="5"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content">
 
                     <TextView
+                        android:id="@+id/text_gem_pack4"
                         android:text="2000\n+650 다이아"
                         android:textColor="@color/white"
+                        android:textSize="12sp"
                         android:fontFamily="@font/font_title"
                         android:background="@drawable/btn_half_top_round"
                         android:gravity="center"
-                        android:padding="10dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="5dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
 
@@ -236,13 +276,11 @@
                         android:background="@color/charge_back"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
-
                         <ImageView
                             android:layout_width="160dp"
                             android:layout_height="160dp"
                             android:layout_centerHorizontal="true"
                             android:src="@drawable/diamond_pack_back" />
-
                         <ImageView
                             android:layout_width="150dp"
                             android:layout_height="150dp"
@@ -251,10 +289,14 @@
                             android:src="@drawable/diamond_pack4" />
 
                         <ImageView
-                            android:src="@drawable/first_buy"
-                            android:layout_margin="5dp"
+                            android:id="@+id/img_first_buy_pack4"
                             android:layout_width="64dp"
-                            android:layout_height="64dp"/>
+                            android:layout_height="64dp"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:layout_marginBottom="5dp"
+                            android:src="@drawable/first_buy" />
                     </RelativeLayout>
 
                     <TextView
@@ -263,7 +305,8 @@
                         android:fontFamily="@font/font_title"
                         android:background="@drawable/btn_half_bottom_round"
                         android:gravity="center"
-                        android:padding="10dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="7dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>
@@ -272,22 +315,26 @@
 
             <LinearLayout
                 android:orientation="horizontal"
-                android:padding="5dp"
+                android:padding="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <LinearLayout
+                    android:id="@+id/layout_gem_pack5"
                     android:orientation="vertical"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
                     <TextView
+                        android:id="@+id/text_gem_pack5"
                         android:text="4300 + 1400 다이아"
                         android:textColor="@color/white"
+                        android:textSize="12sp"
                         android:fontFamily="@font/font_title"
                         android:background="@drawable/btn_half_top_round"
                         android:gravity="center"
-                        android:padding="10dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="5dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
 
@@ -295,13 +342,11 @@
                         android:background="@color/charge_back"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
-
                         <ImageView
                             android:layout_width="190dp"
                             android:layout_height="190dp"
                             android:layout_centerHorizontal="true"
                             android:src="@drawable/diamond_pack_back" />
-
                         <ImageView
                             android:layout_width="150dp"
                             android:layout_height="150dp"
@@ -309,11 +354,14 @@
                             android:src="@drawable/diamond_pack5" />
 
                         <ImageView
-                            android:src="@drawable/first_buy"
-                            android:layout_margin="5dp"
+                            android:id="@+id/img_first_buy_pack5"
                             android:layout_width="64dp"
-                            android:layout_height="64dp"/>
-
+                            android:layout_height="64dp"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:layout_marginBottom="5dp"
+                            android:src="@drawable/first_buy" />
                     </RelativeLayout>
 
                     <TextView
@@ -322,12 +370,17 @@
                         android:fontFamily="@font/font_title"
                         android:background="@drawable/btn_half_bottom_round"
                         android:gravity="center"
-                        android:padding="10dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="7dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>
 
             </LinearLayout>
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="300dp"/>
         </LinearLayout>
 
     </ScrollView>

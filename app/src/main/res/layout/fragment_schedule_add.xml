@@ -401,6 +401,7 @@
                 android:textSize="12sp" />
 
             <TextView
+                android:visibility="gone"
                 android:fontFamily="@font/font"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -410,6 +411,7 @@
                 android:textSize="16sp" />
 
             <Switch
+                android:visibility="gone"
                 android:id="@+id/switch_alarm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
@@ -529,6 +531,13 @@
 
     </ScrollView>
 
+    <ScrollView
+        android:id="@+id/scrollView_calendar"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="vertical">
     <RelativeLayout
         android:id="@+id/layout_calendar"
         android:visibility="gone"
@@ -586,6 +595,7 @@
                 android:textColor="@color/text" />
         </LinearLayout>
     </RelativeLayout>
+    </ScrollView>
 
     <RelativeLayout
         android:id="@+id/layout_ok"

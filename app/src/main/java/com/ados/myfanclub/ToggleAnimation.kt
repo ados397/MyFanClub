@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.Transformation
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import androidx.recyclerview.widget.RecyclerView
 
 class ToggleAnimation {
@@ -62,15 +63,16 @@ class ToggleAnimation {
         }
 
 
-        fun expand(fromRv: RecyclerView, toRv: RecyclerView) {
+        //fun expand(fromRv: RecyclerView, toRv: RecyclerView) {
+        fun expand(fromRv: RelativeLayout, toRv: RelativeLayout) {
             var fromWeight = (fromRv.layoutParams as LinearLayout.LayoutParams).weight
             val toWeight = (toRv.layoutParams as LinearLayout.LayoutParams).weight
             println("toWeight $toWeight, fromWeight $fromWeight")
 
             if (toWeight == 0.0F) {
-                fromWeight = 90.0F
-            } else if (toWeight == 90.0F) {
-                fromWeight = 45.0F
+                fromWeight = 88.0F
+            } else if (toWeight == 88.0F) {
+                fromWeight = 44.0F
             }
             fromRv.visibility = View.VISIBLE
 
@@ -94,7 +96,8 @@ class ToggleAnimation {
             fromRv.startAnimation(animation)
         }
 
-        fun close(fromRv: RecyclerView, toRv: RecyclerView) {
+        //fun close(fromRv: RecyclerView, toRv: RecyclerView) {
+        fun close(fromRv: RelativeLayout, toRv: RelativeLayout) {
             val fromWeight = (fromRv.layoutParams as LinearLayout.LayoutParams).weight
             val toWeight = (toRv.layoutParams as LinearLayout.LayoutParams).weight
             println("최초 weight from - ${(fromRv.layoutParams as LinearLayout.LayoutParams).weight}, to - ${(toRv.layoutParams as LinearLayout.LayoutParams).weight}")

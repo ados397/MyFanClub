@@ -4,20 +4,62 @@ import android.app.Activity
 import android.util.Log
 import androidx.lifecycle.LifecycleCoroutineScope
 import com.android.billingclient.api.*
+import com.android.billingclient.api.BillingFlowParams.ProrationMode.IMMEDIATE_WITH_TIME_PRORATION
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+// 항목 추가 시 꼭 '소비' 되어야 하는 consumableSkus 리스트에 추가 해줄 것!!
+object Sku {
+    const val GEM_PACK_1 = "gem_pack_1"
+    const val GEM_PACK_2 = "gem_pack_2"
+    const val GEM_PACK_3 = "gem_pack_3"
+    const val GEM_PACK_4 = "gem_pack_4"
+    const val GEM_PACK_5 = "gem_pack_5"
+    const val GEM_PACK_FIRST_1 = "gem_pack_first_1"
+    const val GEM_PACK_FIRST_2 = "gem_pack_first_2"
+    const val GEM_PACK_FIRST_3 = "gem_pack_first_3"
+    const val GEM_PACK_FIRST_4 = "gem_pack_first_4"
+    const val GEM_PACK_FIRST_5 = "gem_pack_first_5"
+    const val PREMIUM_PACK = "premium_pack"
+    const val PREMIUM_PACK_RENEW = "premium_pack_renew"
+}
+
+object SkuName {
+    const val GEM_PACK_1 = "40 + 10 다이아 패키지"
+    const val GEM_PACK_2 = "200 + 50 다이아 패키지"
+    const val GEM_PACK_3 = "750 + 250 다이아 패키지"
+    const val GEM_PACK_4 = "2000 + 650 다이아 패키지"
+    const val GEM_PACK_5 = "4300 + 1400 다이아 패키지"
+    const val GEM_PACK_FIRST_1 = "40 + 40 다이아 첫 구매 패키지"
+    const val GEM_PACK_FIRST_2 = "200 + 200 다이아 첫 구매 패키지"
+    const val GEM_PACK_FIRST_3 = "750 + 750 다이아 첫 구매 패키지"
+    const val GEM_PACK_FIRST_4 = "2000 + 2000 다이아 첫 구매 패키지"
+    const val GEM_PACK_FIRST_5 = "4300 + 4300 다이아 첫 구매 패키지"
+    const val PREMIUM_PACK = "프리미엄 패키지 30일 구매"
+    const val PREMIUM_PACK_RENEW = "프리미엄 패키지 30일 갱신"
+}
+
+object SkuCount {
+    const val GEM_PACK_1 = 40 + 10
+    const val GEM_PACK_2 = 200 + 50
+    const val GEM_PACK_3 = 750 + 250
+    const val GEM_PACK_4 = 2000 + 650
+    const val GEM_PACK_5 = 4300 + 1400
+    const val GEM_PACK_FIRST_1 = 40 + 40
+    const val GEM_PACK_FIRST_2 = 200 + 200
+    const val GEM_PACK_FIRST_3 = 750 + 750
+    const val GEM_PACK_FIRST_4 = 2000 + 2000
+    const val GEM_PACK_FIRST_5 = 4300 + 4300
+}
 
 class BillingModule(
     private val activity: Activity,
     private val lifeCycleScope: LifecycleCoroutineScope,
     private val callback: Callback
 ) {
-    interface Callback {
-        fun onBillingModulesIsReady()
-        fun onSuccess(purchase: Purchase)
-        fun onFailure(errorCode: Int)
-    }
+    // '소비' 되어야 하는 sku 들을 적어줍니다.
+    private val consumableSkus = setOf(Sku.GEM_PACK_1, Sku.GEM_PACK_2, Sku.GEM_PACK_3, Sku.GEM_PACK_4, Sku.GEM_PACK_5, Sku.GEM_PACK_FIRST_1, Sku.GEM_PACK_FIRST_2, Sku.GEM_PACK_FIRST_3, Sku.GEM_PACK_FIRST_4, Sku.GEM_PACK_FIRST_5, Sku.PREMIUM_PACK, Sku.PREMIUM_PACK_RENEW)
 
     // 구매관련 업데이트 수신
     private val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->
@@ -40,11 +82,6 @@ class BillingModule(
         .enablePendingPurchases()
         .build()
 
-
-    private fun confirmPurchase(purchase: Purchase) {
-
-    }
-
     init {
         billingClient.startConnection(object: BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
@@ -61,6 +98,22 @@ class BillingModule(
                 Log.e("BillingModule", "Disconnected.")
             }
         })
+    }
+
+    /**
+     * 구매를 했지만 확인되지 않은 건에대해서 확인처리를 합니다.
+     * @param type BillingClient.SkuType.INAPP 또는 BillingClient.SkuType.SUBS
+     */
+    fun onResume(type: String) {
+        if (billingClient.isReady) {
+            billingClient.queryPurchases(type).purchasesList?.let { purchaseList ->
+                for (purchase in purchaseList) {
+                    if (!purchase.isAcknowledged && purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+                        confirmPurchase(purchase)
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -89,12 +142,19 @@ class BillingModule(
     /**
      * 구매 시작하기
      * @param skuDetail 구매하고자하는 항목. querySkuDetail()을 통해 획득한 SkuDetail
+     * @param oldPurchase 이미 구독중일때, 현재 구독 구매 정보를 전달
      */
     fun purchase(
-        skuDetail: SkuDetails
+        skuDetail: SkuDetails,
+        oldPurchase: Purchase? = null
     ) {
         val flowParams = BillingFlowParams.newBuilder().apply {
             setSkuDetails(skuDetail)
+            if (oldPurchase != null) {
+                // # 구독을 위한 ProrationMode 문서: https://developer.android.com/reference/com/android/billingclient/api/BillingFlowParams.ProrationMode
+                setReplaceSkusProrationMode(IMMEDIATE_WITH_TIME_PRORATION)
+                setOldSku(oldPurchase.sku, oldPurchase.purchaseToken)
+            }
         }.build()
 
         // 구매 절차를 시작, OK라면 제대로 된것입니다.
@@ -103,5 +163,89 @@ class BillingModule(
             callback.onFailure(responseCode)
         }
         // 이후 부터는 purchasesUpdatedListener를 거치게 됩니다.
+    }
+
+    /**
+     * 구매 여부 체크, 소비성 구매가 아닌 항목에 한정.
+     * @param sku
+     */
+    fun checkPurchased(
+        sku: String,
+        resultBlock: (purchased: Boolean) -> Unit
+    ) {
+        billingClient.queryPurchases(BillingClient.SkuType.INAPP).purchasesList?.let { purchaseList ->
+            for (purchase in purchaseList) {
+                if (purchase.sku == sku && purchase.isPurchaseConfirmed()) {
+                    return resultBlock(true)
+                }
+            }
+            return resultBlock(false)
+        }
+    }
+
+    /**
+     * 구독 여부 체크
+     * @param sku
+     * @return 구독하지 않았다면 null을 반환합니다.
+     */
+    fun checkSubscribed(resultBlock: (Purchase?) -> Unit) {
+        billingClient.queryPurchases(BillingClient.SkuType.SUBS).purchasesList?.let { purchaseList ->
+            for (purchase in purchaseList) {
+                if (purchase.isPurchaseConfirmed()) {
+                    return resultBlock(purchase)
+                }
+            }
+            return resultBlock(null)
+        }
+    }
+
+    /**
+     * 구매 확인 처리
+     * @param purchase 확인처리할 아이템의 구매정보
+     */
+    private fun confirmPurchase(purchase: Purchase) {
+        when {
+            consumableSkus.contains(purchase.sku) -> {
+                // 소비성 구매는 consume을 해주어야합니다.
+                val consumeParams = ConsumeParams.newBuilder()
+                    .setPurchaseToken(purchase.purchaseToken)
+                    .build()
+
+                lifeCycleScope.launch(Dispatchers.IO) {
+                    val result = billingClient.consumePurchase(consumeParams)
+                    withContext(Dispatchers.Main) {
+                        if (result.billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                            callback.onSuccess(purchase)
+                        }
+                    }
+                }
+            }
+            purchase.purchaseState == Purchase.PurchaseState.PURCHASED && !purchase.isAcknowledged -> {
+                // 구매는 완료되었으나 확인이 되어있지 않다면 구매 확인 처리를 합니다.
+                val ackPurchaseParams = AcknowledgePurchaseParams.newBuilder()
+                    .setPurchaseToken(purchase.purchaseToken)
+                lifeCycleScope.launch(Dispatchers.IO) {
+                    val result = billingClient.acknowledgePurchase(ackPurchaseParams.build())
+                    withContext(Dispatchers.Main) {
+                        if (result.responseCode == BillingClient.BillingResponseCode.OK) {
+                            callback.onSuccess(purchase)
+                        } else {
+                            callback.onFailure(result.responseCode)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // 구매 확인 검사 Extension
+    private fun Purchase.isPurchaseConfirmed(): Boolean {
+        return this.isAcknowledged && this.purchaseState == Purchase.PurchaseState.PURCHASED
+    }
+
+    interface Callback {
+        fun onBillingModulesIsReady()
+        fun onSuccess(purchase: Purchase)
+        fun onFailure(errorCode: Int)
     }
 }

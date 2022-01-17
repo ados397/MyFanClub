@@ -22,17 +22,17 @@ private const val ARG_PARAM2 = "param2"
  */
 class FragmentPageAccount : Fragment() {
     // TODO: Rename and change types of parameters
+    private var param1: String? = null
+    private var param2: String? = null
+
     private var _binding: FragmentPageAccountBinding? = null
     private val binding get() = _binding!!
-
-    private var fanClubDTO: FanClubDTO? = null
-    private var currentMember: MemberDTO? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            fanClubDTO = it.getParcelable(ARG_PARAM1)
-            currentMember = it.getParcelable(ARG_PARAM2)
+            param1 = it.getString(ARG_PARAM1)
+            param2 = it.getString(ARG_PARAM2)
         }
     }
 
@@ -44,7 +44,7 @@ class FragmentPageAccount : Fragment() {
         _binding = FragmentPageAccountBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
 
-        val fragment = FragmentAccountInfo.newInstance(fanClubDTO, currentMember)
+        val fragment = FragmentAccountInfo()
         childFragmentManager.beginTransaction().replace(R.id.layout_fragment, fragment).commit()
 
         return rootView
@@ -73,11 +73,11 @@ class FragmentPageAccount : Fragment() {
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(param1: FanClubDTO?, param2: MemberDTO?) =
+        fun newInstance(param1: String, param2: String) =
                 FragmentPageAccount().apply {
                     arguments = Bundle().apply {
-                        putParcelable(ARG_PARAM1, param1)
-                        putParcelable(ARG_PARAM2, param2)
+                        putString(ARG_PARAM1, param1)
+                        putString(ARG_PARAM2, param2)
                     }
                 }
     }

@@ -15,62 +15,119 @@
     <RelativeLayout
         android:id="@+id/layout_money"
         android:background="#212B4A"
+        android:padding="3dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@+id/display_board">
 
+        <RelativeLayout
+            android:id="@+id/layout_premium"
+            android:layout_toLeftOf="@id/layout_quest"
+            android:layout_centerVertical="true"
+            android:layout_width="26dp"
+            android:layout_height="20dp">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/img_premium_disable"
+                android:src="@drawable/premium_disable"
+                app:civ_circle_background_color="@color/text_sub"
+                app:civ_border_color="@color/text_sub"
+                app:civ_border_width="2dp"
+                android:layout_centerVertical="true"
+                android:layout_width="20dp"
+                android:layout_height="20dp"/>
+
+            <ImageView
+                android:id="@+id/img_premium_enable"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/premium_enable" />
+
+            <ImageView
+                android:id="@+id/img_premium_new"
+                android:layout_width="26dp"
+                android:layout_height="20dp"
+                android:src="@drawable/new_item"
+                android:visibility="visible" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/layout_quest"
+            android:layout_toLeftOf="@id/layout_gem"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_width="26dp"
+            android:layout_height="20dp">
+
+            <ImageView
+                android:id="@+id/img_quest"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/quests" />
+
+            <ImageView
+                android:id="@+id/img_quest_new"
+                android:layout_width="26dp"
+                android:layout_height="20dp"
+                android:src="@drawable/new_item"
+                android:visibility="visible" />
+        </RelativeLayout>
+
         <LinearLayout
             android:id="@+id/layout_gem"
-            android:background="@drawable/btn_round6"
-            android:layout_marginTop="3dp"
-            android:layout_marginBottom="3dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:paddingTop="3dp"
-            android:paddingBottom="3dp"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@id/layout_mail"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@id/layout_mail"
+            android:background="@drawable/btn_round6"
+            android:paddingLeft="10dp"
+            android:paddingTop="3dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="3dp">
+
             <ImageView
-                android:layout_width="12dp"
-                android:layout_height="12dp"
+                android:layout_width="14dp"
+                android:layout_height="14dp"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/diamond"/>
+                android:src="@drawable/diamond" />
 
             <TextView
-                android:text="10,000"
-                android:textColor="@color/white"
-                android:textSize="10sp"
-                android:fontFamily="@font/font_title"
+                android:id="@+id/text_gem_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="25dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:fontFamily="@font/font_title"
+                android:text="0"
+                android:textColor="@color/white"
+                android:textSize="10sp" />
         </LinearLayout>
 
         <RelativeLayout
             android:id="@+id/layout_mail"
             android:layout_alignParentRight="true"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginRight="3dp"
             android:layout_centerVertical="true"
-            android:layout_width="20dp"
-            android:layout_height="18dp">
+            android:layout_width="26dp"
+            android:layout_height="20dp">
+
             <ImageView
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:layout_centerVertical="true"
-                android:src="@drawable/mail"/>
-            <ImageView
-                android:visibility="gone"
-                android:id="@+id/img_mail_new"
-                android:src="@drawable/new_item"
                 android:layout_width="20dp"
-                android:layout_height="18dp"/>
+                android:layout_height="20dp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/mail" />
+
+            <ImageView
+                android:id="@+id/img_mail_new"
+                android:layout_width="26dp"
+                android:layout_height="20dp"
+                android:src="@drawable/new_item"
+                android:visibility="visible" />
         </RelativeLayout>
 
 

@@ -36,10 +36,10 @@ class RecyclerViewAdapterSchedule(private val items: ArrayList<ScheduleDTO>, pri
                 range.text = "${SimpleDateFormat("yyyy.MM.dd").format(item.startDate)} ~ ${SimpleDateFormat("yyyy.MM.dd").format(item.endDate)}"
 
                 when (item.cycle) {
-                    ScheduleDTO.CYCLE.DAY -> imgScheduleType.setImageResource(R.drawable.schedule_day)
-                    ScheduleDTO.CYCLE.WEEK -> imgScheduleType.setImageResource(R.drawable.schedule_week)
-                    ScheduleDTO.CYCLE.MONTH -> imgScheduleType.setImageResource(R.drawable.schedule_month)
-                    ScheduleDTO.CYCLE.PERIOD -> imgScheduleType.setImageResource(R.drawable.schedule_period)
+                    ScheduleDTO.Cycle.DAY -> imgScheduleType.setImageResource(R.drawable.schedule_day)
+                    ScheduleDTO.Cycle.WEEK -> imgScheduleType.setImageResource(R.drawable.schedule_week)
+                    ScheduleDTO.Cycle.MONTH -> imgScheduleType.setImageResource(R.drawable.schedule_month)
+                    ScheduleDTO.Cycle.PERIOD -> imgScheduleType.setImageResource(R.drawable.schedule_period)
                 }
 
                 if (showReorderIcon) {

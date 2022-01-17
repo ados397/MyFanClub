@@ -20,13 +20,16 @@ class QuestionDialog(context: Context, var question: QuestionDTO) : Dialog(conte
         binding = QuestionDialogBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.imgQuestionOk.visibility = View.GONE
+        binding.imgQuestionCancel.visibility = View.GONE
+
         binding.textTitle.text = question.title
         binding.textContent.text = question.content
 
         when(question.stat) {
-            QuestionDTO.STAT.INFO -> binding.imgStat.setImageResource(R.drawable.information)
-            QuestionDTO.STAT.WARNING -> binding.imgStat.setImageResource(R.drawable.warning)
-            QuestionDTO.STAT.ERROR -> binding.imgStat.setImageResource(R.drawable.error)
+            QuestionDTO.Stat.INFO -> binding.imgStat.setImageResource(R.drawable.information)
+            QuestionDTO.Stat.WARNING -> binding.imgStat.setImageResource(R.drawable.warning)
+            QuestionDTO.Stat.ERROR -> binding.imgStat.setImageResource(R.drawable.error)
         }
 
         if (!question.image.isNullOrEmpty()) {
@@ -38,11 +41,11 @@ class QuestionDialog(context: Context, var question: QuestionDTO) : Dialog(conte
     }
 
     fun setButtonOk(name: String) {
-        binding.buttonQuestionOk.text = name
+        binding.textQuestionOk.text = name
     }
 
     fun setButtonCancel(name: String) {
-        binding.buttonQuestionCancel.text = name
+        binding.textQuestionCancel.text = name
     }
 
     fun showButtonOk(visible: Boolean) {
@@ -58,6 +61,22 @@ class QuestionDialog(context: Context, var question: QuestionDTO) : Dialog(conte
             binding.buttonQuestionCancel.visibility = View.VISIBLE
         } else {
             binding.buttonQuestionCancel.visibility = View.GONE
+        }
+    }
+
+    fun showImgOk(visible: Boolean) {
+        if (visible) {
+            binding.imgQuestionOk.visibility = View.VISIBLE
+        } else {
+            binding.imgQuestionOk.visibility = View.GONE
+        }
+    }
+
+    fun showImgCancel(visible: Boolean) {
+        if (visible) {
+            binding.imgQuestionCancel.visibility = View.VISIBLE
+        } else {
+            binding.imgQuestionCancel.visibility = View.GONE
         }
     }
 
