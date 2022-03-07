@@ -20,7 +20,7 @@
             android:layout_gravity="center_vertical"
             android:fontFamily="@font/font"
             android:text="1주차"
-            android:textSize="20sp" />
+            android:textSize="20dp" />
 
         <RelativeLayout
             android:layout_gravity="center_vertical"
@@ -34,7 +34,7 @@
                 android:layout_centerVertical="true"
                 android:fontFamily="@font/font"
                 android:text="(08.01~08.07)"
-                android:textSize="16sp" />
+                android:textSize="16dp" />
 
             <ImageView
                 android:id="@+id/img_complete"
@@ -67,7 +67,7 @@
             android:fontFamily="@font/font"
             android:text="30%"
             android:textColor="#FF0000"
-            android:textSize="16sp" />
+            android:textSize="16dp" />
 
     </LinearLayout>
 

@@ -38,16 +38,17 @@
                         android:layout_height="wrap_content">
 
                         <ImageView
+                            android:id="@+id/img_mail"
                             android:src="@drawable/mail_close"
                             android:layout_marginRight="5dp"
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"/>
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"/>
 
                         <TextView
                             android:id="@+id/text_title"
                             android:fontFamily="@font/font"
                             android:text="우편 제목"
-                            android:textSize="18sp"
+                            android:textSize="18dp"
                             android:textColor="@color/text"
                             android:textStyle="bold"
                             android:maxLines="1"
@@ -62,7 +63,7 @@
                             android:id="@+id/text_date"
                             android:fontFamily="@font/font"
                             android:text="2일 22시간 남음"
-                            android:textSize="12sp"
+                            android:textSize="14dp"
                             android:textColor="@color/text_sub"
                             android:maxLines="1"
                             android:ellipsize="end"
@@ -91,7 +92,7 @@
                             android:fontFamily="@font/font"
                             android:text="우편 내용"
                             android:textColor="@color/text"
-                            android:textSize="14sp"
+                            android:textSize="16dp"
                             android:minLines="2"
                             android:maxLines="2"
                             android:ellipsize="end"
@@ -123,7 +124,7 @@
                                 android:maxLines="1"
                                 android:text="100,000"
                                 android:textColor="@color/text"
-                                android:textSize="10sp" />
+                                android:textSize="12dp" />
 
                         </RelativeLayout>
                     </LinearLayout>

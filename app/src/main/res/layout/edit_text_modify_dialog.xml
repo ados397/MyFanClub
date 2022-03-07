@@ -24,7 +24,7 @@
                 android:fontFamily="@font/font"
                 android:text="공지사항"
                 android:textColor="@color/text"
-                android:textSize="16sp" />
+                android:textSize="20dp" />
 
             <EditText
                 android:id="@+id/edit_content"
@@ -35,9 +35,11 @@
                 android:layout_marginRight="10dp"
                 android:background="@drawable/edit_rectangle"
                 android:fontFamily="@font/font"
+                android:scrollbars="vertical"
+                android:maxLines="10"
                 android:textColor="@color/text"
                 android:textCursorDrawable="@drawable/edit_cursor"
-                android:textSize="14sp" />
+                android:textSize="18dp" />
 
             <TextView
                 android:id="@+id/text_content_error"
@@ -49,16 +51,17 @@
                 android:fontFamily="@font/font"
                 android:text=""
                 android:textColor="@color/text_red"
-                android:textSize="12sp" />
+                android:textSize="16dp" />
 
             <TextView
                 android:id="@+id/text_content_len"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/edit_content"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="10dp"
-                android:layout_below="@id/edit_content"
                 android:fontFamily="@font/font"
+                android:textSize="16dp"
                 android:text="0/300" />
 
         </RelativeLayout>
@@ -77,7 +80,7 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/button_modify_ok"
             android:layout_width="wrap_content"
-            android:layout_height="25dp"
+            android:layout_height="30dp"
             android:layout_gravity="center"
             android:layout_marginTop="7dp"
             android:layout_marginRight="10dp"
@@ -100,8 +103,8 @@
 
                 <ImageView
                     android:id="@+id/img_modify_ok"
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
                     android:layout_marginRight="5dp"
                     android:layout_gravity="center"
                     android:src="@drawable/diamond" />
@@ -112,6 +115,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:fontFamily="@font/font"
+                    android:textSize="18dp"
                     android:text="확인"
                     android:textColor="@color/text_disable" />
             </LinearLayout>
@@ -120,7 +124,7 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/button_modify_cancel"
             android:layout_width="wrap_content"
-            android:layout_height="25dp"
+            android:layout_height="30dp"
             android:layout_gravity="center"
             android:layout_marginTop="7dp"
             android:layout_marginRight="10dp"
@@ -143,8 +147,8 @@
 
                 <ImageView
                     android:id="@+id/img_modify_cancel"
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
                     android:layout_gravity="center"
                     android:layout_marginRight="5dp"
                     android:src="@drawable/diamond" />
@@ -155,6 +159,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:fontFamily="@font/font"
+                    android:textSize="18dp"
                     android:text="취소"
                     android:textColor="@color/text" />
             </LinearLayout>

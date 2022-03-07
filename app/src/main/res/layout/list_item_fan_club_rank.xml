@@ -52,9 +52,9 @@
                         android:text="4"
                         android:textColor="@color/text"
                         android:visibility="gone"
-                        app:autoSizeMaxTextSize="24sp"
-                        app:autoSizeMinTextSize="10sp"
-                        app:autoSizeStepGranularity="1sp"
+                        app:autoSizeMaxTextSize="24dp"
+                        app:autoSizeMinTextSize="10dp"
+                        app:autoSizeStepGranularity="1dp"
                         app:autoSizeTextType="uniform" />
 
                     <ImageView
@@ -88,7 +88,7 @@
                             android:paddingRight="5dp"
                             android:text="Lv. 99"
                             android:textColor="@color/white"
-                            android:textSize="12sp" />
+                            android:textSize="16dp" />
 
                         <TextView
                             android:id="@+id/text_name"
@@ -100,7 +100,7 @@
                             android:maxLines="1"
                             android:textColor="@color/text"
                             android:text="팬클럽 명"
-                            android:textSize="16sp" />
+                            android:textSize="18dp" />
                     </LinearLayout>
 
 
@@ -117,6 +117,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="7"
                             android:fontFamily="@font/font"
+                            android:textSize="16dp"
                             android:text="123456789"
                             android:textColor="@color/exp" />
 
@@ -140,6 +141,7 @@
                                 android:layout_gravity="center"
                                 android:layout_marginLeft="5dp"
                                 android:fontFamily="@font/font"
+                                android:textSize="16dp"
                                 android:textColor="@color/text"
                                 android:text="3/10" />
                         </LinearLayout>
@@ -163,6 +165,7 @@
                             android:paddingTop="2dp"
                             android:paddingRight="5dp"
                             android:paddingBottom="2dp"
+                            android:textSize="16dp"
                             android:text="팬클럽럽 소개 글" />
 
                     </LinearLayout>

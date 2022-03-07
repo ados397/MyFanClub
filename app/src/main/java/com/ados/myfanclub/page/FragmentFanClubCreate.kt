@@ -21,6 +21,8 @@ import com.ados.myfanclub.dialog.GemQuestionDialog
 import com.ados.myfanclub.dialog.LoadingDialog
 import com.ados.myfanclub.dialog.SelectFanClubSymbolDialog
 import com.ados.myfanclub.model.*
+import com.ados.myfanclub.util.Utility
+import com.ados.myfanclub.util.Utility.Companion.randomDocumentName
 import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import kotlinx.android.synthetic.main.gem_question_dialog.*
@@ -63,7 +65,11 @@ class FragmentFanClubCreate : Fragment() {
     private val resultLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
             symbolImageCustomBitmap = (activity as MainActivity?)?.getBitmap(uri)
-            binding.imgSymbol.setImageBitmap(symbolImageCustomBitmap)
+            if (symbolImageCustomBitmap == null) {
+                Toast.makeText(context, "이미지를 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                binding.imgSymbol.setImageBitmap(symbolImageCustomBitmap)
+            }
         } else {
             symbolImageCustomBitmap = null
             Toast.makeText(context, "이미지를 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
@@ -97,6 +103,11 @@ class FragmentFanClubCreate : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.editDescription.setOnTouchListener { view, motionEvent ->
+            binding.scrollView.requestDisallowInterceptTouchEvent(true)
+            false
+        }
+
         binding.buttonBack.setOnClickListener {
             callBackPressed()
         }
@@ -124,7 +135,8 @@ class FragmentFanClubCreate : Fragment() {
         }
 
         binding.buttonOk.setOnClickListener {
-            val question = GemQuestionDTO("다이아를 사용해 팬클럽을 창설 합니다.", 300)
+            val preferencesDTO = (activity as MainActivity?)?.getPreferences()!!
+            val question = GemQuestionDTO("다이아를 사용해 팬클럽을 창설 합니다.", preferencesDTO.priceFanClubCreate)
             val questionDialog = GemQuestionDialog(requireContext(), question)
             questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
             questionDialog.setCanceledOnTouchOutside(false)
@@ -136,7 +148,6 @@ class FragmentFanClubCreate : Fragment() {
                 questionDialog.dismiss()
 
                 var user = (activity as MainActivity?)?.getUser()!!
-                val preferencesDTO = (activity as MainActivity?)?.getPreferences()!!
 
                 if ((user.paidGem!! + user.freeGem!!) < preferencesDTO.priceFanClubCreate!!) {
                     Toast.makeText(activity, "다이아가 부족합니다.", Toast.LENGTH_SHORT).show()
@@ -150,8 +161,7 @@ class FragmentFanClubCreate : Fragment() {
                         } else {
                             (activity as MainActivity?)?.loading()
                             val date = Date()
-                            val alphabets = ('a'..'z').toMutableList()
-                            val docName = "${alphabets[Random().nextInt(alphabets.size)]}${System.currentTimeMillis()}"
+                            val docName = Utility.randomDocumentName()
                             // 팬클럽 창설 시 회원이 1명이기 때문에 count 는 1로 설정
                             fanClubDTO = FanClubDTO(false, docName, name, null, description, "", symbolImage, null, 1, 0L, 0L, user.uid, user.nickname, 1, 0, date)
                             if (symbolImageCustomBitmap != null) {
@@ -173,13 +183,15 @@ class FragmentFanClubCreate : Fragment() {
                                                     // 다이아 차감
                                                     val oldPaidGemCount = user.paidGem!!
                                                     val oldFreeGemCount = user.freeGem!!
-                                                    firebaseViewModel.useUserGem(user.uid.toString(), preferencesDTO.priceFanClubCreate!!) {
-                                                        var log = LogDTO("[다이아 차감] 팬클럽 창설로 ${preferencesDTO.priceFanClubCreate} 다이아 사용, 팬클럽 명 : $name($docName), (paidGem : $oldPaidGemCount -> ${user?.paidGem}, freeGem : $oldFreeGemCount -> ${user?.freeGem})", Date())
-                                                        firebaseViewModel.writeUserLog(user?.uid.toString(), log) { }
+                                                    firebaseViewModel.useUserGem(user.uid.toString(), preferencesDTO.priceFanClubCreate!!) { userDTO->
+                                                        if (userDTO != null) {
+                                                            var log = LogDTO("[다이아 차감] 팬클럽 창설로 ${preferencesDTO.priceFanClubCreate} 다이아 사용, 팬클럽 명 : $name($docName), (paidGem : $oldPaidGemCount -> ${userDTO?.paidGem}, freeGem : $oldFreeGemCount -> ${userDTO?.freeGem})", Date())
+                                                            firebaseViewModel.writeUserLog(user?.uid.toString(), log) { }
 
-                                                        (activity as MainActivity?)?.loadingEnd()
-                                                        Toast.makeText(activity, "팬클럽 창설 완료!", Toast.LENGTH_SHORT).show()
-                                                        //moveFanClubMain()
+                                                            (activity as MainActivity?)?.loadingEnd()
+                                                            Toast.makeText(activity, "팬클럽 창설 완료!", Toast.LENGTH_SHORT).show()
+                                                            //moveFanClubMain()
+                                                        }
                                                     }
                                                 }
                                             }
@@ -196,13 +208,15 @@ class FragmentFanClubCreate : Fragment() {
                                             // 다이아 차감
                                             val oldPaidGemCount = user.paidGem!!
                                             val oldFreeGemCount = user.freeGem!!
-                                            firebaseViewModel.useUserGem(user.uid.toString(), preferencesDTO.priceFanClubCreate!!) {
-                                                var log = LogDTO("[다이아 차감] 팬클럽 창설로 ${preferencesDTO.priceFanClubCreate} 다이아 사용, 팬클럽 명 : $name($docName), (paidGem : $oldPaidGemCount -> ${user?.paidGem}, freeGem : $oldFreeGemCount -> ${user?.freeGem})", Date())
-                                                firebaseViewModel.writeUserLog(user?.uid.toString(), log) { }
+                                            firebaseViewModel.useUserGem(user.uid.toString(), preferencesDTO.priceFanClubCreate!!) { userDTO->
+                                                if (userDTO != null) {
+                                                    var log = LogDTO("[다이아 차감] 팬클럽 창설로 ${preferencesDTO.priceFanClubCreate} 다이아 사용, 팬클럽 명 : $name($docName), (paidGem : $oldPaidGemCount -> ${userDTO?.paidGem}, freeGem : $oldFreeGemCount -> ${userDTO?.freeGem})", Date())
+                                                    firebaseViewModel.writeUserLog(user?.uid.toString(), log) { }
 
-                                                (activity as MainActivity?)?.loadingEnd()
-                                                Toast.makeText(activity, "팬클럽 창설 완료!", Toast.LENGTH_SHORT).show()
-                                                //moveFanClubMain()
+                                                    (activity as MainActivity?)?.loadingEnd()
+                                                    Toast.makeText(activity, "팬클럽 창설 완료!", Toast.LENGTH_SHORT).show()
+                                                    //moveFanClubMain()
+                                                }
                                             }
                                         }
                                     }
@@ -260,6 +274,11 @@ class FragmentFanClubCreate : Fragment() {
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
     }
 
     private fun callBackPressed() {

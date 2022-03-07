@@ -10,7 +10,7 @@
         android:orientation="horizontal"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_width="match_parent"
-        android:layout_height="40dp">
+        android:layout_height="44dp">
 
         <RelativeLayout
             android:background="@color/text"
@@ -36,7 +36,7 @@
                 android:singleLine="true"
                 android:text="전광판 텍스트"
                 android:textColor="@color/display_board_8"
-                android:textSize="20sp" />
+                android:textSize="24dp" />
         </RelativeLayout>
 
         <ImageView

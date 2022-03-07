@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_main"
     tools:context=".page.FragmentScheduleList">
 
     <RelativeLayout
@@ -20,7 +21,7 @@
             android:layout_marginLeft="20dp"
             android:text="개인 스케줄 관리"
             android:textColor="@color/text"
-            android:textSize="20sp" />
+            android:textSize="24dp" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/button_add_schedule"
@@ -66,26 +67,27 @@
 
     <LinearLayout
         android:id="@+id/layout_count"
-        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/layout_title"
         android:gravity="right|center_vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:orientation="horizontal">
 
         <ImageView
-            android:src="@drawable/schedule_none"
-            android:layout_toLeftOf="@+id/text_member_count"
-            android:layout_marginRight="5dp"
             android:layout_width="20dp"
-            android:layout_height="20dp"/>
+            android:layout_height="20dp"
+            android:layout_marginRight="5dp"
+            android:layout_toLeftOf="@+id/text_member_count"
+            android:src="@drawable/schedule_none" />
 
         <TextView
             android:id="@+id/text_schedule_count"
-            android:fontFamily="@font/font"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="20dp"
-            android:text="1/10" />
+            android:fontFamily="@font/font"
+            android:text="1/10"
+            android:textSize="16dp" />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -111,7 +113,7 @@
                 android:id="@+id/button_modify"
                 android:fontFamily="@font/font"
                 android:text="수정"
-                android:textSize="18sp"
+                android:textSize="18dp"
                 android:background="@drawable/btn_ripple"
                 android:textColor="#0090FF"
                 android:layout_marginLeft="10dp"
@@ -123,7 +125,7 @@
                 android:id="@+id/button_delete"
                 android:fontFamily="@font/font"
                 android:text="삭제"
-                android:textSize="18sp"
+                android:textSize="18dp"
                 android:background="@drawable/btn_ripple2"
                 android:textColor="#FF0077"
                 android:layout_marginLeft="10dp"
@@ -143,7 +145,7 @@
                 android:fontFamily="@font/font"
                 android:text="취소"
                 android:textColor="#0090FF"
-                android:textSize="18sp" />
+                android:textSize="18dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -155,7 +157,7 @@
                 android:id="@+id/button_reorder_ok"
                 android:fontFamily="@font/font"
                 android:text="완료"
-                android:textSize="18sp"
+                android:textSize="18dp"
                 android:background="@drawable/btn_ripple"
                 android:textColor="#0090FF"
                 android:layout_marginLeft="10dp"
@@ -167,7 +169,7 @@
                 android:id="@+id/button_reorder_cancel"
                 android:fontFamily="@font/font"
                 android:text="취소"
-                android:textSize="18sp"
+                android:textSize="18dp"
                 android:background="@drawable/btn_ripple2"
                 android:textColor="#FF0077"
                 android:layout_margin="10dp"

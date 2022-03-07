@@ -26,6 +26,8 @@ class FanClubRewardDialog(context: Context) : Dialog(context), OnFanClubRewardIt
     private var firestore : FirebaseFirestore? = null
     lateinit var recyclerViewAdapter : RecyclerViewAdapterFanClubReward
 
+    private var getItemDialog : GetItemDialog? = null
+
     private var fanClubRewards : ArrayList<FanClubRewardDTO> = arrayListOf()
     var mainActivity: MainActivity? = null
     var fanClubDTO: FanClubDTO? = null
@@ -150,14 +152,17 @@ class FanClubRewardDialog(context: Context) : Dialog(context), OnFanClubRewardIt
             }
             mainActivity?.loadingEnd()
 
-            val getDialog = GetItemDialog(context)
-            getDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            getDialog.setCanceledOnTouchOutside(false)
-            getDialog.mailDTO = MailDTO("", "", "", "", MailDTO.Item.FREE_GEM, gemCount)
-            getDialog.show()
+            if (getItemDialog == null) {
+                getItemDialog = GetItemDialog(context)
+                getItemDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                getItemDialog?.setCanceledOnTouchOutside(false)
+            }
+            getItemDialog?.mailDTO = MailDTO("", "", "", "", MailDTO.Item.FREE_GEM, gemCount)
+            getItemDialog?.show()
+            getItemDialog?.setInfo()
 
-            getDialog.button_get_item_ok.setOnClickListener {
-                getDialog.dismiss()
+            getItemDialog?.button_get_item_ok?.setOnClickListener {
+                getItemDialog?.dismiss()
             }
         }?.addOnFailureListener { e ->
 

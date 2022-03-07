@@ -2,6 +2,7 @@ package com.ados.myfanclub.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.ados.myfanclub.model.*
 import com.ados.myfanclub.repository.FirebaseRepository
@@ -17,8 +18,11 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
     val fanClubDTO = repository.fanClubDTO
     val memberDTO = repository.memberDTO
     val displayBoardDTO = repository.displayBoardDTO
+    val fanClubChatDTO = repository.fanClubChatDTO
     val mailDTOs = repository.mailDTOs
     val displayBoardDTOs = repository.displayBoardDTOs
+    val fanClubChatDTOs = repository.fanClubChatDTOs
+    val noticeDTOs = repository.noticeDTOs
     val userDTOs = repository.userDTOs
     val fanClubDTOs = repository.fanClubDTOs
     val scheduleDTOs = repository.scheduleDTOs
@@ -76,6 +80,16 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
         repository.stopDisplayBoardListen()
     }
 
+    // 팬클럽 채팅 불러오기(실시간)
+    fun getFanClubChatListen(fanClubId: String) {
+        repository.getFanClubChatListen(fanClubId)
+    }
+
+    // 팬클럽 채팅 불러오기(실시간) 중지
+    fun stopFanClubChatListen() {
+        repository.stopFanClubChatListen()
+    }
+
     // 메일 리스트 불러오기(실시간)
     fun getMailsListen(uid: String) {
         repository.getMailsListen(uid)
@@ -94,6 +108,16 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
     // 전광판 리스트 불러오기(실시간) 중지
     fun stopDisplayBoardsListen() {
         repository.stopDisplayBoardsListen()
+    }
+
+    // 팬클럽 채팅 리스트 불러오기(실시간)
+    fun getFanClubChatsListen(fanClubId: String) {
+        repository.getFanClubChatsListen(fanClubId)
+    }
+
+    // 팬클럽 채팅 리스트 불러오기(실시간) 중지
+    fun stopFanClubChatsListen() {
+        repository.stopFanClubChatsListen()
     }
 
     // 사용자 불러오기
@@ -115,6 +139,11 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
         repository.getMember(fanClubId, userUid) {
             myCallback(it)
         }
+    }
+
+    // 공지사항 리스트 획득(최신순)
+    fun getNotices(isMain: Boolean) {
+        repository.getNotices(isMain)
     }
 
     // 사용자 리스트 획득(레벨 순)
@@ -172,6 +201,13 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
     // 팬클럽 스케줄 통계 정보
     fun getFanClubScheduleStatistics(fanClubId: String, userUid: String, cycle: String, fieldName: String) {
         repository.getFanClubScheduleStatistics(fanClubId, userUid, cycle, fieldName)
+    }
+
+    // 오늘 다이아뽑기 완료 횟수
+    fun getTodayCompleteGambleCount(uid: String, myCallback: (Long) -> Unit) {
+        repository.getTodayCompleteGambleCount(uid) {
+            myCallback(it)
+        }
     }
 
     // 출석체크 완료한 팬클럽 멤버 카운트 획득
@@ -360,6 +396,13 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    // 사용자 메일 읽음 상태로 업데이트
+    fun updateUserMailRead(uid: String, mailUid: String, myCallback: (Boolean) -> Unit) {
+        repository.updateUserMailRead(uid, mailUid) {
+            myCallback(it)
+        }
+    }
+
     // 사용자 메일 삭제 상태로 업데이트
     fun updateUserMailDelete(uid: String, mailUid: String, myCallback: (Boolean) -> Unit) {
         repository.updateUserMailDelete(uid, mailUid) {
@@ -377,6 +420,13 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
     // 전광판 등록
     fun sendDisplayBoard(displayText: String, color: Int, user: UserDTO, myCallback: (Boolean) -> Unit) {
         repository.sendDisplayBoard(displayText, color, user) {
+            myCallback(it)
+        }
+    }
+
+    // 팬클럽 채팅 전송
+    fun sendFanClubChat(fanClubId: String, chat: DisplayBoardDTO, myCallback: (Boolean) -> Unit) {
+        repository.sendFanClubChat(fanClubId, chat) {
             myCallback(it)
         }
     }
@@ -426,6 +476,13 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
     // 팬클럽 멤버 토큰 업데이트
     fun updateMemberToken(user: UserDTO, myCallback: (Boolean) -> Unit) {
         repository.updateMemberToken(user) {
+            myCallback(it)
+        }
+    }
+
+    // 개인 튜토리얼 종료 시간 업데이트
+    fun updateUserTutorialEndedTime(uid: String, myCallback: (Boolean) -> Unit) {
+        repository.updateUserTutorialEndedTime(uid) {
             myCallback(it)
         }
     }
@@ -520,6 +577,13 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    // 오늘 다이아뽑기 완료 횟수 기록
+    fun updateTodayCompleteGambleCount(uid: String, myCallback: (Long?) -> Unit) {
+        repository.updateTodayCompleteGambleCount(uid) {
+            myCallback(it)
+        }
+    }
+
     // 팬클럽 멤버 직책 업데이트
     fun updateMemberPosition(fanClubId: String, member: MemberDTO, myCallback: (Boolean) -> Unit) {
         repository.updateMemberPosition(fanClubId, member) {
@@ -530,6 +594,13 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
     // 팬클럽 멤버 레벨 업데이트
     fun updateMemberLevel(fanClubId: String, member: MemberDTO, myCallback: (Boolean) -> Unit) {
         repository.updateMemberLevel(fanClubId, member) {
+            myCallback(it)
+        }
+    }
+
+    // 신고
+    fun sendReport(report: ReportDTO, myCallback: (Boolean) -> Unit) {
+        repository.sendReport(report) {
             myCallback(it)
         }
     }

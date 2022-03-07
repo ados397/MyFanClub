@@ -19,6 +19,7 @@
             android:layout_weight="1"
             android:fontFamily="@font/font"
             android:gravity="center"
+            android:textSize="16dp"
             android:text="1"
             android:textColor="@color/text" />
 
@@ -49,17 +50,32 @@
                     android:fontFamily="@font/font"
                     android:gravity="center_vertical"
                     android:maxLines="1"
+                    android:textSize="18dp"
                     android:text="스케줄 명"
                     android:textColor="@color/text" />
 
-                <TextView
-                    android:id="@+id/text_range"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/font"
-                    android:text="2021-09-21 ~ 2021-09-30"
-                    android:textColor="@color/text_sub"
-                    android:textSize="12sp" />
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/text_range"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font"
+                        android:text="2021-09-21 ~ 2021-09-30"
+                        android:textColor="@color/text_sub"
+                        android:textSize="14dp" />
+                    <TextView
+                        android:id="@+id/text_expired"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="3dp"
+                        android:fontFamily="@font/font"
+                        android:text="(만료됨)"
+                        android:textColor="@color/text_red"
+                        android:textSize="14dp" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 

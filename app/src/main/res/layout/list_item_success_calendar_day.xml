@@ -35,7 +35,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_below="@+id/progress_percent"
                 android:text="1"
-                android:textSize="18sp"
+                android:textSize="18dp"
                 android:gravity="center_horizontal|top"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

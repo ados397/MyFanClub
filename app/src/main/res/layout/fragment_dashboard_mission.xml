@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_main"
     tools:context=".page.FragmentDashboardMission">
 
     <RelativeLayout
@@ -13,20 +14,21 @@
 
         <TextView
             android:id="@+id/text_title"
-            android:gravity="center"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
             android:layout_width="match_parent"
             android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
             android:fontFamily="@font/font"
+            android:gravity="center"
             android:maxLines="1"
-            app:autoSizeTextType="uniform"
-            app:autoSizeMaxTextSize="30sp"
-            app:autoSizeMinTextSize="10sp"
-            app:autoSizeStepGranularity="1sp"
+            android:text="제목을 정해주세요"
             android:textColor="@color/text"
-            android:text="제목을 정해주세요" />
+            app:autoSizeMaxTextSize="30dp"
+            app:autoSizeMinTextSize="10dp"
+            app:autoSizeStepGranularity="1dp"
+            app:autoSizeTextType="uniform" />
 
     </RelativeLayout>
 
@@ -41,7 +43,7 @@
             android:id="@+id/text_tab_day"
             android:text="일일"
             android:textColor="@color/white"
-            android:textSize="14sp"
+            android:textSize="16dp"
             android:fontFamily="@font/font"
             android:background="@drawable/btn_round"
             android:paddingLeft="20dp"
@@ -54,7 +56,7 @@
             android:id="@+id/text_tab_week"
             android:text="주간"
             android:textColor="@color/black"
-            android:textSize="14sp"
+            android:textSize="16dp"
             android:fontFamily="@font/font"
             android:paddingLeft="20dp"
             android:paddingTop="5dp"
@@ -66,7 +68,7 @@
             android:id="@+id/text_tab_month"
             android:text="월간"
             android:textColor="@color/black"
-            android:textSize="14sp"
+            android:textSize="16dp"
             android:fontFamily="@font/font"
             android:paddingLeft="20dp"
             android:paddingTop="5dp"
@@ -78,7 +80,7 @@
             android:id="@+id/text_tab_period"
             android:text="기간내"
             android:textColor="@color/black"
-            android:textSize="14sp"
+            android:textSize="16dp"
             android:fontFamily="@font/font"
             android:paddingLeft="20dp"
             android:paddingTop="5dp"
@@ -104,8 +106,11 @@
 
         <RelativeLayout
             android:id="@+id/layout_title_club"
+            android:background="@drawable/btn_half_top_round_fan_club"
             android:layout_weight="6"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="7dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:layout_width="match_parent"
             android:layout_height="0dp">
 
@@ -113,10 +118,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="10dp"
+                android:layout_marginLeft="30dp"
                 android:fontFamily="@font/font"
                 android:text="팬클럽 목표"
-                android:textColor="@color/black" />
+                android:textColor="@color/white"
+                android:textSize="18dp" />
 
             <ImageView
                 android:id="@+id/button_refresh_club"
@@ -139,6 +145,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
                 <ImageView
+                    android:id="@+id/img_success_calendar_club"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/pie_chart" />
@@ -151,21 +158,24 @@
                 android:layout_height="24dp"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="15dp"
+                android:layout_marginRight="25dp"
                 android:src="@drawable/minimize" />
         </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/layout_rv_mission_fan_club"
             android:layout_weight="44"
+            android:padding="10dp"
+            android:background="@drawable/btn_half_bottom_round_fan_club"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:layout_width="match_parent"
             android:layout_height="0dp">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_mission_fan_club"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#FAF6FF" />
+                android:layout_height="match_parent" />
 
             <TextView
                 android:id="@+id/text_empty_fan_club"
@@ -174,13 +184,17 @@
                 android:layout_centerInParent="true"
                 android:fontFamily="@font/font"
                 android:text="등록된 팬클럽 스케줄이 없습니다."
-                android:textColor="@color/text_sub" />
+                android:textColor="@color/white"
+                android:textSize="16dp" />
         </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/layout_title_personal"
+            android:background="@drawable/btn_half_top_round_fan_club"
             android:layout_weight="6"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="7dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:layout_width="match_parent"
             android:layout_height="0dp">
 
@@ -188,19 +202,26 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="10dp"
+                android:layout_marginLeft="30dp"
                 android:fontFamily="@font/font"
                 android:text="개인 목표"
-                android:textColor="@color/black" />
+                android:textColor="@color/white"
+                android:textSize="18dp" />
 
+            <RelativeLayout
+                android:id="@+id/layout_refresh_personal"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="13dp"
+                android:layout_toLeftOf="@id/button_success_calendar_personal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
             <ImageView
                 android:id="@+id/button_refresh_personal"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="13dp"
-                android:layout_toLeftOf="@id/button_success_calendar_personal"
+
                 android:src="@drawable/refresh" />
+            </RelativeLayout>
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/button_success_calendar_personal"
@@ -214,6 +235,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
                 <ImageView
+                    android:id="@+id/img_success_calendar_personal"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/pie_chart" />
@@ -225,20 +247,23 @@
                 android:layout_height="24dp"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="15dp"
+                android:layout_marginRight="25dp"
                 android:src="@drawable/minimize" />
         </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/layout_rv_mission_personal"
             android:layout_weight="44"
+            android:background="@drawable/btn_half_bottom_round_fan_club"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:layout_width="match_parent"
             android:layout_height="0dp">
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_mission_personal"
-            android:background="#FDFFEC"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_mission_personal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
             <TextView
                 android:id="@+id/text_empty_personal"
@@ -247,7 +272,8 @@
                 android:layout_centerInParent="true"
                 android:fontFamily="@font/font"
                 android:text="개인 스케줄을 추가해 보세요."
-                android:textColor="@color/text_sub" />
+                android:textColor="@color/white"
+                android:textSize="16dp" />
 
         </RelativeLayout>
 

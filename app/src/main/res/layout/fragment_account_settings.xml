@@ -16,7 +16,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="5dp"
+            android:layout_marginLeft="15dp"
             android:layout_marginTop="5dp"
             android:layout_marginRight="20dp"
             android:layout_marginBottom="5dp"
@@ -26,21 +26,21 @@
             app:rippleColor="#fff">
 
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
                 android:src="@drawable/arrow_back" />
         </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:id="@+id/text_page_title"
-            android:fontFamily="@font/font"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/button_back"
+            android:fontFamily="@font/font"
             android:text="설정"
             android:textColor="@color/text"
-            android:textSize="20sp" />
+            android:textSize="24dp" />
 
     </RelativeLayout>
 
@@ -80,6 +80,7 @@
                     android:paddingTop="3dp"
                     android:paddingRight="15dp"
                     android:paddingBottom="3dp"
+                    android:textSize="16dp"
                     android:text="변경"
                     android:textColor="@color/white" />
 
@@ -93,7 +94,7 @@
                 android:fontFamily="@font/font"
                 android:text="프로필 수정"
                 android:textColor="@color/text"
-                android:textSize="18sp" />
+                android:textSize="20dp" />
 
             <TextView
                 android:id="@+id/text_nickname"
@@ -102,7 +103,7 @@
                 android:fontFamily="@font/font"
                 android:text="닉네임"
                 android:textColor="@color/text"
-                android:textSize="14sp" />
+                android:textSize="18dp" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -125,19 +126,20 @@
                     android:maxLines="1"
                     android:textColor="@color/text"
                     android:textCursorDrawable="@drawable/edit_cursor"
-                    android:textSize="14sp" />
+                    android:textSize="16dp" />
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/button_modify_nickname"
-                    android:layout_width="70sp"
-                    android:layout_height="25sp"
+                    android:layout_width="70dp"
+                    android:layout_height="26dp"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="5dp"
                     android:background="@drawable/btn_round4"
                     android:fontFamily="@font/font"
                     android:text="변경"
-                    android:textColor="@color/text" />
+                    android:textColor="@color/text"
+                    android:textSize="16dp" />
 
             </RelativeLayout>
 
@@ -148,7 +150,7 @@
                 android:fontFamily="@font/font"
                 android:text="내 소개"
                 android:textColor="@color/text"
-                android:textSize="14sp" />
+                android:textSize="18dp" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -173,19 +175,20 @@
                     android:scrollbars="vertical"
                     android:textColor="@color/text"
                     android:textCursorDrawable="@drawable/edit_cursor"
-                    android:textSize="14sp" />
+                    android:textSize="16dp" />
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/button_modify_about_me"
-                    android:layout_width="70sp"
-                    android:layout_height="25sp"
+                    android:layout_width="70dp"
+                    android:layout_height="26dp"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="5dp"
                     android:background="@drawable/btn_round4"
                     android:fontFamily="@font/font"
                     android:text="변경"
-                    android:textColor="@color/text" />
+                    android:textColor="@color/text"
+                    android:textSize="16dp" />
 
             </RelativeLayout>
 
@@ -197,7 +200,7 @@
                 android:fontFamily="@font/font"
                 android:text="내 계정"
                 android:textColor="@color/text"
-                android:textSize="18sp" />
+                android:textSize="20dp" />
 
             <TextView
                 android:id="@+id/text_login_type"
@@ -206,7 +209,7 @@
                 android:fontFamily="@font/font"
                 android:text="로그인 종류"
                 android:textColor="@color/text"
-                android:textSize="14sp" />
+                android:textSize="18dp" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -229,7 +232,7 @@
                     android:maxLines="1"
                     android:textColor="@color/text"
                     android:textCursorDrawable="@drawable/edit_cursor"
-                    android:textSize="14sp" />
+                    android:textSize="16dp" />
 
             </RelativeLayout>
 
@@ -240,7 +243,7 @@
                 android:fontFamily="@font/font"
                 android:text="비밀번호"
                 android:textColor="@color/text"
-                android:textSize="14sp" />
+                android:textSize="18dp" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -265,17 +268,18 @@
                     android:text="00000000"
                     android:textColor="@color/text"
                     android:textCursorDrawable="@drawable/edit_cursor"
-                    android:textSize="14sp" />
+                    android:textSize="16dp" />
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/button_modify_password"
-                    android:layout_width="70sp"
-                    android:layout_height="25sp"
+                    android:layout_width="70dp"
+                    android:layout_height="26dp"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="5dp"
                     android:background="@drawable/btn_round4"
                     android:fontFamily="@font/font"
+                    android:textSize="16dp"
                     android:text="변경"
                     android:textColor="@color/text" />
 
@@ -305,8 +309,8 @@
                     android:paddingBottom="5dp">
 
                     <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:layout_gravity="center"
                         android:layout_marginLeft="10dp"
                         android:src="@drawable/logout" />
@@ -318,6 +322,7 @@
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
                         android:fontFamily="@font/font"
+                        android:textSize="16dp"
                         android:text="로그아웃"
                         android:textColor="@color/text_red" />
                 </LinearLayout>
@@ -346,7 +351,7 @@
             android:fontFamily="@font/font"
             android:text="앨범에서 선택하기"
             android:textColor="#0090FF"
-            android:textSize="18sp" />
+            android:textSize="18dp" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_menu_delete"
@@ -359,7 +364,7 @@
             android:fontFamily="@font/font"
             android:text="현재 사진 지우기"
             android:textColor="#FF0077"
-            android:textSize="18sp" />
+            android:textSize="18dp" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_menu_cancel"
@@ -373,7 +378,7 @@
             android:fontFamily="@font/font"
             android:text="취소"
             android:textColor="#0090FF"
-            android:textSize="18sp" />
+            android:textSize="18dp" />
     </LinearLayout>
 
 </RelativeLayout>

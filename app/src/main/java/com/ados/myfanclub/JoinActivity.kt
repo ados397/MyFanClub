@@ -7,9 +7,12 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.widget.doAfterTextChanged
 import com.ados.myfanclub.databinding.ActivityJoinBinding
+import com.ados.myfanclub.model.LogDTO
+import com.ados.myfanclub.model.MailDTO
 import com.ados.myfanclub.model.UserDTO
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.google.firebase.auth.FirebaseAuth
+import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -167,6 +170,16 @@ class JoinActivity : AppCompatActivity() {
 
     private fun writeFirestoreAndFinish(user: UserDTO) {
         firebaseViewModel.updateUser(user) {
+            val gemCount = 5
+            val calendar= Calendar.getInstance()
+            calendar.add(Calendar.DATE, 7)
+            val docName = "master${System.currentTimeMillis()}"
+            var mail = MailDTO(docName,"마이팬클럽 회원가입을 축하합니다!", "마이팬클럽에 오신걸 환영합니다!\n\n마이팬클럽에서 마음 맞는\n팬클럽원들과 함께\n나의 스타를 응원하며\n스마트한 '덕질 라이프'를 즐겨 보세요!\n\n\n회원가입을 축하하며\n소정의 축하 다이아를 드립니다.", "운영자", MailDTO.Item.FREE_GEM, gemCount, Date(), calendar.time)
+            firebaseViewModel.sendUserMail(user.uid.toString(), mail) {
+                var log = LogDTO("[회원가입] 축하 다이아 $gemCount 개 우편 발송, 유효기간 : ${SimpleDateFormat("yyyy.MM.dd HH:mm").format(calendar.time)}까지", Date())
+                firebaseViewModel.writeUserLog(user.uid.toString(), log) { }
+            }
+
             Toast.makeText(this, "회원가입이 완료 되었습니다.", Toast.LENGTH_SHORT).show()
             var intent = Intent(this, MainActivity::class.java)
             intent.putExtra("user", user)

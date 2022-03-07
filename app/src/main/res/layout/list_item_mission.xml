@@ -16,16 +16,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:id="@+id/layout_percent"
-            android:orientation="horizontal"
-            android:background="#FF0000"
-            android:layout_margin="-10dp"
-            android:layout_width="10dp"
-            android:layout_height="match_parent"/>
+
 
         <RelativeLayout
             android:id="@+id/layout_card_view"
+            android:background="@color/card_view_3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -41,7 +36,8 @@
                 android:paddingTop="5dp"
                 android:paddingRight="10dp"
                 android:text="타이틀"
-                android:textColor="@color/text" />
+                android:textColor="@color/text"
+                android:textSize="18dp" />
 
             <TextView
                 android:id="@+id/text_period"
@@ -54,7 +50,7 @@
                 android:paddingBottom="5dp"
                 android:text="09월 30일 까지"
                 android:textColor="@color/text_sub"
-                android:textSize="10sp"
+                android:textSize="14dp"
                 android:textStyle="bold" />
 
             <LinearLayout
@@ -67,7 +63,7 @@
                 <TextView
                     android:id="@+id/text_count"
                     android:text="3/10"
-                    android:textSize="13sp"
+                    android:textSize="14dp"
                     android:fontFamily="@font/font"
                     android:layout_gravity="center"
                     android:layout_marginRight="10dp"
@@ -91,7 +87,7 @@
                     <TextView
                         android:id="@+id/text_percent"
                         android:text="50%"
-                        android:textSize="14sp"
+                        android:textSize="16dp"
                         android:fontFamily="@font/font"
                         android:layout_centerHorizontal="true"
                         android:layout_below="@+id/progress_percent"
@@ -107,6 +103,14 @@
                 </RelativeLayout>
             </LinearLayout>
         </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_percent"
+            android:orientation="horizontal"
+            android:background="#FF0000"
+            android:layout_margin="-10dp"
+            android:layout_width="10dp"
+            android:layout_height="match_parent"/>
 
 
     </androidx.cardview.widget.CardView>

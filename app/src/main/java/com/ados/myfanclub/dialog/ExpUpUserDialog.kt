@@ -36,6 +36,10 @@ class ExpUpUserDialog(context: Context) : Dialog(context), View.OnClickListener 
         window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
+        setInfo()
+    }
+
+    fun setInfo() {
         binding.buttonExpUpUserOk.visibility = View.GONE
 
         var newExp = userDTO?.exp?.plus(addExp!!)

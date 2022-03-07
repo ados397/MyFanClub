@@ -60,7 +60,7 @@
                         android:paddingRight="5dp"
                         android:text="Lv. 99"
                         android:textColor="@color/white"
-                        android:textSize="12sp" />
+                        android:textSize="16dp" />
 
                     <TextView
                         android:id="@+id/text_name"
@@ -71,7 +71,7 @@
                         android:maxLines="1"
                         android:textColor="@color/text"
                         android:text="이름"
-                        android:textSize="16sp" />
+                        android:textSize="18dp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -86,7 +86,7 @@
                         android:fontFamily="@font/font"
                         android:maxLines="1"
                         android:text="신청일"
-                        android:textSize="12sp" />
+                        android:textSize="14dp" />
 
                     <TextView
                         android:id="@+id/text_request_time"
@@ -97,7 +97,7 @@
                         android:fontFamily="@font/font"
                         android:maxLines="1"
                         android:text="[ 2021-09-20 10:59 ]"
-                        android:textSize="12sp" />
+                        android:textSize="14dp" />
 
                 </LinearLayout>
 
@@ -119,6 +119,7 @@
                         android:paddingTop="2dp"
                         android:paddingRight="5dp"
                         android:paddingBottom="2dp"
+                        android:textSize="16dp"
                         android:text="자기 소개 글" />
 
                 </LinearLayout>

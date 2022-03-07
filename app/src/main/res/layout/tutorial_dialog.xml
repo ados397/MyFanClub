@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:src="@drawable/gold_line_top"
+        android:layout_marginBottom="-5dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:background="@drawable/gradient_gold"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/text_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:fontFamily="@font/font_title"
+            android:gravity="center"
+            android:text="[ 마이팬클럽 ]에"
+            android:textColor="@color/white"
+            android:textSize="24dp"
+            android:shadowColor="#D1D86F"
+            android:shadowDx="0.0"
+            android:shadowDy="0.0"
+            android:shadowRadius="15.0" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:fontFamily="@font/font_title"
+            android:gravity="center"
+            android:text="오신 걸 환영합니다!"
+            android:textColor="@color/white"
+            android:textSize="24dp"
+            android:shadowColor="#D1D86F"
+            android:shadowDx="0.0"
+            android:shadowDy="0.0"
+            android:shadowRadius="15.0" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:background="#DD474747"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="7dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:background="#BC6B72" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:fontFamily="@font/font"
+                android:text="기본적인 사용법을 익히기 위한"
+                android:textColor="@color/white"
+                android:textSize="22dp"
+                android:layout_marginTop="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:fontFamily="@font/font"
+                android:text="튜토리얼을 진행하시겠습니까?"
+                android:textColor="@color/white"
+                android:textSize="22dp"
+                android:layout_marginTop="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:fontFamily="@font/font"
+                android:text="튜토리얼 완료시 보상이 있습니다!"
+                android:textColor="@color/display_board_6"
+                android:textSize="22dp"
+                android:layout_marginTop="15dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:fontFamily="@font/font"
+                android:text="(취소 시 다시 시작할 수 없습니다)"
+                android:textColor="@color/premium"
+                android:textSize="19dp"
+                android:layout_marginTop="15dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_tutorial_ok"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/btn_round8"
+                android:fontFamily="@font/font_title"
+                android:textSize="18dp"
+                android:text="진행"
+                android:textColor="@color/text_gold" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_tutorial_cancel"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/btn_round8"
+                android:fontFamily="@font/font_title"
+                android:textSize="18dp"
+                android:text="취소"
+                android:textColor="@color/text_gold" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <ImageView
+        android:src="@drawable/gold_line_bottom"
+        android:layout_marginTop="-5dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

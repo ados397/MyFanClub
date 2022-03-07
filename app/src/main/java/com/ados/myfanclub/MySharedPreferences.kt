@@ -18,6 +18,8 @@ class MySharedPreferences(context: Context) {
         const val PREF_KEY_REWARD_USER_GEM_TIME = "rewardUserGemTime"
         const val PREF_KEY_REWARD_FAN_CLUB_EXP_TIME = "rewardFanClubExpTime"
         const val PREF_KEY_REWARD_FAN_CLUB_GEM_TIME = "rewardFanClubGemTime"
+
+        const val PREF_KEY_FAN_CLUB_CHAT_SEND_TIME = "fanClubChatSendTime"
     }
 
     private var pref: SharedPreferences = context.getSharedPreferences("storage", Context.MODE_PRIVATE)

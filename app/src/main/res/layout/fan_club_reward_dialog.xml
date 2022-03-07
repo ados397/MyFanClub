@@ -18,7 +18,7 @@
             android:fontFamily="@font/font"
             android:text="총 다이아"
             android:textColor="@color/text"
-            android:textSize="20sp" />
+            android:textSize="20dp" />
 
         <ImageView
             android:layout_width="25dp"
@@ -37,7 +37,7 @@
             android:fontFamily="@font/font"
             android:text="100개"
             android:textColor="@color/text_red"
-            android:textSize="20sp" />
+            android:textSize="20dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -46,7 +46,7 @@
             android:fontFamily="@font/font"
             android:text=" 획득 가능"
             android:textColor="@color/text"
-            android:textSize="20sp" />
+            android:textSize="20dp" />
 
     </LinearLayout>
 
@@ -73,7 +73,7 @@
             android:background="@drawable/btn_ripple"
             android:fontFamily="@font/font"
             android:text="모두 받기"
-            android:textSize="18sp"
+            android:textSize="18dp"
             android:textColor="#0090FF" />
 
     </LinearLayout>
@@ -93,13 +93,14 @@
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_fan_club_reward_cancel"
             android:layout_width="wrap_content"
-            android:layout_height="25dp"
+            android:layout_height="30dp"
             android:layout_gravity="center"
             android:layout_marginTop="7dp"
             android:layout_marginRight="10dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="7dp"
             android:background="@drawable/btn_round4"
             android:fontFamily="@font/font"
+            android:textSize="18dp"
             android:text="닫기"
             android:textColor="@color/text" />
     </LinearLayout>

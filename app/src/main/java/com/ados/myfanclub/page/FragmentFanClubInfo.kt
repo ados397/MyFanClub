@@ -2,14 +2,17 @@ package com.ados.myfanclub.page
 
 import android.net.Uri
 import android.os.Bundle
+import android.text.method.ScrollingMovementMethod
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.MySharedPreferences
@@ -35,6 +38,7 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.concurrent.thread
+import kotlin.concurrent.timer
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -67,8 +71,14 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
     //lateinit var recyclerView : RecyclerView
     //lateinit var recyclerViewAdapter : RecyclerViewAdapterFanClubMember
 
-    private var fanClubDTO: FanClubDTO? = null
+    //private var fanClubDTO: FanClubDTO? = null
+    private var fanClubExDTO: FanClubExDTO? = null
     private var currentMember: MemberDTO? = null
+
+    private var isFirstDisplayChat = true // 최초에 채팅 표시를 하지 않기 위한 변수
+    private var displayCount = 0 // 전광판 일정 시간 유지를 위한 변수
+    private var displayChat = DisplayBoardDTO() // 표시할 가장 최근 채팅
+    private var lastChat = DisplayBoardDTO() // 가장 마지막에 표시한 채팅
 
     private var toast : Toast? = null
 
@@ -93,7 +103,8 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
             param2 = it.getString(ARG_PARAM2)
         }
 
-        fanClubDTO = (activity as MainActivity?)?.getFanClub()
+        //fanClubDTO = (activity as MainActivity?)?.getFanClub()
+        fanClubExDTO = (activity as MainActivity?)?.getFanClubEx()
         currentMember = (activity as MainActivity?)?.getMember()
     }
 
@@ -122,14 +133,20 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
 
         setInfo()
 
-        binding.editNotice.setOnTouchListener { view, motionEvent ->
+        binding.textNoticeContent.movementMethod = ScrollingMovementMethod.getInstance()
+        binding.textNoticeContent.setOnTouchListener { view, motionEvent ->
+            binding.scrollView.requestDisallowInterceptTouchEvent(true)
+            false
+        }
+
+        binding.editAboutMe.setOnTouchListener { view, motionEvent ->
             binding.scrollView.requestDisallowInterceptTouchEvent(true)
             false
         }
 
         binding.swipeRefreshLayout.setOnRefreshListener {
             (activity as MainActivity?)?.loading()
-            fanClubDTO = (activity as MainActivity?)?.getFanClub()
+            fanClubExDTO = (activity as MainActivity?)?.getFanClubEx()
             currentMember = (activity as MainActivity?)?.getMember()
 
             setInfo()
@@ -185,11 +202,12 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
                 questionDialog.button_question_ok.setOnClickListener { // Ok
                     questionDialog.dismiss()
                     (activity as MainActivity?)?.loading()
+                    val preferencesDTO = (activity as MainActivity?)?.getPreferences()
 
                     // 오늘날짜 출석체크 등록
                     val date = Date()
                     val user = (activity as MainActivity?)?.getUser()!!
-                    firebaseViewModel.updateFanClubCheckout(fanClubDTO?.docName.toString(), currentMember?.userUid.toString()) {
+                    firebaseViewModel.updateFanClubCheckout(fanClubExDTO?.fanClubDTO?.docName.toString(), currentMember?.userUid.toString()) {
                         var exp = (activity as MainActivity?)?.getPreferences()?.rewardFanClubExp!!
                         if (user.isPremium()!!) { // 프리미엄 패키지 사용중이라면 경험치 두배
                             exp = exp.times(2)
@@ -200,6 +218,9 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
 
                         // 경험치 추가 적용
                         applyExp(exp, 0, null)
+
+                        // 다이아 추가
+                        addGem(preferencesDTO?.rewardFanClubCheckoutGem!!)
 
                         // 일일 퀘스트 - 팬클럽 출석체크 완료 시 적용
                         if (!QuestDTO("팬클럽 출석체크", "팬클럽 출석체크를 완료 하세요.", 1, user.questSuccessTimes?.get("4"), user.questGemGetTimes?.get("4")).isQuestSuccess()) { // 퀘스트 완료 안했을 때 적용
@@ -244,8 +265,8 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
             dialog.preferencesDTO = preferencesDTO
             dialog.oldUserDTO = userDTO?.copy()
             dialog.newUserDTO = userDTO?.copy()
-            dialog.oldFanClubDTO = fanClubDTO?.copy()
-            dialog.newFanClubDTO = fanClubDTO?.copy()
+            dialog.oldFanClubDTO = fanClubExDTO?.fanClubDTO?.copy()
+            dialog.newFanClubDTO = fanClubExDTO?.fanClubDTO?.copy()
             dialog.show()
 
             dialog.button_level_up_action_fan_club_cancel.setOnClickListener {
@@ -322,12 +343,12 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
         }
 
         binding.buttonReward.setOnClickListener {
-            firebaseViewModel.getMemberCheckoutCount(fanClubDTO?.docName.toString()) { checkoutCount ->
+            firebaseViewModel.getMemberCheckoutCount(fanClubExDTO?.fanClubDTO?.docName.toString()) { checkoutCount ->
                 val dialog = FanClubRewardDialog(requireContext())
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
                 dialog.setCanceledOnTouchOutside(false)
                 dialog.mainActivity = (activity as MainActivity?)
-                dialog.fanClubDTO = fanClubDTO
+                dialog.fanClubDTO = fanClubExDTO?.fanClubDTO
                 dialog.currentMember = currentMember
                 dialog.fanClubCheckoutCount = checkoutCount
                 dialog.show()
@@ -343,7 +364,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
             dialog.setCanceledOnTouchOutside(false)
             //dialog.mainActivity = (activity as MainActivity?)
-            dialog.fanClubDTO = fanClubDTO
+            dialog.fanClubDTO = fanClubExDTO?.fanClubDTO
             //dialog.currentMember = currentMember
             //dialog.fanClubCheckoutCount = checkoutCount
             dialog.show()
@@ -376,44 +397,56 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
                             questionDialog.dismiss()
                             dialog.dismiss()
 
-                            (activity as MainActivity?)?.loading()
-                            val date = Date()
                             val user = (activity as MainActivity?)?.getUser()!!
-                            val fromName = "[팬클럽 발송] ${user.nickname}"
+                            if ((user.paidGem!! + user.freeGem!!) < preferencesDTO?.priceFanClubNotice!!) {
+                                Toast.makeText(activity, "다이아가 부족합니다.", Toast.LENGTH_SHORT).show()
+                            } else {
+                                (activity as MainActivity?)?.loading()
+                                val date = Date()
+                                val fromName = "보낸이 : ${user.nickname}"
 
-                            firebaseViewModel.getMembers(fanClubDTO?.docName.toString(), FirebaseRepository.MemberType.MEMBER_ONLY) { members ->
-                                //println("공지 전송 호출")
-                                for (member in members) {
-                                    if (!member.token.isNullOrEmpty()) {
-                                        // FCM 전송하기
-                                        val data = NotificationBody.NotificationData(
-                                            title,
-                                            fromName,
-                                            content
-                                        )
-                                        val body = NotificationBody(member.token.toString(), data)
-                                        firebaseViewModel.sendNotification(body)
-                                        // 응답 여부
-                                        firebaseViewModel.myResponse.observe(viewLifecycleOwner) {
-                                            //Log.d(TAG, "onViewCreated: $it")
-                                            //println("공지 전송 호출!!!")
-                                        }
-
-                                        // 전체 공지 우편으로도 발송
-                                        val docName = "fanClub${System.currentTimeMillis()}"
-                                        val calendar= Calendar.getInstance()
-                                        calendar.add(Calendar.DATE, 7)
-                                        var mail = MailDTO(docName, title, content, fromName, MailDTO.Item.NONE, 0, date, calendar.time)
-                                        firebaseViewModel.sendUserMail(member?.userUid.toString(), mail) {
-                                            // 팬클럽 로그 기록
-                                            var log = LogDTO("[팬클럽 전체 공지 발송] 발송자 (uid : ${user.uid}, nickname : ${user.nickname}), 공지 제목 : $title, 공지 내용 : $content", date)
-                                            firebaseViewModel.writeFanClubLog(fanClubDTO?.docName.toString(), log) {
-
+                                firebaseViewModel.getMembers(fanClubExDTO?.fanClubDTO?.docName.toString(), FirebaseRepository.MemberType.MEMBER_ONLY) { members ->
+                                    //println("공지 전송 호출")
+                                    for (member in members) {
+                                        if (!member.token.isNullOrEmpty()) {
+                                            // FCM 전송하기
+                                            val data = NotificationBody.NotificationData(
+                                                title,
+                                                fromName,
+                                                content
+                                            )
+                                            val body = NotificationBody(member.token.toString(), data)
+                                            firebaseViewModel.sendNotification(body)
+                                            // 응답 여부
+                                            firebaseViewModel.myResponse.observe(viewLifecycleOwner) {
+                                                //Log.d(TAG, "onViewCreated: $it")
+                                                //println("공지 전송 호출!!!")
                                             }
+
+                                            // 전체 공지 우편으로도 발송
+                                            val docName = "fanClub${System.currentTimeMillis()}"
+                                            val calendar= Calendar.getInstance()
+                                            calendar.add(Calendar.DATE, 7)
+                                            var mail = MailDTO(docName, title, content, fromName, MailDTO.Item.NONE, 0, date, calendar.time)
+                                            firebaseViewModel.sendUserMail(member?.userUid.toString(), mail) { }
+                                        }
+                                    }
+                                    val oldPaidGemCount = user.paidGem!!
+                                    val oldFreeGemCount = user.freeGem!!
+                                    firebaseViewModel.useUserGem(user.uid.toString(), preferencesDTO?.priceFanClubNotice!!) { userDTO ->
+                                        if (userDTO != null) {
+                                            var logUser = LogDTO("[다이아 차감] 전체공지 전송으로 ${preferencesDTO?.priceFanClubNotice} 다이아 사용 (paidGem : $oldPaidGemCount -> ${userDTO?.paidGem}, freeGem : $oldFreeGemCount -> ${userDTO?.freeGem})", Date())
+                                            firebaseViewModel.writeUserLog(user.uid.toString(), logUser) { }
+
+                                            // 팬클럽 로그 기록
+                                            var logFanClub = LogDTO("[팬클럽 전체 공지 발송] 발송자 (uid : ${user.uid}, nickname : ${user.nickname}), 공지 제목 : $title, 공지 내용 : $content", date)
+                                            firebaseViewModel.writeFanClubLog(fanClubExDTO?.fanClubDTO?.docName.toString(), logFanClub) { }
+
+                                            Toast.makeText(activity, "전체 공지 발송 완료!", Toast.LENGTH_SHORT).show()
+                                            (activity as MainActivity?)?.loadingEnd()
                                         }
                                     }
                                 }
-                                (activity as MainActivity?)?.loadingEnd()
                             }
                         }
                     }
@@ -479,8 +512,8 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
         //var currentUser = (activity as MainActivity?)?.getUser()
         val user = (activity as MainActivity?)?.getUser()!!
         val date = Date()
-        val oldFanClub = fanClubDTO
-        firebaseViewModel.addFanClubExp(fanClubDTO?.docName.toString(), exp) { fanClubDTO ->
+        val oldFanClub = fanClubExDTO?.fanClubDTO
+        firebaseViewModel.addFanClubExp(fanClubExDTO?.fanClubDTO?.docName.toString(), exp) { fanClubDTO ->
             if (fanClubDTO != null) {
                 // 다이아 사용일 경우 다이아 소모 적용
                 if (gemCount > 0) {
@@ -568,7 +601,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
         }
     }
 
-    private fun addGem(gemCount: Int, dialog: LevelUpActionFanClubDialog?) {
+    private fun addGem(gemCount: Int, dialog: LevelUpActionFanClubDialog? = null) {
         val user = (activity as MainActivity?)?.getUser()!!
         val oldFreeGemCount = user.freeGem!!
         firebaseViewModel.addUserGem(user.uid.toString(), 0, gemCount) { userDTO ->
@@ -596,11 +629,11 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
     }
 
     private fun setInfo() {
-        if (fanClubDTO != null) {
+        if (fanClubExDTO?.fanClubDTO != null) {
             setFanClubInfo()
-            firebaseViewModel.getMemberCheckoutCount(fanClubDTO?.docName.toString()) { checkoutCount ->
+            firebaseViewModel.getMemberCheckoutCount(fanClubExDTO?.fanClubDTO?.docName.toString()) { checkoutCount ->
                 if (_binding != null) { // 메인 탭에서 바로 사용자 정보 탭 이동 시 팬클럽 뷰가 Destroy 되고 나서 뒤 늦게 들어오는 경우가 있기 때문에 예외 처리
-                    binding.textCheckoutCount.text = "${checkoutCount}/${fanClubDTO?.memberCount}"
+                    binding.textCheckoutCount.text = "${checkoutCount}/${fanClubExDTO?.fanClubDTO?.memberCount}"
                 }
             }
         }
@@ -622,28 +655,25 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
         binding.textMemberName.text = currentMember?.userNickname
         binding.textContribution.text = "기여도 : ${decimalFormat.format(currentMember?.contribution)}"
         binding.textResponseTime.text = SimpleDateFormat("yyyy.MM.dd HH:mm").format(currentMember?.responseTime)
-        binding.textAboutMe.text = currentMember?.userAboutMe
+        binding.editAboutMe.setText(currentMember?.userAboutMe)
         binding.imgCheckout.setImageResource(currentMember?.getCheckoutImage()!!)
     }
 
     private fun setFanClubInfo() {
-        if (fanClubDTO?.imgSymbolCustom != null) {
-            firebaseStorageViewModel.getFanClubSymbol(fanClubDTO?.docName.toString()) { uri ->
-                if (_binding != null) { // 메인 탭에서 바로 사용자 정보 탭 이동 시 팬클럽 뷰가 Destroy 되고 나서 뒤 늦게 들어오는 경우가 있기 때문에 예외 처리
-                    Glide.with(requireContext()).load(uri).fitCenter().into(binding.imgSymbol)
-                }
-            }
+        if (fanClubExDTO?.imgSymbolCustomUri != null) {
+            Glide.with(requireContext()).load(fanClubExDTO?.imgSymbolCustomUri).fitCenter().into(binding.imgSymbol)
         } else {
-            var imageID = requireContext().resources.getIdentifier(fanClubDTO?.imgSymbol, "drawable", requireContext().packageName)
+            var imageID = requireContext().resources.getIdentifier(fanClubExDTO?.fanClubDTO?.imgSymbol, "drawable", requireContext().packageName)
             if (imageID > 0) {
                 binding.imgSymbol.setImageResource(imageID)
             }
         }
-        binding.textLevel.text = "Lv. ${fanClubDTO?.level}"
-        binding.textName.text = fanClubDTO?.name
-        binding.editNotice.setText(fanClubDTO?.notice)
-        binding.textExp.text = "${decimalFormat.format(fanClubDTO?.exp)}/${decimalFormat.format(fanClubDTO?.getNextLevelExp())}"
-        var percent = ((fanClubDTO?.exp?.toDouble()!! / fanClubDTO?.getNextLevelExp()!!) * 100).toInt()
+
+        binding.textLevel.text = "Lv. ${fanClubExDTO?.fanClubDTO?.level}"
+        binding.textName.text = fanClubExDTO?.fanClubDTO?.name
+        binding.textNoticeContent.text = fanClubExDTO?.fanClubDTO?.notice
+        binding.textExp.text = "${decimalFormat.format(fanClubExDTO?.fanClubDTO?.exp)}/${decimalFormat.format(fanClubExDTO?.fanClubDTO?.getNextLevelExp())}"
+        var percent = ((fanClubExDTO?.fanClubDTO?.exp?.toDouble()!! / fanClubExDTO?.fanClubDTO?.getNextLevelExp()!!) * 100).toInt()
         binding.progressPercent.progress = percent
 
         binding.imgSettings.setImageResource(R.drawable.settings)
@@ -668,7 +698,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
             val question = QuestionDTO(
                 QuestionDTO.Stat.WARNING,
                 "팬클럽 이름 변경",
-                "아직 팬클럽 이름을 변경할 수 없습니다. 팬클럽 이름은 3일마다 변경 가능합니다.\n\n최종변경일 [${SimpleDateFormat("yyyy.MM.dd HH:mm").format(fanClubDTO?.nameChangeDate)}]",
+                "아직 팬클럽 이름을 변경할 수 없습니다. 팬클럽 이름은 3일마다 변경 가능합니다.\n\n최종변경일 [${SimpleDateFormat("yyyy.MM.dd HH:mm").format(fanClubExDTO?.fanClubDTO?.nameChangeDate)}]",
             )
             val questionDialog = QuestionDialog(requireContext(), question)
             questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -680,7 +710,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
                 questionDialog.dismiss()
             }
         } else {
-            val item = EditTextDTO("팬클럽 이름 변경", fanClubDTO?.name, 30, "^[가-힣ㄱ-ㅎa-zA-Z0-9.~!@#\$%^&*\\[\\](){}|_ -]{1,15}\$", "사용할 수 없는 문자열이 포함되어 있습니다.")
+            val item = EditTextDTO("팬클럽 이름 변경", fanClubExDTO?.fanClubDTO?.name, 30, "^[가-힣ㄱ-ㅎa-zA-Z0-9.~!@#\$%^&*\\[\\](){}|_ -]{1,15}\$", "사용할 수 없는 문자열이 포함되어 있습니다.")
             val dialog = EditTextModifyDialog(requireContext(), item)
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
             dialog.setCanceledOnTouchOutside(false)
@@ -713,19 +743,19 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
                                 Toast.makeText(activity, "팬클럽 이름이 이미 존재합니다.", Toast.LENGTH_SHORT).show()
                             } else {
                                 dialog.dismiss()
-                                if (fanClubDTO?.name != name) {
+                                if (fanClubExDTO?.fanClubDTO?.name != name) {
                                     (activity as MainActivity?)?.loading()
 
-                                    val oldName = fanClubDTO?.name
-                                    fanClubDTO?.name = name
-                                    fanClubDTO?.nameChangeDate = Date()
-                                    firebaseViewModel.updateFanClub(fanClubDTO!!) {
+                                    val oldName = fanClubExDTO?.fanClubDTO?.name
+                                    fanClubExDTO?.fanClubDTO?.name = name
+                                    fanClubExDTO?.fanClubDTO?.nameChangeDate = Date()
+                                    firebaseViewModel.updateFanClub(fanClubExDTO?.fanClubDTO!!) {
                                         // 다이아 차감
                                         val oldPaidGemCount = user.paidGem!!
                                         val oldFreeGemCount = user.freeGem!!
                                         firebaseViewModel.useUserGem(user.uid.toString(), preferencesDTO?.priceFanClubName!!) { userDTO ->
                                             if (userDTO != null) {
-                                                var log = LogDTO("[다이아 차감] 팬클럽 이름 변경으로 ${preferencesDTO?.priceFanClubName} 다이아 사용 ($oldName -> ${fanClubDTO?.name}), (paidGem : $oldPaidGemCount -> ${userDTO?.paidGem}, freeGem : $oldFreeGemCount -> ${userDTO?.freeGem})", Date())
+                                                var log = LogDTO("[다이아 차감] 팬클럽 이름 변경으로 ${preferencesDTO?.priceFanClubName} 다이아 사용 ($oldName -> ${fanClubExDTO?.fanClubDTO?.name}), (paidGem : $oldPaidGemCount -> ${userDTO?.paidGem}, freeGem : $oldFreeGemCount -> ${userDTO?.freeGem})", Date())
                                                 firebaseViewModel.writeUserLog(user.uid.toString(), log) { }
                                                 Toast.makeText(activity, "팬클럽 이름 변경 완료!", Toast.LENGTH_SHORT).show()
                                                 binding.textName.text = name
@@ -745,9 +775,9 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
     private fun isBlockChangeName() : Boolean {
         // 팬클럽 명 변경 후 3일이 지나야 재 변경 가능
         var isBlock = false
-        if (fanClubDTO?.nameChangeDate != null) {
+        if (fanClubExDTO?.fanClubDTO?.nameChangeDate != null) {
             val calendar= Calendar.getInstance()
-            calendar.time = fanClubDTO?.nameChangeDate
+            calendar.time = fanClubExDTO?.fanClubDTO?.nameChangeDate
             calendar.add(Calendar.DATE, 3)
 
             if (Date() < calendar.time) {
@@ -796,18 +826,18 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
                     if (imageID != null) {
                         (activity as MainActivity?)?.loading()
 
-                        val oldImgSymbol = fanClubDTO?.imgSymbol
-                        val oldImgSymbolCustom = fanClubDTO?.imgSymbolCustom
+                        val oldImgSymbol = fanClubExDTO?.fanClubDTO?.imgSymbol
+                        val oldImgSymbolCustom = fanClubExDTO?.fanClubDTO?.imgSymbolCustom
                         if (uri == null) { // 제공된 심볼 중에서 선택
-                            fanClubDTO?.imgSymbol = selectedSymbol
-                            fanClubDTO?.imgSymbolCustom = null
-                            firebaseViewModel.updateFanClub(fanClubDTO!!) {
+                            fanClubExDTO?.fanClubDTO?.imgSymbol = selectedSymbol
+                            fanClubExDTO?.fanClubDTO?.imgSymbolCustom = null
+                            firebaseViewModel.updateFanClub(fanClubExDTO?.fanClubDTO!!) {
                                 // 다이아 차감
                                 val oldPaidGemCount = user.paidGem!!
                                 val oldFreeGemCount = user.freeGem!!
                                 firebaseViewModel.useUserGem(user.uid.toString(), preferencesDTO?.priceFanClubSymbol!!) { userDTO ->
                                     if (userDTO != null) {
-                                        var log = LogDTO("[다이아 차감] 팬클럽 심볼 변경으로 ${preferencesDTO?.priceFanClubSymbol} 다이아 사용 ($oldImgSymbol -> ${fanClubDTO?.imgSymbol}), (paidGem : $oldPaidGemCount -> ${userDTO?.paidGem}, freeGem : $oldFreeGemCount -> ${userDTO?.freeGem})", Date())
+                                        var log = LogDTO("[다이아 차감] 팬클럽 심볼 변경으로 ${preferencesDTO?.priceFanClubSymbol} 다이아 사용 ($oldImgSymbol -> ${fanClubExDTO?.fanClubDTO?.imgSymbol}), (paidGem : $oldPaidGemCount -> ${userDTO?.paidGem}, freeGem : $oldFreeGemCount -> ${userDTO?.freeGem})", Date())
                                         firebaseViewModel.writeUserLog(user.uid.toString(), log) { }
                                         Toast.makeText(activity, "심볼 변경 완료!", Toast.LENGTH_SHORT).show()
                                         binding.imgSymbol.setImageResource(imageID)
@@ -817,25 +847,30 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
                             }
                         } else { // 사용자 직접 이미지 업로드
                             var bitmap = (activity as MainActivity?)?.getBitmap(uri)
-                            firebaseStorageViewModel.setFanClubSymbol(fanClubDTO?.docName.toString(), bitmap!!) {
-                                if (!it) {
-                                    Toast.makeText(activity, "이미지 업로드 실패 ", Toast.LENGTH_SHORT).show()
-                                    (activity as MainActivity?)?.loadingEnd()
-                                } else {
-                                    fanClubDTO?.imgSymbol = "reward_icon_25" // 기본 값
-                                    fanClubDTO?.imgSymbolCustom = fanClubDTO?.getSymbolCustomImageName()
-                                    firebaseViewModel.updateFanClub(fanClubDTO!!) {
-                                        // 다이아 차감
-                                        val oldPaidGemCount = user.paidGem!!
-                                        val oldFreeGemCount = user.freeGem!!
-                                        firebaseViewModel.useUserGem(user.uid.toString(), preferencesDTO?.priceFanClubSymbol!!) { userDTO ->
-                                            if (userDTO != null) {
-                                                var log = LogDTO("[다이아 차감] 팬클럽 심볼(커스텀) 변경으로 ${preferencesDTO?.priceFanClubSymbol} 다이아 사용 ($oldImgSymbolCustom -> ${fanClubDTO?.imgSymbolCustom}), (paidGem : $oldPaidGemCount -> ${userDTO?.paidGem}, freeGem : $oldFreeGemCount -> ${userDTO?.freeGem})", Date())
-                                                firebaseViewModel.writeUserLog(user.uid.toString(), log) { }
-                                                Toast.makeText(activity, "심볼 변경 완료!", Toast.LENGTH_SHORT).show()
-                                                binding.imgSymbol.setImageBitmap(bitmap)
+                            if (bitmap == null) {
+                                Toast.makeText(activity, "이미지 업로드 실패 ", Toast.LENGTH_SHORT).show()
+                                (activity as MainActivity?)?.loadingEnd()
+                            } else {
+                                firebaseStorageViewModel.setFanClubSymbol(fanClubExDTO?.fanClubDTO?.docName.toString(), bitmap!!) {
+                                    if (!it) {
+                                        Toast.makeText(activity, "이미지 업로드 실패 ", Toast.LENGTH_SHORT).show()
+                                        (activity as MainActivity?)?.loadingEnd()
+                                    } else {
+                                        fanClubExDTO?.fanClubDTO?.imgSymbol = "reward_icon_25" // 기본 값
+                                        fanClubExDTO?.fanClubDTO?.imgSymbolCustom = fanClubExDTO?.fanClubDTO?.getSymbolCustomImageName()
+                                        firebaseViewModel.updateFanClub(fanClubExDTO?.fanClubDTO!!) {
+                                            // 다이아 차감
+                                            val oldPaidGemCount = user.paidGem!!
+                                            val oldFreeGemCount = user.freeGem!!
+                                            firebaseViewModel.useUserGem(user.uid.toString(), preferencesDTO?.priceFanClubSymbol!!) { userDTO ->
+                                                if (userDTO != null) {
+                                                    var log = LogDTO("[다이아 차감] 팬클럽 심볼(커스텀) 변경으로 ${preferencesDTO?.priceFanClubSymbol} 다이아 사용 ($oldImgSymbolCustom -> ${fanClubExDTO?.fanClubDTO?.imgSymbolCustom}), (paidGem : $oldPaidGemCount -> ${userDTO?.paidGem}, freeGem : $oldFreeGemCount -> ${userDTO?.freeGem})", Date())
+                                                    firebaseViewModel.writeUserLog(user.uid.toString(), log) { }
+                                                    Toast.makeText(activity, "심볼 변경 완료!", Toast.LENGTH_SHORT).show()
+                                                    binding.imgSymbol.setImageBitmap(bitmap)
+                                                }
+                                                (activity as MainActivity?)?.loadingEnd()
                                             }
-                                            (activity as MainActivity?)?.loadingEnd()
                                         }
                                     }
                                 }
@@ -866,7 +901,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
     }
 
     private fun modifyNotice() {
-        val item = EditTextDTO("공지사항 변경", fanClubDTO?.notice, 600)
+        val item = EditTextDTO("공지사항 변경", fanClubExDTO?.fanClubDTO?.notice, 600)
         val dialog = EditTextModifyDialog(requireContext(), item)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setCanceledOnTouchOutside(false)
@@ -892,15 +927,15 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
             questionDialog.button_question_ok.setOnClickListener {
                 questionDialog.dismiss()
 
-                val oldNotice = fanClubDTO?.notice.toString()
-                fanClubDTO?.notice = dialog.edit_content.text.toString()
-                firebaseViewModel.updateFanClub(fanClubDTO!!) {
+                val oldNotice = fanClubExDTO?.fanClubDTO?.notice.toString()
+                fanClubExDTO?.fanClubDTO?.notice = dialog.edit_content.text.toString()
+                firebaseViewModel.updateFanClub(fanClubExDTO?.fanClubDTO!!) {
                     val user = (activity as MainActivity?)?.getUser()!!
-                    var log = LogDTO("[팬클럽 공지사항 변경] 변경한 관리자 (uid : ${user.uid}, nickname : ${user.nickname}), 공지사항 변경 : $oldNotice -> ${fanClubDTO?.notice}", Date())
-                    firebaseViewModel.writeFanClubLog(fanClubDTO?.docName.toString(), log) { }
+                    var log = LogDTO("[팬클럽 공지사항 변경] 변경한 관리자 (uid : ${user.uid}, nickname : ${user.nickname}), 공지사항 변경 : $oldNotice -> ${fanClubExDTO?.fanClubDTO?.notice}", Date())
+                    firebaseViewModel.writeFanClubLog(fanClubExDTO?.fanClubDTO?.docName.toString(), log) { }
 
                     Toast.makeText(activity, "공지사항 변경 완료!", Toast.LENGTH_SHORT).show()
-                    binding.editNotice.setText(fanClubDTO?.notice)
+                    binding.textNoticeContent.text = fanClubExDTO?.fanClubDTO?.notice
                 }
             }
         }
@@ -909,6 +944,8 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
     private fun callToast(message: String) {
         if (toast == null) {
             toast = Toast.makeText(context, message, Toast.LENGTH_SHORT)
+        } else {
+            toast?.setText(message)
         }
         toast?.show()
     }

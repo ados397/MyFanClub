@@ -10,15 +10,7 @@ import com.ados.myfanclub.model.FanClubDTO
 import com.ados.myfanclub.model.FanClubExDTO
 import com.bumptech.glide.Glide
 
-class RecyclerViewAdapterFanClub(private val items: ArrayList<FanClubDTO>, var clickListener: OnFanClubItemClickListener) : RecyclerView.Adapter<RecyclerViewAdapterFanClub.ViewHolder>() {
-
-    private val itemsEx: ArrayList<FanClubExDTO> = arrayListOf()
-
-    init {
-        for (it in items) {
-            itemsEx.add(FanClubExDTO(it))
-        }
-    }
+class RecyclerViewAdapterFanClub(private val itemsEx: ArrayList<FanClubExDTO>, var clickListener: OnFanClubItemClickListener) : RecyclerView.Adapter<RecyclerViewAdapterFanClub.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = ListItemFanClubBinding.inflate(LayoutInflater.from(parent.context), parent, false)

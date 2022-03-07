@@ -35,6 +35,10 @@ data class UserDTO(
     var checkoutTime: Date? = null,
     var createTime: Date? = null,
     var loginTime: Date? = null,
+    var blockStartTime: Date? = null,
+    var blockEndTime: Date? = null,
+    var blockReason: String? = null,
+    var tutorialEndedTime: Date? = null,
     var token: String? = null
 ) : Parcelable {
     enum class LoginType {
@@ -152,21 +156,37 @@ data class UserDTO(
         }
         return isGet
     }
+
+    // 사용자 차단 여부
+    fun isBlock() : Boolean {
+        return if (blockEndTime == null)
+            false
+        else
+            Date() < blockEndTime
+    }
 }
 
 data class UserExDTO(
-    val userDTO: UserDTO? = null,
+    var userDTO: UserDTO? = null,
     var isSelected: Boolean = false,
     var imgProfileUri: Uri? = null
 )
 
 data class DisplayBoardDTO(
+    var docName: String? = null,
     var displayText: String? = null,
     var userUid: String? = null,
     var userNickname: String? = null,
     var color: Int? = 0,
     var order: Long? = 0L,
     var createTime: Date? = null
+) { }
+
+data class DisplayBoardExDTO(
+    val displayBoardDTO: DisplayBoardDTO? = null,
+    var isBlocked: Boolean = false,
+    var isSelected: Boolean = false,
+    var imgProfileUri: Uri? = null
 ) { }
 
 @Parcelize

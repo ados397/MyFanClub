@@ -2,6 +2,7 @@ package com.ados.myfanclub.page
 
 import android.content.Context
 import android.os.Bundle
+import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -25,6 +26,10 @@ import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.question_dialog.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -80,7 +85,7 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
         binding.layoutMenu.visibility = View.GONE
 
         searchFanClub()
-        firebaseViewModel.fanClubDTOs.observe(requireActivity()) {
+        firebaseViewModel.fanClubDTOs.observe(viewLifecycleOwner) {
             setAdapter()
         }
 
@@ -99,6 +104,7 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
         val typeface = ResourcesCompat.getFont(requireContext(), R.font.uhbee_zziba_regular)
         val editText = binding.searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
         editText.typeface = typeface
+        editText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20F)
 
         binding.buttonBack.setOnClickListener {
             callBackPressed()
@@ -150,15 +156,38 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
     }
 
     private fun setAdapter() {
-        recyclerViewAdapter = RecyclerViewAdapterFanClub(firebaseViewModel.fanClubDTOs.value!!, this)
-        recyclerView.adapter = recyclerViewAdapter
-        for (index in 0 until firebaseViewModel.fanClubDTOs.value!!.size) {
-            if (firebaseViewModel.fanClubDTOs.value!![index].imgSymbolCustom != null) {
-                firebaseStorageViewModel.getFanClubSymbol(firebaseViewModel.fanClubDTOs.value!![index].docName.toString()) { uri ->
-                    if (uri != null) {
-                        recyclerViewAdapter.updateSymbol(index, uri)
+        var uidSet = hashSetOf<String>()
+        val itemsEx: ArrayList<FanClubExDTO> = arrayListOf()
+        for (fanClub in firebaseViewModel.fanClubDTOs.value!!) {
+            itemsEx.add(FanClubExDTO(fanClub))
+            if (!fanClub.docName.isNullOrEmpty()) {
+                uidSet.add(fanClub.docName.toString())
+            }
+        }
+
+        var uriCheckIndex = 0
+        for (uid in uidSet) {
+            firebaseStorageViewModel.getFanClubSymbol(uid) { uri ->
+                if (uri != null) {
+                    for (item in itemsEx) {
+                        if (item.fanClubDTO?.docName == uid) {
+                            item.imgSymbolCustomUri = uri
+                        }
                     }
                 }
+                uriCheckIndex++
+            }
+        }
+
+        CoroutineScope(Dispatchers.Main).launch {
+            while(true) {
+                if (uriCheckIndex == uidSet.size) {
+                    recyclerViewAdapter = RecyclerViewAdapterFanClub(itemsEx, this@FragmentFanClubJoin)
+                    recyclerView.adapter = recyclerViewAdapter
+                    (activity as MainActivity?)?.loadingEnd()
+                    break
+                }
+                delay(100)
             }
         }
     }
@@ -191,6 +220,11 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
     }
 
     private fun callBackPressed() {

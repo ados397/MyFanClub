@@ -13,6 +13,9 @@
     <color name="text_red">#FF0000</color>
     <color name="text_gold">#716600</color>
     <color name="text_disable">#8E8E8E</color>
+    <color name="text_disable2">#C0C0C0</color>
+    <color name="text_chat_disable">#D5C981</color>
+    <color name="text_button_disable">#8F8E74</color>
     <color name="button_disable">#E0E0E0</color>
     <color name="dialog">#474747</color>
     <color name="charge_back">#333333</color>
@@ -46,4 +49,13 @@
     <color name="display_board_10">#FF0081</color>
     <color name="card_view_1">#FBF9EC</color>
     <color name="card_view_2">#EDFBEC</color>
+    <color name="card_view_3">#F2F2F2</color>
+    <color name="chat_alpha">#AA4DDEF1</color>
+    <color name="chat_title_background">#93B1CD</color>
+    <color name="chat_content_background">#9BBAD8</color>
+    <color name="chat_content_me">#FFEB3B</color>
+    <color name="report_dialog">#202023</color>
+    <color name="report_dialog_sub">#2B2B2E</color>
+    <color name="report_text_categories">#767678</color>
+    <color name="report_text_content">#DADDE0</color>
 </resources>

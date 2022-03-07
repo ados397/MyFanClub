@@ -4,26 +4,52 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/layout_main"
     tools:context=".LoginActivity">
 
-    <ImageView
-        android:layout_centerHorizontal="true"
-        android:layout_margin="50dp"
-        android:layout_width="128dp"
-        android:layout_height="128dp"
-        android:src="@drawable/reward_icon_02" />
-
     <LinearLayout
+        android:id="@+id/layout_main_logo"
         android:orientation="vertical"
-        android:layout_alignParentBottom="true"
-        app:layout_constraintBaseline_toBottomOf="parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:layout_marginTop="0dp"
+            android:src="@drawable/app_icon" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_title"
+            android:gravity="center"
+            android:text="스마트 덕질 라이프의 시작"
+            android:textSize="14dp"
+            android:textColor="@color/text_sub" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:layout_marginBottom="10dp"
+            android:fontFamily="@font/font"
+            android:gravity="center"
+            android:text="마이팬클럽"
+            android:textSize="30dp"
+            android:textColor="@color/purple" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_below="@+id/layout_main_logo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <EditText
             android:id="@+id/edit_email"
-            android:hint="이메일"
-            android:textColor="@color/text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
@@ -31,17 +57,16 @@
             android:layout_marginBottom="5dp"
             android:background="@drawable/edit_rectangle"
             android:fontFamily="@font/font"
-            android:maxLines="1"
+            android:hint="이메일"
             android:inputType="textEmailAddress"
+            android:maxLines="1"
             android:nextFocusDown="@id/edit_password"
+            android:textColor="@color/text"
             android:textCursorDrawable="@drawable/edit_cursor"
-            android:textSize="16sp" />
+            android:textSize="18dp" />
 
         <EditText
             android:id="@+id/edit_password"
-            android:hint="비밀번호"
-            android:textColor="@color/text"
-            android:inputType="textPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
@@ -49,189 +74,213 @@
             android:layout_marginBottom="5dp"
             android:background="@drawable/edit_rectangle"
             android:fontFamily="@font/font"
+            android:hint="비밀번호"
+            android:inputType="textPassword"
+            android:textColor="@color/text"
             android:textCursorDrawable="@drawable/edit_cursor"
-            android:textSize="16sp" />
+            android:textSize="18dp" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/button_login"
-            app:cardElevation="0dp"
-            app:rippleColor="#fff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="5dp"
             android:backgroundTint="@android:color/transparent"
             android:clickable="true"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="5dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            app:cardElevation="0dp"
+            app:rippleColor="#fff">
 
             <LinearLayout
-                android:orientation="horizontal"
-                android:background="@drawable/btn_round2"
-                android:padding="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:background="@drawable/btn_round2"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
                 <ImageView
-                    android:src="@drawable/login"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_gravity="center"
                     android:layout_marginLeft="30dp"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"/>
+                    android:src="@drawable/login" />
+
                 <TextView
-                    android:text="로그인"
-                    android:fontFamily="@font/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginLeft="10dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:fontFamily="@font/font"
+                    android:textSize="18dp"
+                    android:text="로그인" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/button_login_google"
-            app:cardElevation="0dp"
-            app:rippleColor="#fff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="30dp"
             android:backgroundTint="@android:color/transparent"
             android:clickable="true"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="30dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            app:cardElevation="0dp"
+            app:rippleColor="#fff">
 
             <LinearLayout
-                android:orientation="horizontal"
-                android:background="@drawable/btn_round2"
-                android:padding="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:background="@drawable/btn_round2"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
                 <ImageView
-                    android:src="@drawable/google"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_gravity="center"
                     android:layout_marginLeft="30dp"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"/>
+                    android:src="@drawable/google" />
+
                 <TextView
-                    android:text="Google 로그인"
-                    android:fontFamily="@font/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginLeft="10dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:fontFamily="@font/font"
+                    android:textSize="18dp"
+                    android:text="Google 로그인" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/button_join"
-            app:cardElevation="0dp"
-            app:rippleColor="#fff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="5dp"
             android:backgroundTint="@android:color/transparent"
             android:clickable="true"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="5dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            app:cardElevation="0dp"
+            app:rippleColor="#fff">
 
             <LinearLayout
-                android:orientation="horizontal"
-                android:background="@drawable/btn_round2"
-                android:padding="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:background="@drawable/btn_round2"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
                 <ImageView
-                    android:src="@drawable/user"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_gravity="center"
                     android:layout_marginLeft="30dp"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"/>
+                    android:src="@drawable/user" />
+
                 <TextView
-                    android:text="회원가입"
-                    android:fontFamily="@font/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginLeft="10dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:fontFamily="@font/font"
+                    android:textSize="18dp"
+                    android:text="회원가입" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/button_find_password"
-            app:cardElevation="0dp"
-            app:rippleColor="#fff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="50dp"
             android:backgroundTint="@android:color/transparent"
             android:clickable="true"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="50dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            app:cardElevation="0dp"
+            app:rippleColor="#fff">
 
             <LinearLayout
-                android:orientation="horizontal"
-                android:background="@drawable/btn_round2"
-                android:padding="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:background="@drawable/btn_round2"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
                 <ImageView
-                    android:src="@drawable/password"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_gravity="center"
                     android:layout_marginLeft="30dp"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"/>
+                    android:src="@drawable/password" />
+
                 <TextView
-                    android:text="비밀번호 찾기"
-                    android:fontFamily="@font/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginLeft="10dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:fontFamily="@font/font"
+                    android:textSize="18dp"
+                    android:text="비밀번호 찾기" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
-            android:visibility="gone"
             android:id="@+id/button_login_facebook"
-            app:cardElevation="0dp"
-            app:rippleColor="#fff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="50dp"
             android:backgroundTint="@android:color/transparent"
             android:clickable="true"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="50dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:visibility="gone"
+            app:cardElevation="0dp"
+            app:rippleColor="#fff">
+
             <LinearLayout
-                android:orientation="horizontal"
-                android:background="@drawable/btn_round2"
-                android:padding="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:background="@drawable/btn_round2"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
                 <ImageView
-                    android:src="@drawable/facebook"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:layout_gravity="center"
                     android:layout_marginLeft="30dp"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"/>
+                    android:src="@drawable/facebook" />
+
                 <TextView
-                    android:text="Facebook 계정으로 로그인 하기"
-                    android:fontFamily="@font/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginLeft="10dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:fontFamily="@font/font"
+                    android:text="Facebook 계정으로 로그인 하기" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <View
+            android:layout_marginBottom="300dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
     </LinearLayout>
+    </ScrollView>
 
 </RelativeLayout>

@@ -6,7 +6,7 @@ import java.util.*
 class Utility {
 
     companion object{
-        fun timeConverter(time: Long) :String{
+        fun timeConverter(time: Long) :String {
             val currentTime = System.currentTimeMillis()
             var diffTime = (currentTime - time) / 60000
 
@@ -27,9 +27,14 @@ class Utility {
             }
         }
 
-        fun chatTimeConverter(time: Long) :String{
+        fun chatTimeConverter(time: Long) :String {
             val simpleDataFormat = SimpleDateFormat("MM-dd HH:mm")
             return simpleDataFormat.format(time)
+        }
+
+        fun randomDocumentName() : String {
+            val alphabets = ('a'..'z').toMutableList()
+            return  "${alphabets[Random().nextInt(alphabets.size)]}${System.currentTimeMillis()}"
         }
     }
 }

@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_main"
     tools:context=".page.FragmentAccountInfo">
 
     <RelativeLayout
@@ -13,14 +14,14 @@
 
         <TextView
             android:id="@+id/text_page_title"
-            android:fontFamily="@font/font"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="20dp"
+            android:fontFamily="@font/font"
             android:text="사용자 프로필"
             android:textColor="@color/text"
-            android:textSize="20sp" />
+            android:textSize="24dp" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/button_rank"
@@ -72,256 +73,318 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        <ScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:scrollbars="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingLeft="10dp"
-            android:paddingTop="10dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="0dp">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
             <LinearLayout
-                android:id="@+id/layout_image"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="horizontal"
+                android:paddingLeft="10dp"
+                android:paddingTop="10dp"
+                android:paddingRight="10dp"
+                android:paddingBottom="0dp">
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/img_profile"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:layout_gravity="center"
-                    android:src="@drawable/profile" />
-
-                <TextView
-                    android:id="@+id/text_level"
+                <LinearLayout
+                    android:id="@+id/layout_image"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:fontFamily="@font/font"
-                    android:text="Lv. 10"
-                    android:textColor="@color/text"
-                    android:textSize="24sp" />
+                    android:orientation="vertical">
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/img_profile"
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/profile" />
+
+                    <TextView
+                        android:id="@+id/text_level"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:fontFamily="@font/font"
+                        android:text="Lv. 10"
+                        android:textColor="@color/text"
+                        android:textSize="24dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/layout_image"
+                    android:orientation="vertical"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="5dp">
+
+                    <TextView
+                        android:id="@+id/text_nickname"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="5dp"
+                        android:fontFamily="@font/font"
+                        android:text="홍길동"
+                        android:textColor="@color/text"
+                        android:textSize="24dp" />
+
+                    <TextView
+                        android:id="@+id/text_userId"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="15dp"
+                        android:fontFamily="@font/font"
+                        android:text="(ados397@gmail.com)"
+                        android:textColor="@color/text_sub"
+                        android:textSize="16dp" />
+
+                    <TextView
+                        android:id="@+id/text_create_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="15dp"
+                        android:fontFamily="@font/font"
+                        android:text="가입 2021.09.23"
+                        android:textColor="@color/text_sub"
+                        android:textSize="14dp" />
+
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/font"
+                            android:layout_gravity="center"
+                            android:text="출석체크"
+                            android:textColor="@color/text"
+                            android:textSize="16dp" />
+
+                        <ImageView
+                            android:id="@+id/img_checkout"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="5dp"
+                            android:src="@drawable/cancel" />
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/button_checkout"
+                            android:layout_width="130dp"
+                            android:layout_height="34dp"
+                            android:layout_marginLeft="10dp"
+                            android:backgroundTint="@android:color/transparent"
+                            android:clickable="true"
+                            app:cardElevation="0dp"
+                            app:rippleColor="#fff">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@drawable/btn_round4"
+                                android:gravity="center"
+                                android:orientation="horizontal"
+                                android:padding="5dp">
+
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_gravity="center"
+                                    android:layout_marginLeft="10dp"
+                                    android:src="@drawable/medal_icon_02" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:layout_marginLeft="10dp"
+                                    android:layout_marginRight="10dp"
+                                    android:fontFamily="@font/font"
+                                    android:textSize="18dp"
+                                    android:text="출석체크"
+                                    android:textColor="@color/text" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                    </LinearLayout>
+
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@+id/layout_image"
                 android:orientation="vertical"
-                android:paddingLeft="10dp"
-                android:paddingRight="5dp">
+                android:paddingLeft="15dp"
+                android:paddingTop="0dp"
+                android:paddingRight="15dp"
+                android:paddingBottom="0dp">
+
+                <ProgressBar
+                    android:id="@+id/progress_percent"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:max="100"
+                    android:progress="50" />
 
                 <TextView
-                    android:id="@+id/text_nickname"
+                    android:id="@+id/text_exp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_gravity="right"
+                    android:fontFamily="@font/font"
+                    android:textSize="14dp"
+                    android:text="300/500"
+                    android:textColor="@color/text" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp"
+                android:weightSum="10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/button_level_up"
+                    android:layout_weight="5"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginLeft="20dp"
+                    android:backgroundTint="@android:color/transparent"
+                    android:clickable="true"
+                    app:cardElevation="0dp"
+                    app:rippleColor="#fff">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/btn_round4"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="0dp">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="10dp"
+                            android:src="@drawable/medal_icon_44" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:fontFamily="@font/font"
+                            android:textSize="18dp"
+                            android:text="사용자 레벨업"
+                            android:textColor="@color/text" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/button_gamble"
+                    android:layout_weight="5"
+                    android:layout_width="0dp"
+                    android:layout_height="45dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="20dp"
+                    android:backgroundTint="@android:color/transparent"
+                    android:clickable="true"
+                    app:cardElevation="0dp"
+                    app:rippleColor="#fff">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/btn_round4"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:padding="0dp">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="10dp"
+                            android:src="@drawable/lottery" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:fontFamily="@font/font"
+                            android:textSize="18dp"
+                            android:text="행운의 뽑기"
+                            android:textColor="@color/text" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <TextView
+                    android:id="@+id/text_about_me"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
                     android:layout_marginBottom="5dp"
                     android:fontFamily="@font/font"
-                    android:text="홍길동"
+                    android:text="내 소개"
                     android:textColor="@color/text"
-                    android:textSize="24sp" />
+                    android:textSize="20dp" />
 
-                <TextView
-                    android:id="@+id/text_userId"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="15dp"
-                    android:fontFamily="@font/font"
-                    android:text="(ados397@gmail.com)"
-                    android:textColor="@color/text_sub"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/text_create_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="15dp"
-                    android:fontFamily="@font/font"
-                    android:text="가입 2021.09.23"
-                    android:textColor="@color/text_sub"
-                    android:textSize="14sp" />
-
-                <LinearLayout
-                    android:orientation="horizontal"
+                <EditText
+                    android:id="@+id/edit_about_me"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/font"
-                        android:text="출석체크"
-                        android:textColor="@color/text"
-                        android:textSize="14sp" />
-
-                    <ImageView
-                        android:id="@+id/img_checkout"
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="5dp"
-                        android:src="@drawable/cancel" />
-
-                </LinearLayout>
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/text_notice"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:background="@drawable/edit_rectangle_read_only"
+                    android:focusable="false"
+                    android:fontFamily="@font/font"
+                    android:maxLines="10"
+                    android:minLines="2"
+                    android:scrollbars="vertical"
+                    android:textColor="@color/text"
+                    android:textCursorDrawable="@drawable/edit_cursor"
+                    android:textSize="18dp" />
 
             </LinearLayout>
-        </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingLeft="15dp"
-            android:paddingTop="0dp"
-            android:paddingRight="15dp"
-            android:paddingBottom="0dp">
-
-            <ProgressBar
-                android:id="@+id/progress_percent"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:max="100"
-                android:progress="50" />
-
-            <TextView
-                android:id="@+id/text_exp"
+            <View
+                android:layout_marginBottom="200dp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:fontFamily="@font/font"
-                android:text="300/500"
-                android:textColor="@color/text" />
-        </LinearLayout>
-
-        <RelativeLayout
-            android:layout_marginTop="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/button_checkout"
-                android:layout_width="130dp"
-                android:layout_height="30dp"
-                android:layout_marginLeft="30dp"
-                android:backgroundTint="@android:color/transparent"
-                android:clickable="true"
-                app:cardElevation="0dp"
-                app:rippleColor="#fff">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/btn_round4"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:padding="5dp">
-
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="10dp"
-                        android:src="@drawable/medal_icon_02" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:fontFamily="@font/font"
-                        android:text="출석체크"
-                        android:textColor="@color/text" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/button_level_up"
-                android:layout_width="130dp"
-                android:layout_height="30dp"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="30dp"
-                android:backgroundTint="@android:color/transparent"
-                android:clickable="true"
-                app:cardElevation="0dp"
-                app:rippleColor="#fff">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/btn_round4"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:padding="5dp">
-
-                    <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="10dp"
-                        android:src="@drawable/medal_icon_44" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:fontFamily="@font/font"
-                        android:text="레벨업"
-                        android:textColor="@color/text" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-        </RelativeLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="10dp">
-
-            <TextView
-                android:id="@+id/text_about_me"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:layout_marginBottom="5dp"
-                android:fontFamily="@font/font"
-                android:text="내 소개"
-                android:textColor="@color/text"
-                android:textSize="16sp" />
-
-            <EditText
-                android:id="@+id/edit_about_me"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/text_notice"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:background="@drawable/edit_rectangle_read_only"
-                android:focusable="false"
-                android:fontFamily="@font/font"
-                android:maxLines="10"
-                android:minLines="2"
-                android:scrollbars="vertical"
-                android:textColor="@color/text"
-                android:textCursorDrawable="@drawable/edit_cursor"
-                android:textSize="14sp" />
+                android:layout_height="wrap_content"/>
 
         </LinearLayout>
-
-    </LinearLayout>
+        </ScrollView>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

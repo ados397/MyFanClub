@@ -50,7 +50,7 @@ class FragmentPageFanClub : Fragment() {
             val fragment = FragmentFanClubInitalize()
             childFragmentManager.beginTransaction().replace(R.id.layout_fragment, fragment).commit()
         } else { // 가입된 팬클럽이 있으면 팬클럽 정보 페이지로
-            val fragment = FragmentFanClubMain()
+            val fragment = FragmentFanClubMain.newInstance(0, "")
             childFragmentManager.beginTransaction().replace(R.id.layout_fragment, fragment).commit()
         }
 

@@ -1,5 +1,7 @@
 package com.ados.myfanclub.page
 
+import android.graphics.Point
+import android.graphics.Rect
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -8,6 +10,8 @@ import android.view.ViewGroup
 import android.view.Window
 import android.view.animation.AnimationUtils
 import android.widget.Toast
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -23,6 +27,9 @@ import com.ados.myfanclub.model.MemberDTO
 import com.ados.myfanclub.model.QuestionDTO
 import com.ados.myfanclub.model.ScheduleDTO
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
+import com.getkeepsafe.taptargetview.TapTarget
+import com.getkeepsafe.taptargetview.TapTargetSequence
+import com.getkeepsafe.taptargetview.TapTargetView
 import kotlinx.android.synthetic.main.question_dialog.*
 
 // TODO: Rename parameter arguments, choose names that match
@@ -102,28 +109,14 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        observeTutorial()
+
         if (fanClubDTO != null) {
             binding.textPageTitle.text = ""
         }
 
         binding.buttonAddSchedule.setOnClickListener {
-            if (fanClubDTO != null) { // 팬클럽 일때는 관리자 권한이 없어졌는지 확인
-                if (!(parentFragment as FragmentPageSchedule?)?.isRemoveAdmin()!!) {
-                    if (firebaseViewModel.scheduleDTOs.value!!.size >= fanClubDTO?.getScheduleCount()!!) {
-                        Toast.makeText(activity, "스케줄을 더 이상 추가할 수 없습니다.", Toast.LENGTH_SHORT).show()
-                    } else {
-                        firebaseViewModel.stopFanClubSchedulesListen() // 중복으로 listen 하지 않도록 기존 listen stop 처리
-                        moveScheduleAdd()
-                    }
-                }
-            } else {
-                val user = (activity as MainActivity?)?.getUser()!!
-                if (firebaseViewModel.scheduleDTOs.value!!.size >= user.getScheduleCount()!!) {
-                    Toast.makeText(activity, "스케줄을 더 이상 추가할 수 없습니다.", Toast.LENGTH_SHORT).show()
-                } else {
-                    moveScheduleAdd()
-                }
-            }
+            addSchedule()
         }
 
         binding.buttonReorder.setOnClickListener {
@@ -203,7 +196,7 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
     }
 
     private fun observeSchedules() {
-        firebaseViewModel.scheduleDTOs.observe(requireActivity()) {
+        firebaseViewModel.scheduleDTOs.observe(viewLifecycleOwner) {
             setAdapter()
         }
     }
@@ -288,11 +281,34 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
             fragment.scheduleDTO = selectedSchedule!!
         }
 
-        parentFragmentManager.beginTransaction().apply{
+        //parentFragmentManager.popBackStackImmediate("scheduleAdd", FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        /*parentFragmentManager.beginTransaction().apply{
             replace(R.id.layout_fragment, fragment)
             setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-            addToBackStack(null)
+            addToBackStack("scheduleAdd")
             commit()
+        }*/
+        parentFragmentManager.beginTransaction().replace(R.id.layout_fragment, fragment).commit()
+    }
+
+    private fun addSchedule(isTutorial: Boolean = false) {
+        if (fanClubDTO != null) { // 팬클럽 일때는 관리자 권한이 없어졌는지 확인
+            if (!(parentFragment as FragmentPageSchedule?)?.isRemoveAdmin()!!) {
+                if (firebaseViewModel.scheduleDTOs.value!!.size >= fanClubDTO?.getScheduleCount()!!) {
+                    Toast.makeText(activity, "스케줄을 더 이상 추가할 수 없습니다.", Toast.LENGTH_SHORT).show()
+                } else {
+                    firebaseViewModel.stopFanClubSchedulesListen() // 중복으로 listen 하지 않도록 기존 listen stop 처리
+                    moveScheduleAdd()
+                }
+            }
+        } else {
+            val user = (activity as MainActivity?)?.getUser()!!
+            // 튜토리얼 일때는 스케줄 제한 없이 추가
+            if (!isTutorial && firebaseViewModel.scheduleDTOs.value!!.size >= user.getScheduleCount()!!) {
+                Toast.makeText(activity, "스케줄을 더 이상 추가할 수 없습니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                moveScheduleAdd()
+            }
         }
     }
 
@@ -352,5 +368,78 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
 
     override fun onStartDrag(holder: RecyclerViewAdapterSchedule.ViewHolder) {
         itemTouchHelper.startDrag(holder)
+    }
+
+    private fun observeTutorial() {
+        (activity as MainActivity?)?.getTutorialStep()?.observe(viewLifecycleOwner) {
+            onTutorial((activity as MainActivity?)?.getTutorialStep()?.value!!)
+        }
+    }
+
+    private fun onTutorial(step: Int) {
+        when (step) {
+            2 -> {
+                println("튜토리얼 Step - $step")
+                TapTargetSequence(requireActivity())
+                    .targets(
+                        TapTarget.forBounds((activity as MainActivity?)?.getMainLayoutRect(),
+                            "여기에서 개인 스케줄 등록 및 수정, 삭제가 가능합니다.",
+                            "- OK 버튼을 눌러주세요.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .icon(ContextCompat.getDrawable(requireContext(), R.drawable.ok))
+                            .tintTarget(true),
+                        TapTarget.forView(binding.buttonAddSchedule,
+                            "그럼 개인 스케줄을 등록해 보겠습니다.",
+                            "- 스케줄 등록 버튼을 눌러주세요.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .transparentTarget(true)
+                            .tintTarget(true)).listener(object : TapTargetSequence.Listener {
+                        override fun onSequenceFinish() {
+                            addSchedule(true)
+                            (activity as MainActivity?)?.addTutorialStep()
+                        }
+                        override fun onSequenceStep(tutorialStep: TapTarget, targetClicked: Boolean) {
+                            //Toast.makeText(secondActivity.this,"GREAT!",Toast.LENGTH_SHORT).show();
+
+                        }
+                        override fun onSequenceCanceled(lastTarget: TapTarget) {
+
+                        }
+                    }).start()
+            }
+            5-> {
+                println("튜토리얼 Step - $step")
+                val location = IntArray(2)
+                val width = binding.layoutCount.width.div(3)
+                binding.layoutCount.getLocationOnScreen(location)
+                val rect = Rect(location[0], location[1], location[0] + width, location[1] + binding.layoutCount.height.times(4))
+                TapTargetView.showFor(requireActivity(),
+                    TapTarget.forBounds(rect,
+                            "일일 스케줄이 등록되었습니다.",
+                            "- 등록된 스케줄의 아이콘으로 일일, 주간, 월간, 기간내 스케줄을 구분할 수 있습니다.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .transparentTarget(true)
+                            .tintTarget(true),object : TapTargetView.Listener() {
+                        // The listener can listen for regular clicks, long clicks or cancels
+                        override fun onTargetClick(view: TapTargetView) {
+                            super.onTargetClick(view) // This call is optional
+
+                            (activity as MainActivity?)?.addTutorialStep()
+                        }
+                    })
+            }
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.ados.myfanclub.dialog
 
 import android.app.Dialog
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.PorterDuff
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -14,11 +15,15 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
+import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.MySharedPreferences
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.LevelUpActionUserDialogBinding
 import com.ados.myfanclub.model.PreferencesDTO
 import com.ados.myfanclub.model.UserDTO
+import com.getkeepsafe.taptargetview.TapTarget
+import com.getkeepsafe.taptargetview.TapTargetSequence
+import com.getkeepsafe.taptargetview.TapTargetView
 import java.text.DecimalFormat
 import kotlin.math.ceil
 
@@ -27,8 +32,10 @@ class LevelUpActionUserDialog(context: Context) : Dialog(context), View.OnClickL
     var decimalFormat: DecimalFormat = DecimalFormat("###,###")
 
     lateinit var binding: LevelUpActionUserDialogBinding
+    var mainActivity: MainActivity? = null
 
     private val layout = R.layout.level_up_action_user_dialog
+    var isTutorial = false
     private var gemExp = 20L
     private var rewardGem = 1
     private var availableExpGem = 0
@@ -61,6 +68,8 @@ class LevelUpActionUserDialog(context: Context) : Dialog(context), View.OnClickL
         window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         //window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
+        observeTutorial()
+
         setInfo()
 
         binding.buttonReset.setOnClickListener {
@@ -84,7 +93,12 @@ class LevelUpActionUserDialog(context: Context) : Dialog(context), View.OnClickL
 
     private fun plusExp(count: Int) {
         var gemCount = count
-        val totalGem = newUserDTO?.getTotalGem()!!
+        //val totalGem = newUserDTO?.getTotalGem()!!
+        val totalGem = if (isTutorial) { // 튜토리얼 진행중에는 다이아 소모 없음.
+            count
+        } else { // 튜토리얼이 아닐때는 정상적으로 적용
+            newUserDTO?.getTotalGem()!!
+        }
 
         // 가진 다이아를 초과하였을 경우 가진 다이아 만큼만 추가
         if (totalGem < gemCount) {
@@ -215,13 +229,16 @@ class LevelUpActionUserDialog(context: Context) : Dialog(context), View.OnClickL
 
         if (oldUserDTO?.exp!! < newUserDTO?.exp!!) {
             binding.textExp.setTextColor(ContextCompat.getColor(context!!, R.color.text_red))
-            binding.progressPercent.progressDrawable.setColorFilter(ContextCompat.getColor(context!!, R.color.progress_0), PorterDuff.Mode.SRC_IN)
+            //binding.progressPercent.progressDrawable.setColorFilter(ContextCompat.getColor(context!!, R.color.progress_0), PorterDuff.Mode.SRC_IN)
+            //binding.progressPercent.progressBackgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.progress_background_0))
+            binding.progressPercent.progressTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.progress_background_0))
             binding.buttonUpExpUser.isEnabled = true
             binding.buttonUpExpUser.background = AppCompatResources.getDrawable(context, R.drawable.btn_round8)
             binding.buttonUpExpUser.setTextColor(ContextCompat.getColor(context!!, R.color.text_gold))
         } else {
             binding.textExp.setTextColor(ContextCompat.getColor(context!!, R.color.text))
-            binding.progressPercent.progressDrawable.colorFilter = null
+            //binding.progressPercent.progressDrawable.colorFilter = null
+            binding.progressPercent.progressTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.progress_70))
             binding.buttonUpExpUser.isEnabled = false
             binding.buttonUpExpUser.background = AppCompatResources.getDrawable(context, R.drawable.btn_round2)
             binding.buttonUpExpUser.setTextColor(ContextCompat.getColor(context!!, R.color.text_disable))
@@ -323,5 +340,81 @@ class LevelUpActionUserDialog(context: Context) : Dialog(context), View.OnClickL
                 dismiss()
             }
         }*/
+    }
+
+    private fun observeTutorial() {
+        mainActivity?.getTutorialStep()?.observe(mainActivity!!) {
+            onTutorial(mainActivity?.getTutorialStep()?.value!!)
+        }
+    }
+
+    private fun onTutorial(step: Int) {
+        when (step) {
+            14 -> {
+                println("튜토리얼 Step - $step")
+                TapTargetSequence(this)
+                    .targets(
+                        TapTarget.forView(binding.layoutMain,
+                            "레벨업을 위한 경험치는 다이아를 사용하거나 무료 경험치 획득 광고를 통해서 얻을 수 있습니다.",
+                            "- OK 버튼을 눌러주세요.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .icon(ContextCompat.getDrawable(context, R.drawable.ok))
+                            .tintTarget(true),
+                        TapTarget.forView(binding.buttonMax,
+                            "그럼 다이아를 통해서 레벨업을 진행해 보겠습니다.\n(튜토리얼 진행을 위해 실제 다이아가 소모되지 않습니다.)",
+                            "- MAX 버튼을 눌러 경험치를 최대로 채워 볼게요.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .transparentTarget(true)
+                            .tintTarget(true)).listener(object : TapTargetSequence.Listener {
+                        override fun onSequenceFinish() {
+                            isTutorial = true
+                            plusExp(Int.MAX_VALUE)
+                            mainActivity?.addTutorialStep()
+                        }
+                        override fun onSequenceStep(tutorialStep: TapTarget, targetClicked: Boolean) {
+
+                        }
+                        override fun onSequenceCanceled(lastTarget: TapTarget) {
+                        }
+                    }).start()
+            }
+            15 -> {
+                println("튜토리얼 Step - $step")
+                TapTargetView.showFor(this,
+                    TapTarget.forView(binding.buttonUpExpUser,
+                        "사용하기 버튼을 눌러 레벨업을 해볼게요.",
+                        "- 튜토리얼 레벨업은 레벨3 이하에서만 적용됩니다.")
+                        .cancelable(false)
+                        .dimColor(R.color.black)
+                        .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                        .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                        .titleTextSize(18) // Specify the size (in sp) of the title text
+                        .transparentTarget(true)
+                        .targetRadius(85)
+                        .tintTarget(true),object : TapTargetView.Listener() {
+                        // The listener can listen for regular clicks, long clicks or cancels
+                        override fun onTargetClick(view: TapTargetView) {
+                            super.onTargetClick(view) // This call is optional
+
+                            isTutorial = true
+                            if (newUserDTO?.level!! >= 3) { // 이미 레벨 2 이상이라면 레벨업 적용 안함
+                                binding.buttonLevelUpActionUserCancel.performClick()
+                                mainActivity?.addTutorialStep(3) // Step 18로 바로 이동 ( 15 + 3 = 18)
+                            } else {
+                                binding.buttonUpExpUser.performClick()
+                                mainActivity?.addTutorialStep()
+                            }
+                        }
+                    })
+            }
+        }
     }
 }

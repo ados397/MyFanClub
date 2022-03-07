@@ -13,36 +13,41 @@
             android:id="@+id/layout_user_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <ImageView
                 android:id="@+id/img_stat"
-                android:src="@drawable/information"
-                android:layout_marginTop="10dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_marginLeft="10dp"
-                android:layout_width="48dp"
-                android:layout_height="48dp"/>
+                android:layout_marginTop="10dp"
+                android:src="@drawable/information" />
+
             <TextView
                 android:id="@+id/text_title"
-                android:fontFamily="@font/font"
-                android:text="제목"
-                android:textStyle="bold"
-                android:layout_toRightOf="@+id/img_stat"
-                android:layout_marginTop="17dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="17dp"
+                android:layout_marginRight="20dp"
+                android:layout_toRightOf="@+id/img_stat"
+                android:fontFamily="@font/font"
+                android:textSize="18dp"
+                android:text="제목"
+                android:textStyle="bold" />
+
             <TextView
                 android:id="@+id/text_content"
-                android:fontFamily="@font/font"
-                android:text="내용"
-                android:layout_marginTop="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/text_title"
                 android:layout_marginLeft="20dp"
+                android:layout_marginTop="5dp"
                 android:layout_marginRight="20dp"
                 android:layout_marginBottom="10dp"
-                android:layout_below="@+id/text_title"
                 android:layout_toRightOf="@+id/img_stat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:fontFamily="@font/font"
+                android:textSize="16dp"
+                android:text="내용" />
 
         </RelativeLayout>
     </RelativeLayout>
@@ -60,7 +65,7 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/button_question_ok"
             android:layout_width="wrap_content"
-            android:layout_height="25dp"
+            android:layout_height="30dp"
             android:layout_gravity="center"
             android:layout_marginTop="7dp"
             android:layout_marginRight="10dp"
@@ -83,8 +88,8 @@
 
                 <ImageView
                     android:id="@+id/img_question_ok"
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
                     android:layout_marginRight="5dp"
                     android:layout_gravity="center"
                     android:src="@drawable/diamond" />
@@ -95,6 +100,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:fontFamily="@font/font"
+                    android:textSize="18dp"
                     android:text="확인"
                     android:textColor="@color/text" />
             </LinearLayout>
@@ -103,7 +109,7 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/button_question_cancel"
             android:layout_width="wrap_content"
-            android:layout_height="25dp"
+            android:layout_height="30dp"
             android:layout_gravity="center"
             android:layout_marginTop="7dp"
             android:layout_marginRight="10dp"
@@ -126,8 +132,8 @@
 
                 <ImageView
                     android:id="@+id/img_question_cancel"
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
                     android:layout_gravity="center"
                     android:layout_marginRight="5dp"
                     android:src="@drawable/diamond" />
@@ -138,6 +144,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:fontFamily="@font/font"
+                    android:textSize="18dp"
                     android:text="취소"
                     android:textColor="@color/text" />
             </LinearLayout>

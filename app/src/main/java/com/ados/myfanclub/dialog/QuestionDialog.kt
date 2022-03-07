@@ -91,4 +91,8 @@ class QuestionDialog(context: Context, var question: QuestionDTO) : Dialog(conte
             }
         }*/
     }
+
+    override fun onBackPressed() {
+        //super.onBackPressed()
+    }
 }

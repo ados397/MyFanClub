@@ -5,21 +5,28 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.PorterDuff
+import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
+import android.text.method.ScrollingMovementMethod
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.MissionDialogBinding
 import com.ados.myfanclub.model.DashboardMissionDTO
 import com.ados.myfanclub.model.ScheduleDTO
+import com.getkeepsafe.taptargetview.TapTarget
+import com.getkeepsafe.taptargetview.TapTargetSequence
+import com.getkeepsafe.taptargetview.TapTargetView
 import java.text.SimpleDateFormat
 
 
 class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
 
     lateinit var binding: MissionDialogBinding
+    var mainActivity: MainActivity? = null
 
     private val layout = R.layout.mission_dialog
 
@@ -37,35 +44,9 @@ class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
         //window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
-        when (dashboardMissionDTO?.scheduleDTO?.cycle) {
-            ScheduleDTO.Cycle.DAY -> binding.imgScheduleType.setImageResource(R.drawable.schedule_day)
-            ScheduleDTO.Cycle.WEEK -> binding.imgScheduleType.setImageResource(R.drawable.schedule_week)
-            ScheduleDTO.Cycle.MONTH -> binding.imgScheduleType.setImageResource(R.drawable.schedule_month)
-            ScheduleDTO.Cycle.PERIOD -> binding.imgScheduleType.setImageResource(R.drawable.schedule_period)
-        }
+        observeTutorial()
 
-        binding.textTitle.text = dashboardMissionDTO?.scheduleDTO?.title
-        binding.editPurpose.setText(dashboardMissionDTO?.scheduleDTO?.purpose)
-        binding.textRange.text = "${SimpleDateFormat("yyyy.MM.dd").format(dashboardMissionDTO?.scheduleDTO?.startDate)} ~ ${SimpleDateFormat("yyyy.MM.dd").format(dashboardMissionDTO?.scheduleDTO?.endDate)}"
-
-        missionCount = dashboardMissionDTO?.scheduleProgressDTO?.count!!
-        missionCountMax = dashboardMissionDTO?.scheduleDTO?.count!!
-
-        refreshRate()
-
-        when (dashboardMissionDTO?.scheduleDTO?.action) { // 앱 실행
-            ScheduleDTO.Action.APP -> {
-                binding.textExecute.text = "앱 실행"
-                binding.imgIcon.setImageResource(R.drawable.app)
-                binding.textAppName.visibility = View.VISIBLE
-                binding.textAppName.text = "[${dashboardMissionDTO?.scheduleDTO?.appDTO?.appName}]"
-            }
-            ScheduleDTO.Action.URL -> {
-                binding.textExecute.text = "링크 실행"
-                binding.imgIcon.setImageResource(R.drawable.link)
-                binding.textAppName.visibility = View.GONE
-            }
-        }
+        setInfo()
 
         binding.buttonMinus100.setOnClickListener {
             minusCount(100)
@@ -111,10 +92,47 @@ class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
             }
         }
 
-
-        binding.editPurpose.setOnTouchListener { view, motionEvent ->
+        binding.textPurpose.movementMethod = ScrollingMovementMethod.getInstance()
+        binding.textPurpose.setOnTouchListener { view, motionEvent ->
             binding.scrollView.requestDisallowInterceptTouchEvent(true)
             false
+        }
+    }
+
+    fun setInfo() {
+        when (dashboardMissionDTO?.scheduleDTO?.cycle) {
+            ScheduleDTO.Cycle.DAY -> binding.imgScheduleType.setImageResource(R.drawable.schedule_day)
+            ScheduleDTO.Cycle.WEEK -> binding.imgScheduleType.setImageResource(R.drawable.schedule_week)
+            ScheduleDTO.Cycle.MONTH -> binding.imgScheduleType.setImageResource(R.drawable.schedule_month)
+            ScheduleDTO.Cycle.PERIOD -> binding.imgScheduleType.setImageResource(R.drawable.schedule_period)
+        }
+
+        binding.textTitle.text = dashboardMissionDTO?.scheduleDTO?.title
+        binding.textPurpose.text = dashboardMissionDTO?.scheduleDTO?.purpose
+        binding.textRange.text = "${SimpleDateFormat("yyyy.MM.dd").format(dashboardMissionDTO?.scheduleDTO?.startDate)} ~ ${SimpleDateFormat("yyyy.MM.dd").format(dashboardMissionDTO?.scheduleDTO?.endDate)}"
+
+        missionCount = dashboardMissionDTO?.scheduleProgressDTO?.count!!
+        missionCountMax = dashboardMissionDTO?.scheduleDTO?.count!!
+
+        refreshRate()
+
+        when (dashboardMissionDTO?.scheduleDTO?.action) { // 앱 실행
+            ScheduleDTO.Action.APP -> {
+                binding.layoutQuickMenu.visibility = View.VISIBLE
+                binding.textExecute.text = "앱 실행"
+                binding.imgIcon.setImageResource(R.drawable.app)
+                binding.textAppName.visibility = View.VISIBLE
+                binding.textAppName.text = "[${dashboardMissionDTO?.scheduleDTO?.appDTO?.appName}]"
+            }
+            ScheduleDTO.Action.URL -> {
+                binding.layoutQuickMenu.visibility = View.VISIBLE
+                binding.textExecute.text = "링크 실행"
+                binding.imgIcon.setImageResource(R.drawable.link)
+                binding.textAppName.visibility = View.GONE
+            }
+            ScheduleDTO.Action.ETC -> {
+                binding.layoutQuickMenu.visibility = View.GONE
+            }
         }
     }
 
@@ -186,5 +204,87 @@ class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
                 dismiss()
             }
         }*/
+    }
+
+    private fun observeTutorial() {
+        mainActivity?.getTutorialStep()?.observe(mainActivity!!) {
+            onTutorial(mainActivity?.getTutorialStep()?.value!!)
+        }
+    }
+
+    private fun onTutorial(step: Int) {
+        when (step) {
+            9 -> {
+                println("튜토리얼 Step - $step")
+                TapTargetSequence(this)
+                    .targets(
+                        TapTarget.forView(binding.layoutMain,
+                            "여기에서 '멜론' 실행 및 진행도를 업데이트 할 수 있습니다.",
+                            "- OK 버튼을 눌러주세요.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .icon(ContextCompat.getDrawable(context, R.drawable.ok))
+                            .tintTarget(true),
+                        TapTarget.forView(binding.buttonExecute,
+                            "이 버튼을 누르면 '멜론'이 바로 실행되며 간편하게 이용 가능 합니다!",
+                            "- 그 외에도 수 많은 앱들과 링크를 등록하여 한 번의 클릭만으로 간편하게 실행 가능합니다.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .transparentTarget(true)
+                            .targetRadius(80)
+                            .tintTarget(true),
+                        TapTarget.forView(binding.buttonMax,
+                            "스트리밍이 끝났다면 스스로 진행도를 업데이트 하여 내가 수행한 일정을 기록합니다.",
+                            "- MAX 버튼을 눌러 진행도를 100% 상태로 만들어 볼게요.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .transparentTarget(true)
+                            .tintTarget(true)).listener(object : TapTargetSequence.Listener {
+                        override fun onSequenceFinish() {
+                            missionCount = missionCountMax
+                            refreshRate()
+                            mainActivity?.addTutorialStep()
+                        }
+                        override fun onSequenceStep(tutorialStep: TapTarget, targetClicked: Boolean) {
+
+                        }
+                        override fun onSequenceCanceled(lastTarget: TapTarget) {
+                        }
+                    }).start()
+            }
+            10 -> {
+                println("튜토리얼 Step - $step")
+                TapTargetView.showFor(this,
+                    TapTarget.forView(binding.buttonMissionOk,
+                        "진행도를 업데이트 하였으면 확인 버튼을 눌러 적용 합니다.",
+                        "- 확인 버튼을 눌러주세요.")
+                        .cancelable(false)
+                        .dimColor(R.color.black)
+                        .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                        .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                        .titleTextSize(18) // Specify the size (in sp) of the title text
+                        .transparentTarget(true)
+                        .targetRadius(65)
+                        .tintTarget(true),object : TapTargetView.Listener() {
+                        // The listener can listen for regular clicks, long clicks or cancels
+                        override fun onTargetClick(view: TapTargetView) {
+                            super.onTargetClick(view) // This call is optional
+
+                            binding.buttonMissionOk.performClick()
+
+                            mainActivity?.addTutorialStep()
+                        }
+                    })
+            }
+        }
     }
 }

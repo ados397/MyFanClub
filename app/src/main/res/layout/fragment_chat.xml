@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/chat_content_background"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".page.FragmentChat">
+
+    <RelativeLayout
+        android:id="@+id/layout_title"
+        android:background="@color/chat_title_background"
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/button_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="5dp"
+            android:backgroundTint="@android:color/transparent"
+            android:clickable="true"
+            app:cardElevation="0dp"
+            app:rippleColor="#fff">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/arrow_back" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/text_page_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/button_back"
+            android:fontFamily="@font/font"
+            android:text="팬클럽 대화방"
+            android:textColor="@color/text"
+            android:textSize="24dp" />
+
+    </RelativeLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_chat"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/layout_input"
+        android:layout_below="@id/layout_title"
+        android:background="@color/chat_content_background" />
+
+    <RelativeLayout
+        android:id="@+id/layout_input"
+        android:layout_margin="10dp"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/edit_content"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_toLeftOf="@id/button_send"
+            android:background="@drawable/edit_chat_rectangle"
+            android:fontFamily="@font/font"
+            android:inputType="textMultiLine"
+            android:maxLength="50"
+            android:maxLines="2"
+            android:scrollbars="vertical"
+            android:textColor="@color/text"
+            android:textCursorDrawable="@drawable/edit_cursor"
+            android:textSize="18dp" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/button_send"
+            android:layout_alignParentRight="true"
+            android:layout_width="100dp"
+            android:layout_height="70dp"
+            android:backgroundTint="@android:color/transparent"
+            android:clickable="true"
+            app:strokeWidth="0dp"
+            app:cardCornerRadius="0dp"
+            app:cardElevation="0dp"
+            app:rippleColor="#fff">
+
+            <LinearLayout
+                android:layout_width="100dp"
+                android:layout_height="70dp"
+                android:gravity="center"
+                android:background="@drawable/btn_chat_send"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/text_send"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:fontFamily="@font/font"
+                    android:textSize="18dp"
+                    android:text="전송"
+                    android:textColor="@color/text_chat_disable" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+        <androidx.appcompat.widget.AppCompatButton
+            android:visibility="gone"
+            android:background="@drawable/btn_chat_send"
+            android:shadowRadius="0"
+            android:layout_alignParentRight="true"
+            android:layout_width="90dp"
+            android:layout_height="70dp"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>

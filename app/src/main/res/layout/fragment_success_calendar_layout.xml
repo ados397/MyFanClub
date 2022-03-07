@@ -16,7 +16,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="5dp"
+            android:layout_marginLeft="15dp"
             android:layout_marginTop="5dp"
             android:layout_marginRight="20dp"
             android:layout_marginBottom="5dp"
@@ -26,8 +26,8 @@
             app:rippleColor="#fff">
 
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
                 android:src="@drawable/arrow_back" />
         </com.google.android.material.card.MaterialCardView>
 
@@ -40,7 +40,7 @@
             android:fontFamily="@font/font"
             android:text="목표달성 통계"
             android:textColor="@color/text"
-            android:textSize="20sp" />
+            android:textSize="24dp" />
 
     </RelativeLayout>
 
@@ -57,7 +57,7 @@
             android:fontFamily="@font/font"
             android:text="일일"
             android:textColor="@color/white"
-            android:textSize="12sp"
+            android:textSize="16dp"
             android:background="@drawable/btn_round"
             android:paddingLeft="20dp"
             android:paddingTop="5dp"
@@ -70,7 +70,7 @@
             android:fontFamily="@font/font"
             android:text="주간"
             android:textColor="@color/black"
-            android:textSize="12sp"
+            android:textSize="16dp"
             android:paddingLeft="20dp"
             android:paddingTop="5dp"
             android:paddingRight="20dp"
@@ -82,7 +82,7 @@
             android:fontFamily="@font/font"
             android:text="월간"
             android:textColor="@color/black"
-            android:textSize="12sp"
+            android:textSize="16dp"
             android:paddingLeft="20dp"
             android:paddingTop="5dp"
             android:paddingRight="20dp"

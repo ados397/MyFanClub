@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_main"
     tools:context=".page.FragmentScheduleAdd">
 
     <RelativeLayout
@@ -16,7 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="5dp"
+            android:layout_marginLeft="15dp"
             android:layout_marginTop="5dp"
             android:layout_marginRight="20dp"
             android:layout_marginBottom="5dp"
@@ -26,8 +27,8 @@
             app:rippleColor="#fff">
 
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
                 android:src="@drawable/arrow_back" />
         </com.google.android.material.card.MaterialCardView>
 
@@ -40,7 +41,7 @@
             android:layout_toRightOf="@+id/button_back"
             android:text="스케줄 추가"
             android:textColor="@color/text"
-            android:textSize="20sp" />
+            android:textSize="24dp" />
 
     </RelativeLayout>
 
@@ -67,7 +68,7 @@
                 android:layout_marginBottom="5dp"
                 android:text="제목"
                 android:textColor="@color/text"
-                android:textSize="16sp" />
+                android:textSize="20dp" />
 
             <EditText
                 android:id="@+id/edit_title"
@@ -82,7 +83,7 @@
                 android:inputType="text"
                 android:textColor="@color/text"
                 android:textCursorDrawable="@drawable/edit_cursor"
-                android:textSize="16sp" />
+                android:textSize="18dp" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -96,16 +97,17 @@
                     android:layout_marginBottom="5dp"
                     android:text=""
                     android:textColor="@color/text_red"
-                    android:textSize="12sp" />
+                    android:textSize="16dp" />
 
                 <TextView
                     android:id="@+id/text_title_len"
-                    android:fontFamily="@font/font"
-                    android:layout_alignParentRight="true"
-                    android:text="0/30"
-                    android:layout_marginRight="10dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="10dp"
+                    android:fontFamily="@font/font"
+                    android:textSize="16dp"
+                    android:text="0/30" />
             </RelativeLayout>
 
             <TextView
@@ -116,7 +118,7 @@
                 android:layout_marginBottom="5dp"
                 android:text="기간"
                 android:textColor="@color/text"
-                android:textSize="16sp" />
+                android:textSize="20dp" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -137,15 +139,15 @@
                     android:fontFamily="@font/font"
                     android:textColor="@color/text"
                     android:textCursorDrawable="@drawable/edit_cursor"
-                    android:textSize="16sp" />
+                    android:textSize="18dp" />
 
                 <TextView
                     android:id="@+id/text_tilde"
-                    android:fontFamily="@font/font"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_centerVertical="true"
+                    android:layout_centerInParent="true"
+                    android:fontFamily="@font/font"
+                    android:textSize="14dp"
                     android:text="~" />
 
                 <EditText
@@ -160,7 +162,7 @@
                     android:focusable="false"
                     android:textColor="@color/text"
                     android:textCursorDrawable="@drawable/edit_cursor"
-                    android:textSize="16sp" />
+                    android:textSize="18dp" />
 
             </RelativeLayout>
 
@@ -173,7 +175,7 @@
                 android:layout_marginBottom="5dp"
                 android:text=""
                 android:textColor="@color/text_red"
-                android:textSize="12sp" />
+                android:textSize="16dp" />
 
             <TextView
                 android:id="@+id/text_purpose"
@@ -183,7 +185,7 @@
                 android:layout_marginBottom="5dp"
                 android:text="목표"
                 android:textColor="@color/text"
-                android:textSize="16sp" />
+                android:textSize="20dp" />
 
             <EditText
                 android:id="@+id/edit_purpose"
@@ -199,7 +201,7 @@
                 android:scrollbars="vertical"
                 android:textColor="@color/text"
                 android:textCursorDrawable="@drawable/edit_cursor"
-                android:textSize="16sp" />
+                android:textSize="18dp" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -213,7 +215,7 @@
                     android:layout_marginBottom="5dp"
                     android:text=""
                     android:textColor="@color/text_red"
-                    android:textSize="12sp" />
+                    android:textSize="16dp" />
 
                 <TextView
                     android:id="@+id/text_purpose_len"
@@ -222,6 +224,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_marginRight="10dp"
                     android:fontFamily="@font/font"
+                    android:textSize="16dp"
                     android:text="0/300" />
             </RelativeLayout>
 
@@ -232,7 +235,7 @@
                 android:layout_marginBottom="5dp"
                 android:text="수행할 동작"
                 android:textColor="@color/text"
-                android:textSize="16sp" />
+                android:textSize="20dp" />
 
             <RadioGroup
                 android:id="@+id/radio_group_action"
@@ -246,7 +249,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="30sp"
                     android:text="앱 연결"
-                    android:textSize="14sp" />
+                    android:textSize="16dp" />
 
                 <LinearLayout
                     android:id="@+id/layout_select_app"
@@ -257,11 +260,12 @@
                     <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/button_select_app"
                         android:layout_width="wrap_content"
-                        android:layout_height="25dp"
+                        android:layout_height="26dp"
                         android:layout_marginLeft="10dp"
                         android:layout_marginBottom="5dp"
                         android:background="@drawable/btn_round4"
                         android:fontFamily="@font/font"
+                        android:textSize="16dp"
                         android:text="앱 선택"
                         android:textColor="@color/text" />
 
@@ -273,7 +277,7 @@
                         android:layout_marginLeft="10dp"
                         android:text="선택된 앱"
                         android:textColor="@color/text"
-                        android:textSize="14sp" />
+                        android:textSize="16dp" />
                 </LinearLayout>
 
                 <RadioButton
@@ -282,7 +286,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="30sp"
                     android:text="링크 실행"
-                    android:textSize="14sp" />
+                    android:textSize="16dp" />
 
                 <EditText
                     android:id="@+id/edit_url"
@@ -297,7 +301,15 @@
                     android:inputType="text"
                     android:textColor="@color/text"
                     android:textCursorDrawable="@drawable/edit_cursor"
-                    android:textSize="16sp" />
+                    android:textSize="18dp" />
+
+                <RadioButton
+                    android:id="@+id/radio_etc"
+                    android:fontFamily="@font/font"
+                    android:layout_width="wrap_content"
+                    android:layout_height="30sp"
+                    android:text="기타"
+                    android:textSize="16dp" />
 
                 <TextView
                     android:id="@+id/text_url_error"
@@ -307,7 +319,7 @@
                     android:layout_marginLeft="10dp"
                     android:text=""
                     android:textColor="@color/text_red"
-                    android:textSize="12sp" />
+                    android:textSize="16dp" />
 
             </RadioGroup>
 
@@ -318,7 +330,7 @@
                 android:layout_marginBottom="5dp"
                 android:text="반복"
                 android:textColor="@color/text"
-                android:textSize="16sp" />
+                android:textSize="20dp" />
 
             <RadioGroup
                 android:id="@+id/radio_group_cycle"
@@ -334,7 +346,7 @@
                     android:layout_height="30sp"
                     android:layout_marginRight="5dp"
                     android:text="매일"
-                    android:textSize="14sp" />
+                    android:textSize="16dp" />
 
                 <RadioButton
                     android:id="@+id/radio_week"
@@ -343,7 +355,7 @@
                     android:layout_height="30sp"
                     android:layout_marginRight="5dp"
                     android:text="매주"
-                    android:textSize="14sp" />
+                    android:textSize="16dp" />
 
                 <RadioButton
                     android:id="@+id/radio_month"
@@ -352,7 +364,7 @@
                     android:layout_height="30sp"
                     android:layout_marginRight="5dp"
                     android:text="매달"
-                    android:textSize="14sp" />
+                    android:textSize="16dp" />
 
                 <RadioButton
                     android:id="@+id/radio_period"
@@ -361,7 +373,7 @@
                     android:layout_height="30sp"
                     android:layout_marginRight="5dp"
                     android:text="기간내"
-                    android:textSize="14sp" />
+                    android:textSize="16dp" />
             </RadioGroup>
 
             <TextView
@@ -372,7 +384,7 @@
                 android:layout_marginBottom="5dp"
                 android:text="목표 횟수"
                 android:textColor="@color/text"
-                android:textSize="16sp" />
+                android:textSize="20dp" />
 
             <EditText
                 android:id="@+id/edit_count"
@@ -387,7 +399,7 @@
                 android:hint="1~999999999 까지 설정 가능합니다"
                 android:textColor="@color/text"
                 android:textCursorDrawable="@drawable/edit_cursor"
-                android:textSize="16sp" />
+                android:textSize="18dp" />
 
             <TextView
                 android:id="@+id/text_count_error"
@@ -398,7 +410,7 @@
                 android:layout_marginBottom="5dp"
                 android:text=""
                 android:textColor="@color/text_red"
-                android:textSize="12sp" />
+                android:textSize="16dp" />
 
             <TextView
                 android:visibility="gone"
@@ -408,7 +420,7 @@
                 android:layout_marginBottom="5dp"
                 android:text="알람"
                 android:textColor="@color/text"
-                android:textSize="16sp" />
+                android:textSize="20dp" />
 
             <Switch
                 android:visibility="gone"
@@ -440,6 +452,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
+                        android:textSize="16dp"
                         android:text="알람날짜" />
 
                     <com.google.android.material.card.MaterialCardView
@@ -476,6 +489,7 @@
                         android:fontFamily="@font/font"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textSize="14dp"
                         android:text="일" />
 
                     <com.nex3z.togglebuttongroup.button.CircularToggle
@@ -483,6 +497,7 @@
                         android:fontFamily="@font/font"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textSize="14dp"
                         android:text="월" />
 
                     <com.nex3z.togglebuttongroup.button.CircularToggle
@@ -490,6 +505,7 @@
                         android:fontFamily="@font/font"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textSize="14dp"
                         android:text="화" />
 
                     <com.nex3z.togglebuttongroup.button.CircularToggle
@@ -497,6 +513,7 @@
                         android:fontFamily="@font/font"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textSize="14dp"
                         android:text="수" />
 
                     <com.nex3z.togglebuttongroup.button.CircularToggle
@@ -504,12 +521,14 @@
                         android:fontFamily="@font/font"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textSize="14dp"
                         android:text="목" />
 
                     <com.nex3z.togglebuttongroup.button.CircularToggle
                         android:id="@+id/day_fri"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textSize="14dp"
                         android:text="금" />
 
                     <com.nex3z.togglebuttongroup.button.CircularToggle
@@ -517,13 +536,14 @@
                         android:fontFamily="@font/font"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textSize="14dp"
                         android:text="토" />
 
                 </com.nex3z.togglebuttongroup.MultiSelectToggleGroup>
             </LinearLayout>
 
             <View
-                android:layout_marginBottom="100dp"
+                android:layout_marginBottom="400dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
@@ -573,24 +593,26 @@
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/button_cal_ok"
                 android:layout_width="wrap_content"
-                android:layout_height="25dp"
+                android:layout_height="30dp"
                 android:layout_marginTop="7dp"
                 android:layout_marginRight="10dp"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="7dp"
                 android:background="@drawable/btn_round4"
                 android:fontFamily="@font/font"
+                android:textSize="18dp"
                 android:text="확인"
                 android:textColor="@color/text" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/button_cal_cancel"
                 android:layout_width="wrap_content"
-                android:layout_height="25dp"
+                android:layout_height="30dp"
                 android:layout_marginTop="7dp"
                 android:layout_marginRight="10dp"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="7dp"
                 android:background="@drawable/btn_round4"
                 android:fontFamily="@font/font"
+                android:textSize="18dp"
                 android:text="취소"
                 android:textColor="@color/text" />
         </LinearLayout>
@@ -605,8 +627,6 @@
 
         <Button
             android:id="@+id/button_ok"
-            android:fontFamily="@font/font"
-            android:enabled="false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
@@ -615,6 +635,10 @@
             android:layout_marginEnd="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
+            android:padding="10dp"
+            android:enabled="false"
+            android:fontFamily="@font/font"
+            android:textSize="18dp"
             android:text="작성 완료" />
     </RelativeLayout>
 

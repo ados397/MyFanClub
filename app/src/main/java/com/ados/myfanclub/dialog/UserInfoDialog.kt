@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.UserInfoDialogBinding
 import com.ados.myfanclub.model.MemberDTO
@@ -27,6 +28,7 @@ class UserInfoDialog(context: Context, var member: MemberDTO, var user: UserExDT
         binding = UserInfoDialogBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         if (user.imgProfileUri != null) {

@@ -3,6 +3,7 @@ package com.ados.myfanclub.dialog
 
 import android.app.Dialog
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.PorterDuff
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -213,13 +214,16 @@ class LevelUpActionFanClubDialog(context: Context) : Dialog(context), View.OnCli
 
         if (oldFanClubDTO?.exp!! < newFanClubDTO?.exp!!) {
             binding.textExp.setTextColor(ContextCompat.getColor(context!!, R.color.text_red))
-            binding.progressPercent.progressDrawable.setColorFilter(ContextCompat.getColor(context!!, R.color.progress_0), PorterDuff.Mode.SRC_IN)
+            //binding.progressPercent.progressDrawable.setColorFilter(ContextCompat.getColor(context!!, R.color.progress_0), PorterDuff.Mode.SRC_IN)
+            //binding.progressPercent.progressBackgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.progress_background_0))
+            binding.progressPercent.progressTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.progress_background_0))
             binding.buttonUpExpFanClub.isEnabled = true
             binding.buttonUpExpFanClub.background = AppCompatResources.getDrawable(context, R.drawable.btn_round8)
             binding.buttonUpExpFanClub.setTextColor(ContextCompat.getColor(context!!, R.color.text_gold))
         } else {
             binding.textExp.setTextColor(ContextCompat.getColor(context!!, R.color.text))
-            binding.progressPercent.progressDrawable.colorFilter = null
+            //binding.progressPercent.progressDrawable.colorFilter = null
+            binding.progressPercent.progressTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.progress_70))
             binding.buttonUpExpFanClub.isEnabled = false
             binding.buttonUpExpFanClub.background = AppCompatResources.getDrawable(context, R.drawable.btn_round2)
             binding.buttonUpExpFanClub.setTextColor(ContextCompat.getColor(context!!, R.color.text_disable))

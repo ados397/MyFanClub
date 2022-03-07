@@ -105,6 +105,7 @@ class RecyclerViewAdapterSuccessCalendarDay(private val calendarLayout: LinearLa
                 //itemCalendarDotView.background = null
                 day.visibility = View.GONE
                 progress.visibility = View.GONE
+                complete.visibility = View.GONE
             }
         }
 

@@ -21,10 +21,13 @@ import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.SkuDetails
 import kotlinx.android.synthetic.main.get_item_dialog.*
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
 class PremiumPackageActivity : AppCompatActivity() {
+    var decimalFormat: DecimalFormat = DecimalFormat("###,###")
+
     private lateinit var binding: ActivityPremiumPackageBinding
     private lateinit var bm: BillingModule
 
@@ -32,6 +35,7 @@ class PremiumPackageActivity : AppCompatActivity() {
     private var currentUser: UserDTO? = null
     private var preferencesDTO: PreferencesDTO? = null
     private var loadingDialog : LoadingDialog? = null
+    private var getItemDialog : GetItemDialog? = null
 
     private var mSkuDetails = listOf<SkuDetails>()
         set(value) {
@@ -101,7 +105,7 @@ class PremiumPackageActivity : AppCompatActivity() {
 
             // 오늘 프리미엄 패키지 다이아 수령 여부
             if (currentUser?.isPremiumGemGet()!!) {
-                binding.layoutPremiumGem.background  = AppCompatResources.getDrawable(this, R.drawable.btn_round9)
+                binding.layoutPremiumGem.background  = AppCompatResources.getDrawable(this, R.drawable.btn_round_disable)
                 binding.textPremiumGem.text = "오늘 수령 완료"
             } else {
                 binding.layoutPremiumGem.background  = AppCompatResources.getDrawable(this, R.drawable.btn_round_pay)
@@ -116,6 +120,12 @@ class PremiumPackageActivity : AppCompatActivity() {
             binding.buttonPremiumGem.visibility = View.GONE
             binding.textExpireDate.visibility = View.GONE
         }
+
+        binding.textPremiumBuyGem.text = " 즉시 다이아 ${preferencesDTO?.rewardPremiumPackBuyGem!!}개 지급!"
+        binding.textPremiumEverydayGem.text = " 매일 다이아 ${preferencesDTO?.rewardPremiumPackCheckoutGem!!}개 지급!"
+
+        val totalGem = preferencesDTO?.rewardPremiumPackCheckoutGem!!.times(30).plus(preferencesDTO?.rewardPremiumPackBuyGem!!)
+        binding.textPremiumTotalGem.text = "${decimalFormat.format(totalGem)}개의 혜택!!"
     }
 
     private fun initBilling() {
@@ -233,14 +243,17 @@ class PremiumPackageActivity : AppCompatActivity() {
 
                 loadingEnd()
 
-                val getDialog = GetItemDialog(this)
-                getDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                getDialog.setCanceledOnTouchOutside(false)
-                getDialog.mailDTO = MailDTO("", "", "", "", MailDTO.Item.PAID_GEM, gemCount)
-                getDialog.show()
+                if (getItemDialog == null) {
+                    getItemDialog = GetItemDialog(this)
+                    getItemDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    getItemDialog?.setCanceledOnTouchOutside(false)
+                }
+                getItemDialog?.mailDTO = MailDTO("", "", "", "", MailDTO.Item.PAID_GEM, gemCount)
+                getItemDialog?.show()
+                getItemDialog?.setInfo()
 
-                getDialog.button_get_item_ok.setOnClickListener {
-                    getDialog.dismiss()
+                getItemDialog?.button_get_item_ok?.setOnClickListener {
+                    getItemDialog?.dismiss()
                 }
             }
         }

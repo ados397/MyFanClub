@@ -34,6 +34,7 @@ class MailActivity : AppCompatActivity(), OnMailItemClickListener {
     lateinit var recyclerViewAdapter : RecyclerViewAdapterMail
 
     private var loadingDialog : LoadingDialog? = null
+    private var getItemDialog : GetItemDialog? = null
 
     private var userDTO: UserDTO? = null
     private var mails : ArrayList<MailDTO> = arrayListOf()
@@ -122,15 +123,7 @@ class MailActivity : AppCompatActivity(), OnMailItemClickListener {
                                 setAdapter()
                                 loadingEnd()
 
-                                val getDialog = GetItemDialog(this@MailActivity)
-                                getDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                                getDialog.setCanceledOnTouchOutside(false)
-                                getDialog.mailDTO = item
-                                getDialog.show()
-
-                                getDialog.button_get_item_ok.setOnClickListener {
-                                    getDialog.dismiss()
-                                }
+                                showGetItemDialog(item)
                             }
                         }
                     }
@@ -148,7 +141,8 @@ class MailActivity : AppCompatActivity(), OnMailItemClickListener {
                 val question = QuestionDTO(
                     QuestionDTO.Stat.WARNING,
                     "우편함 모두 삭제",
-                    "첨부된 아이템이 없는 우편을 모두 삭제 합니다.\n정말 삭제 하시겠습니까?",
+                    //"첨부된 아이템이 없는 우편을 모두 삭제 합니다.\n정말 삭제 하시겠습니까?",
+                    "읽은 우편을 모두 삭제 합니다.\n정말 삭제 하시겠습니까?\n\n(첨부 아이템이 있는 우편은 삭제되지 않습니다)",
                 )
                 val questionDialog = QuestionDialog(this, question)
                 questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -167,7 +161,7 @@ class MailActivity : AppCompatActivity(), OnMailItemClickListener {
                     var iter = mails.iterator()
                     while (iter.hasNext()) {
                         var mail = iter.next()
-                        if (mail.item == MailDTO.Item.NONE) {
+                        if (mail.item == MailDTO.Item.NONE && mail.read!!) {
                             documentList += " (${mail.docName}) "
 
                             // 우편 삭제 firestore 적용
@@ -250,7 +244,16 @@ class MailActivity : AppCompatActivity(), OnMailItemClickListener {
         dialog.mailDTO = item
         dialog.show()
 
+        if (item.read == false) { // 읽지 않은 메일이라면 읽음 표시
+            item.read = true
+            firebaseViewModel.updateUserMailRead(userDTO?.uid.toString(), item.docName.toString()) {
+                var log = LogDTO("[우편함에서 우편 읽음] mail document(${item.docName})", Date())
+                firebaseViewModel.writeUserLog(userDTO?.uid.toString(), log) { }
+            }
+        }
+
         dialog.button_mail_cancel.setOnClickListener { // No
+            recyclerViewAdapter.notifyItemChanged(position)
             dialog.dismiss()
         }
 
@@ -291,15 +294,7 @@ class MailActivity : AppCompatActivity(), OnMailItemClickListener {
                             this@MailActivity.runOnUiThread {
                                 loadingEnd()
 
-                                val getDialog = GetItemDialog(this@MailActivity)
-                                getDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                                getDialog.setCanceledOnTouchOutside(false)
-                                getDialog.mailDTO = item
-                                getDialog.show()
-
-                                getDialog.button_get_item_ok.setOnClickListener {
-                                    getDialog.dismiss()
-                                }
+                                showGetItemDialog(item)
                             }
                         }
                     }
@@ -323,5 +318,20 @@ class MailActivity : AppCompatActivity(), OnMailItemClickListener {
                 loadingDialog?.dismiss()
             }
         }, 400)
+    }
+
+    private fun showGetItemDialog(item: MailDTO) {
+        if (getItemDialog == null) {
+            getItemDialog = GetItemDialog(this@MailActivity)
+            getItemDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            getItemDialog?.setCanceledOnTouchOutside(false)
+        }
+        getItemDialog?.mailDTO = item
+        getItemDialog?.show()
+        getItemDialog?.setInfo()
+
+        getItemDialog?.button_get_item_ok?.setOnClickListener {
+            getItemDialog?.dismiss()
+        }
     }
 }

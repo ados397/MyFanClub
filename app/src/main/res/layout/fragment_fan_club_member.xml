@@ -27,6 +27,7 @@
                 android:layout_marginTop="4dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="16dp"
                 android:text="1/1" />
         </LinearLayout>
 
@@ -47,6 +48,7 @@
                 android:layout_marginTop="4dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="16dp"
                 android:text="0/3" />
         </LinearLayout>
 
@@ -67,6 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:fontFamily="@font/font"
+                android:textSize="16dp"
                 android:text="10/30" />
         </LinearLayout>
 
@@ -87,85 +90,92 @@
 
     <LinearLayout
         android:id="@+id/layout_menu"
-        android:orientation="vertical"
-        android:background="#DDDDDDDD"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
+        android:paddingTop="15dp"
         android:layout_width="200dp"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:background="#DDDDDDDD"
+        android:orientation="vertical">
+
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_delegate_master"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="3dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/btn_ripple2"
             android:fontFamily="@font/font"
             android:text="클럽장 위임"
-            android:textSize="18sp"
-            android:background="@drawable/btn_ripple2"
             android:textColor="#FF0077"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:textSize="18dp" />
+
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_appoint_sub_master"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="3dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/btn_ripple"
             android:fontFamily="@font/font"
             android:text="부클럽장 임명"
-            android:textSize="18sp"
-            android:background="@drawable/btn_ripple"
             android:textColor="#0090FF"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="3dp"
-            android:layout_marginRight="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:textSize="18dp" />
+
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_fire_sub_master"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="3dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/btn_ripple2"
             android:fontFamily="@font/font"
             android:text="부클럽장 해임"
-            android:textSize="18sp"
-            android:background="@drawable/btn_ripple2"
             android:textColor="#FF0077"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="3dp"
-            android:layout_marginRight="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:textSize="18dp" />
+
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_deportation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="3dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/btn_ripple2"
             android:fontFamily="@font/font"
             android:text="강제 추방"
-            android:textSize="18sp"
-            android:background="@drawable/btn_ripple2"
             android:textColor="#FF0077"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="3dp"
-            android:layout_marginRight="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:textSize="18dp" />
+
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_user_info"
-            android:fontFamily="@font/font"
-            android:text="사용자 정보"
-            android:textSize="18sp"
-            android:background="@drawable/btn_ripple"
-            android:textColor="#0090FF"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="3dp"
             android:layout_marginRight="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:background="@drawable/btn_ripple"
+            android:fontFamily="@font/font"
+            android:text="사용자 정보"
+            android:textColor="#0090FF"
+            android:textSize="18dp" />
+
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_cancel"
-            android:fontFamily="@font/font"
-            android:text="취소"
-            android:textSize="18sp"
-            android:background="@drawable/btn_ripple"
-            android:textColor="#0090FF"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="20dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:background="@drawable/btn_ripple"
+            android:fontFamily="@font/font"
+            android:text="취소"
+            android:textColor="#0090FF"
+            android:textSize="18dp" />
 
     </LinearLayout>
 

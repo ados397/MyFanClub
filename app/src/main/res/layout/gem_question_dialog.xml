@@ -23,7 +23,7 @@
             android:fontFamily="@font/font"
             android:text="다이아를 사용해 전광판을 등록합니다."
             android:textColor="@color/text"
-            android:textSize="18sp"
+            android:textSize="18dp"
             android:layout_gravity="center_horizontal"
             android:gravity="center"
             android:layout_marginTop="20dp"
@@ -43,15 +43,15 @@
             <ImageView
                 android:src="@drawable/diamond"
                 android:layout_gravity="center"
-                android:layout_width="16dp"
-                android:layout_height="16dp"/>
+                android:layout_width="18dp"
+                android:layout_height="18dp"/>
 
             <TextView
                 android:id="@+id/text_count"
                 android:fontFamily="@font/font"
-                android:text="1,000"
+                android:text="0"
                 android:textColor="@color/purple"
-                android:textSize="14sp"
+                android:textSize="16dp"
                 android:layout_marginLeft="4dp"
                 android:layout_gravity="center"
                 android:layout_width="wrap_content"
@@ -71,25 +71,27 @@
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_gem_question_ok"
             android:layout_width="wrap_content"
-            android:layout_height="25dp"
+            android:layout_height="30dp"
             android:layout_gravity="center"
             android:layout_marginTop="7dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/btn_round4"
             android:fontFamily="@font/font"
+            android:textSize="18dp"
             android:text="확인"
             android:textColor="@color/text" />
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_gem_question_cancel"
             android:layout_width="wrap_content"
-            android:layout_height="25dp"
+            android:layout_height="30dp"
             android:layout_gravity="center"
             android:layout_marginTop="7dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/btn_round4"
             android:fontFamily="@font/font"
+            android:textSize="18dp"
             android:text="취소"
             android:textColor="@color/text" />
     </LinearLayout>

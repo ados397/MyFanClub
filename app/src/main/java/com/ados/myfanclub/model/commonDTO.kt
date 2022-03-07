@@ -59,12 +59,15 @@ data class WeekDTO(
 data class PreferencesDTO (
     val availableUserExpGem: Int? = 0, // 개인 경험치 레벨업에 하루 사용 가능한 다이아 수
     val availableFanClubExpGem: Int? = 0, // 팬클럽 경험치 레벨업에 하루 사용 가능한 다이아 수
+    val rewardTutorialGem: Int? = 0, // 튜토리얼 완료 다이아 보상
+    val rewardUserCheckoutGem: Int? = 0, // 개인 출석체크 다이아 보상
     val rewardUserExp: Long? = 0L, // 개인 무료 경험치 광고 보상
     val rewardUserExpCount: Int? = 0, // 개인 무료 경험치 광고 하루 시청 가능 수
     val rewardUserExpTime: Int? = 0, // 개인 무료 경험치 광고 충전 시간
     val rewardUserGem: Int? = 0, // 개인 무료 다이아 광고 보상
     val rewardUserGemCount: Int? = 0, // 개인 무료 다이아 광고 하루 시청 가능 수
     val rewardUserGemTime: Int? = 0, // 개인 무료 다이아 광고 충전 시간
+    val rewardFanClubCheckoutGem: Int? = 0, // 팬클럽 출석체크 다이아 보상
     val rewardFanClubExp: Long? = 0L, // 팬클럽 무료 경험치 광고 보상
     val rewardFanClubExpCount: Int? = 0, // 팬클럽 무료 경험치 광고 하루 시청 가능 수
     val rewardFanClubExpTime: Int? = 0, // 팬클럽 무료 경험치 광고 충전 시간
@@ -73,15 +76,33 @@ data class PreferencesDTO (
     val rewardFanClubGemTime: Int? = 0, // 팬클럽 무료 다이아 광고 충전 시간
     val rewardPremiumPackBuyGem: Int? = 0, // 프리미엄 패키지 구매 다이아 보상
     val rewardPremiumPackCheckoutGem: Int? = 0, // 프리미엄 패키지 매일 다이아 보상
-    val priceDisplayBoard: Int? = 0,
-    val priceNickname: Int? = 0,
-    val priceFanClubCreate: Int? = 0,
-    val priceFanClubSymbol: Int? = 0,
-    val priceFanClubName: Int? = 0,
-    val priceFanClubNotice: Int? = 0,
-    val displayBoardPeriod: Int? = 0
+    val priceDisplayBoard: Int? = 0, // 전광판 1회 표시 비용
+    val priceNickname: Int? = 0, // 닉네임 변경 비용
+    val priceFanClubCreate: Int? = 0, // 팬클럽 창설 비용
+    val priceFanClubSymbol: Int? = 0, // 팬클럽 심볼 변경 비용
+    val priceFanClubName: Int? = 0, // 팬클럽 이름 변경 비용
+    val priceFanClubNotice: Int? = 0, // 팬클럽 전체 공지 발송 비용
+    val priceGamble10: Int? = 0, // 10다이아 뽑기 1회 비용
+    val priceGamble30: Int? = 0, // 30다이아 뽑기 1회 비용
+    val priceGamble100: Int? = 0, // 100다이아 뽑기 1회 비용
+    val usedGambleCount: Int? = 0, // 하루에 다이아뽑기 가능한 횟수
+    val displayBoardPeriod: Int? = 0, // 메인 전광판 표시 시간 (초)
+    val fanClubChatDisplayPeriod: Int? = 0, // 팬클럽 메인 채팅 표시 시간 (초)
+    val fanClubChatSendDelay: Int? = 0 // 팬클럽 채팅 전송 간격 (초)
 ) : Parcelable {
 }
+
+data class UpdateDTO (
+    var minVersion : String? = null, // 실행 가능한 최소 버전, 해당 버전 미만은 앱 실행 불가
+    var minVersionDisplay : Boolean? = false, // 최소 버전 경고 표시 여부
+    var updateVersion : String? = null, // 업데이트 필요 버전, 해당 버전 미만은 앱 업데이트 필요
+    var updateVersionDisplay : Boolean? = false, // 업데이트 필요 버전 경고 표시 여부
+    var essential : Boolean? = false,
+    var updateUrl : String? = null,
+    var maintainance : Boolean? = false,
+    var maintainanceTitle : String? = null,
+    var maintainanceDesc : String? = null
+) { }
 
 data class AdPolicyDTO(
     var ad_banner: String? = null,
@@ -89,6 +110,36 @@ data class AdPolicyDTO(
     var ad_reward1: String? = null,
     var ad_reward2: String? = null,
     var ad_reward3: String? = null
+) {}
+
+data class ReportDTO(
+    var fromUserUid: String? = null, // 신고자
+    var fromUserNickname: String? = null,
+    var toUserUid: String? = null, // 신고대상
+    var toUserNickname: String? = null,
+    var content: String? = null,
+    var contentDocName: String? = null,
+    var type: Type = Type.DisplayBoard,
+    var reason: String? = null,
+    var reportTime: Date? = null
+) {
+    enum class Type {
+        DisplayBoard, FanClubChat
+    }
+
+    fun getCollectionName() : String {
+        return when(type) {
+            Type.FanClubChat -> "fanClubChat"
+            Type.DisplayBoard -> "displayBoard"
+        }
+    }
+}
+
+data class NoticeDTO(
+    var title: String? = null,
+    var content: String? = null,
+    var insertTime: Date? = null,
+    var displayMain: Boolean? = null // 메인 공지에 표시 여부
 ) {}
 
 data class NotificationBody(

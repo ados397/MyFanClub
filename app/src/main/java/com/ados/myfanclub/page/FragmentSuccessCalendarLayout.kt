@@ -124,6 +124,11 @@ class FragmentSuccessCalendarLayout : Fragment() {
         requireActivity().onBackPressedDispatcher.addCallback(this, callback)
     }
 
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
+    }
+
     private fun callBackPressed() {
         val fragment = FragmentDashboardMission.newInstance("", param2!!)
         parentFragmentManager.beginTransaction().apply{

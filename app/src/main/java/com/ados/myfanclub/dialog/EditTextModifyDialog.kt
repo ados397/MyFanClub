@@ -23,16 +23,7 @@ class EditTextModifyDialog(context: Context, var item: EditTextDTO) : Dialog(con
         binding = EditTextModifyDialogBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.buttonModifyOk.isEnabled = false
-        binding.imgModifyOk.visibility = View.GONE
-        binding.imgModifyCancel.visibility = View.GONE
-
-        binding.textTitle.text = item.title
-        binding.editContent.setText(item.content)
-        if (item.length!! > 0) {
-            binding.editContent.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(item.length!!))
-            binding.textContentLen.text = "${binding.editContent.text.length}/${item.length}"
-        }
+        setInfo()
 
         binding.editContent.doAfterTextChanged {
             val content = binding.editContent.text.toString().trim()
@@ -65,6 +56,19 @@ class EditTextModifyDialog(context: Context, var item: EditTextDTO) : Dialog(con
                 }
             }
 
+            binding.textContentLen.text = "${binding.editContent.text.length}/${item.length}"
+        }
+    }
+
+    fun setInfo() {
+        binding.buttonModifyOk.isEnabled = false
+        binding.imgModifyOk.visibility = View.GONE
+        binding.imgModifyCancel.visibility = View.GONE
+
+        binding.textTitle.text = item.title
+        binding.editContent.setText(item.content)
+        if (item.length!! > 0) {
+            binding.editContent.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(item.length!!))
             binding.textContentLen.text = "${binding.editContent.text.length}/${item.length}"
         }
     }

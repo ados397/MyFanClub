@@ -29,9 +29,7 @@
             android:gravity="center"
             android:text="LEVEL UP"
             android:textColor="#9A0523"
-            android:textSize="12sp"
-            app:autoSizeStepGranularity="1sp"
-            app:autoSizeTextType="uniform" />
+            android:textSize="16dp" />
 
         <TextView
             android:id="@+id/text_level"
@@ -43,7 +41,7 @@
             android:gravity="center"
             android:text="Lv. 99"
             android:textColor="@color/white"
-            android:textSize="26sp"
+            android:textSize="28dp"
             android:shadowColor="#D1D86F"
             android:shadowDx="0.0"
             android:shadowDy="0.0"
@@ -73,7 +71,7 @@
                 android:fontFamily="@font/font_sub_title"
                 android:text="팬클럽 멤버 수"
                 android:textColor="@color/white"
-                android:textSize="14sp" />
+                android:textSize="14dp" />
 
             <TextView
                 android:id="@+id/text_members_old"
@@ -86,7 +84,7 @@
                 android:fontFamily="@font/font_sub_title"
                 android:text="1,485"
                 android:textColor="@color/white"
-                android:textSize="14sp" />
+                android:textSize="14dp" />
 
             <ImageView
                 android:src="@drawable/arrow_right_blue"
@@ -105,7 +103,7 @@
                 android:fontFamily="@font/font_sub_title"
                 android:text="1,500"
                 android:textColor="@color/master"
-                android:textSize="14sp" />
+                android:textSize="14dp" />
 
             <RelativeLayout
                 android:layout_weight="0.5"
@@ -138,7 +136,7 @@
                 android:fontFamily="@font/font_sub_title"
                 android:text="팬클럽 스케줄 수"
                 android:textColor="@color/white"
-                android:textSize="14sp" />
+                android:textSize="14dp" />
 
             <TextView
                 android:id="@+id/text_schedule_old"
@@ -151,7 +149,7 @@
                 android:fontFamily="@font/font_sub_title"
                 android:text="14"
                 android:textColor="@color/white"
-                android:textSize="14sp" />
+                android:textSize="14dp" />
 
             <ImageView
                 android:src="@drawable/arrow_right_blue"
@@ -170,7 +168,7 @@
                 android:fontFamily="@font/font_sub_title"
                 android:text="14"
                 android:textColor="@color/white"
-                android:textSize="14sp" />
+                android:textSize="14dp" />
 
             <RelativeLayout
                 android:layout_weight="0.5"
@@ -203,7 +201,7 @@
                 android:fontFamily="@font/font_sub_title"
                 android:text="획득 가능 출석 다이아"
                 android:textColor="@color/white"
-                android:textSize="14sp" />
+                android:textSize="14dp" />
 
             <TextView
                 android:id="@+id/text_checkout_gem_old"
@@ -216,7 +214,7 @@
                 android:fontFamily="@font/font_sub_title"
                 android:text="10"
                 android:textColor="@color/white"
-                android:textSize="14sp" />
+                android:textSize="14dp" />
 
             <ImageView
                 android:src="@drawable/arrow_right_blue"
@@ -235,7 +233,7 @@
                 android:fontFamily="@font/font_sub_title"
                 android:text="11"
                 android:textColor="@color/master"
-                android:textSize="14sp" />
+                android:textSize="14dp" />
 
             <RelativeLayout
                 android:layout_weight="0.5"
@@ -262,18 +260,18 @@
             <ImageView
                 android:src="@drawable/star"
                 android:layout_marginRight="10dp"
-                android:layout_width="16dp"
-                android:layout_height="16dp"/>
+                android:layout_width="22dp"
+                android:layout_height="22dp"/>
 
             <TextView
                 android:id="@+id/text_added_option"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1dp"
+                android:layout_marginTop="3dp"
                 android:fontFamily="@font/font_sub_title"
                 android:text="더욱 많은 출석 보상 획득이 가능합니다."
                 android:textColor="@color/master"
-                android:textSize="14sp" />
+                android:textSize="18dp" />
 
         </LinearLayout>
 
@@ -286,13 +284,14 @@
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_level_up_fan_club_ok"
             android:layout_width="wrap_content"
-            android:layout_height="25dp"
+            android:layout_height="34dp"
             android:layout_gravity="center"
             android:layout_marginTop="10dp"
             android:paddingLeft="70dp"
             android:paddingRight="70dp"
             android:background="@drawable/btn_round8"
             android:fontFamily="@font/font_title"
+            android:textSize="18dp"
             android:text="확인"
             android:textColor="@color/text_gold" />
 

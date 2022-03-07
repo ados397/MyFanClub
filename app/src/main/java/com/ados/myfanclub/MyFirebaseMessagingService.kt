@@ -9,6 +9,7 @@ import android.media.RingtoneManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
 import androidx.core.graphics.drawable.IconCompat
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -17,6 +18,8 @@ import com.google.firebase.messaging.RemoteMessage
 
 class MyFirebaseMessagingService: FirebaseMessagingService() {
     private val TAG = "FirebaseService"
+    private val fcmGroup = "fcmGroup"
+    private val summaryID = 1234
 
     // 메세지가 수신되면 호출
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
@@ -64,27 +67,29 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
 
     // 서버에서 직접 보냈을 때
     private fun sendNotification(title: String?, body: String){
-        val intent = Intent(this, MainActivity::class.java)
+        println("서버에서 보낸 메시지 $title, $body")
+        val intent : Intent
+        if (IsRunApp.isForeground) { // 앱이 실행중일 때는 팬클럽 화면 호출
+            intent = Intent(this, MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        } else { // 앱 처음부터 실행
+            intent = Intent(this, SplashActivity::class.java)
+        }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP) // 액티비티 중복 생성 방지
+
         val pendingIntent = PendingIntent.getActivity(this, 0 , intent,
             PendingIntent.FLAG_ONE_SHOT) // 일회성
 
         val channelId = getString(R.string.default_notification_channel_id) // 채널 아이디
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) // 소리
-
-        val defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(android.R.drawable.star_big_off)
             .setContentTitle(title)
             .setContentText(body)
-            .setSound(defaultSound)
+            .setSound(defaultSoundUri)
+            .setAutoCancel(true)
+            .setGroup(fcmGroup)
             .setContentIntent(pendingIntent)
-        /*val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setContentTitle(title) // 제목
-            .setContentText(body) // 내용
-            //.setAutoCancel(true)
-            //.setSound(defaultSoundUri)
-            .setContentIntent(pendingIntent)*/
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -96,42 +101,54 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        notificationManager.notify(0 , notificationBuilder.build()) // 알림 생성
+        notificationManager.notify((System.currentTimeMillis()/100).toInt(), notificationBuilder.build()) // 알림 생성
+        notificationManager.notify(summaryID, getSummaryNotification(this, fcmGroup).build()) // 알림 생성
     }
 
     // 다른 기기에서 서버로 보냈을 때
     @RequiresApi(Build.VERSION_CODES.P)
     private fun sendMessageNotification(title: String, userId: String, body: String){
-        val intent = Intent(this, MainActivity::class.java)
+        val intent : Intent
+        if (IsRunApp.isForeground) { // 앱이 실행중일 때는 팬클럽 화면 호출
+            intent = Intent(this, MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        } else { // 앱 처음부터 실행
+            intent = Intent(this, SplashActivity::class.java)
+        }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP) // 액티비티 중복 생성 방지
+
+        //intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        //intent.putExtra("key", value);
+        //val pendingIntent = PendingIntent.getActivity(this, 0 , intent, PendingIntent.FLAG_MUTABLE OR PendingIntent.FLAG_UPDATE_CURRENT)
+
         val pendingIntent = PendingIntent.getActivity(this, 0 , intent,
             PendingIntent.FLAG_ONE_SHOT) // 일회성
 
         // messageStyle 로
-        val user: androidx.core.app.Person = Person.Builder()
-            .setName(userId)
-            .setIcon(IconCompat.createWithResource(this,R.drawable.ic_baseline_reorder_24))
+        val user: Person = Person.Builder()
+            .setName("[팬클럽공지] $title")
+            .setIcon(IconCompat.createWithResource(this,R.drawable.fan_club))
             .build()
 
         val message = NotificationCompat.MessagingStyle.Message(
-            body,
+            "${userId}\n${body}",
             System.currentTimeMillis(),
             user
         )
         val messageStyle = NotificationCompat.MessagingStyle(user)
             .addMessage(message)
 
-
         val channelId = getString(R.string.default_notification_channel_id) // 채널 아이디
+        //val channelId = "channel_id_${System.currentTimeMillis()}" // 채널 아이디
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) // 소리
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
             .setContentTitle(title) // 제목
             .setContentText(body) // 내용
             .setStyle(messageStyle)
-            //.setSmallIcon(R.drawable.ic_baseline_shopping_basket_24) // 아이콘
             .setSmallIcon(android.R.drawable.star_big_off)
             .setAutoCancel(true)
             .setSound(defaultSoundUri)
+            .setGroup(fcmGroup)
             .setContentIntent(pendingIntent)
 
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -140,11 +157,27 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(channelId,
                 "알림 메세지",
-                NotificationManager.IMPORTANCE_LOW) // 소리없앰
+                NotificationManager.IMPORTANCE_DEFAULT)
             notificationManager.createNotificationChannel(channel)
         }
 
-        notificationManager.notify(0 , notificationBuilder.build()) // 알림 생성
+        //notificationManager.notify(0 , notificationBuilder.build()) // 알림 생성
+        notificationManager.notify((System.currentTimeMillis()/100).toInt(), notificationBuilder.build()) // 알림 생성
+        notificationManager.notify(summaryID, getSummaryNotification(this, fcmGroup).build()) // 알림 생성
+        //notificationManager.notify((System.currentTimeMillis()/100).toInt(), notificationBuilder.build()) // 알림 생성
+
+
+        //NotificationManagerCompat.from(this).notify(System.currentTimeMillis()/100).toInt(), notificationBuilder.build())
+        //NotificationManagerCompat.from(this).notify(summaryNoti, getSummaryNoti(this).build())
+    }
+
+    private fun getSummaryNotification(context: Context, group: String): NotificationCompat.Builder {
+        return NotificationCompat.Builder(context, getString(R.string.default_notification_channel_id))
+            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setAutoCancel(true)
+            .setOnlyAlertOnce(true)
+            .setGroup(group)
+            .setGroupSummary(true)
     }
 
     // 받은 토큰을 서버로 전송

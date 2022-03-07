@@ -2,27 +2,35 @@ package com.ados.myfanclub.page
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.view.*
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.core.content.ContextCompat
 import androidx.core.view.size
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentScheduleAddBinding
 import com.ados.myfanclub.dialog.SelectAppDialog
+import com.ados.myfanclub.model.AppDTO
 import com.ados.myfanclub.model.FanClubDTO
 import com.ados.myfanclub.model.MemberDTO
 import com.ados.myfanclub.model.ScheduleDTO
+import com.ados.myfanclub.util.Utility
+import com.ados.myfanclub.util.Utility.Companion.randomDocumentName
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.applikeysolutions.cosmocalendar.selection.OnDaySelectedListener
 import com.applikeysolutions.cosmocalendar.selection.RangeSelectionManager
 import com.applikeysolutions.cosmocalendar.utils.SelectionType
+import com.getkeepsafe.taptargetview.TapTarget
+import com.getkeepsafe.taptargetview.TapTargetSequence
 import kotlinx.android.synthetic.main.select_app_dialog.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -106,6 +114,8 @@ class FragmentScheduleAdd : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        observeTutorial()
+
         if (!scheduleDTO.docName.isNullOrEmpty()) {
             titleOK = true
             rangeOK = true
@@ -129,6 +139,10 @@ class FragmentScheduleAdd : Fragment() {
                     binding.editUrl.setText(scheduleDTO.url)
                     binding.radioUrl.isChecked = true
                     selectActionUrl()
+                }
+                ScheduleDTO.Action.ETC -> {
+                    binding.radioEtc.isChecked = true
+                    selectActionNone()
                 }
             }
             when (scheduleDTO.cycle) {
@@ -210,6 +224,9 @@ class FragmentScheduleAdd : Fragment() {
                 }
                 R.id.radio_url -> {
                     selectActionUrl()
+                }
+                R.id.radio_etc -> {
+                    selectActionNone()
                 }
             }
         }
@@ -316,36 +333,7 @@ class FragmentScheduleAdd : Fragment() {
         }
 
         binding.buttonOk.setOnClickListener {
-            if (scheduleDTO.docName.isNullOrEmpty()) {
-                val alphabets = ('a'..'z').toMutableList()
-                scheduleDTO.docName = "${alphabets[Random().nextInt(alphabets.size)]}${System.currentTimeMillis()}"
-                scheduleDTO.order = System.currentTimeMillis()
-            }
-
-            scheduleDTO.isSelected = false
-            scheduleDTO.title = binding.editTitle.text.toString()
-            scheduleDTO.purpose = binding.editPurpose.text.toString()
-            scheduleDTO.url = binding.editUrl.text.toString()
-
-            // 수행할 동작에 따라 나머지는 비활성화
-            when (scheduleDTO.action) {
-                ScheduleDTO.Action.APP -> {
-                    scheduleDTO.url = ""
-                }
-                ScheduleDTO.Action.URL -> {
-                    scheduleDTO.appDTO = null
-                }
-            }
-
-            scheduleDTO.count = binding.editCount.text.toString().toLong()
-            scheduleDTO.alarmDTO.alarmHour = binding.timepickerAlarm.currentHour
-            scheduleDTO.alarmDTO.alarmMinute = binding.timepickerAlarm.currentMinute
-
-            if (fanClubDTO == null) {
-                setPersonalSchedule()
-            } else {
-                setFanClubSchedule()
-            }
+            applySchedule()
         }
 
 
@@ -398,6 +386,16 @@ class FragmentScheduleAdd : Fragment() {
         isValidUrlEdit()
     }
 
+    private fun selectActionNone() {
+        binding.layoutSelectApp.visibility = View.GONE
+        binding.editUrl.visibility = View.GONE
+        binding.textUrlError.visibility = View.GONE
+
+        scheduleDTO.action = ScheduleDTO.Action.ETC
+        actionOK = true
+        visibleOkButton()
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         callback = object : OnBackPressedCallback(true) {
@@ -408,22 +406,25 @@ class FragmentScheduleAdd : Fragment() {
         requireActivity().onBackPressedDispatcher.addCallback(this, callback)
     }
 
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
+    }
+
     private fun callBackPressed() {
-        if (fanClubDTO == null) {
-            finishFragment()
-        } else {
-            finishFragment()
-        }
+        finishFragment()
     }
 
     private fun finishFragment() {
         val fragment = FragmentScheduleList.newInstance(param1!!, param2!!)
+        /*parentFragmentManager.popBackStackImmediate("scheduleList", FragmentManager.POP_BACK_STACK_INCLUSIVE)
         parentFragmentManager.beginTransaction().apply{
             replace(R.id.layout_fragment, fragment)
             setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE)
-            addToBackStack(null)
+            addToBackStack("scheduleList")
             commit()
-        }
+        }*/
+        parentFragmentManager.beginTransaction().replace(R.id.layout_fragment, fragment).commit()
     }
 
     private fun getAlarmDateText(hour: Int, min: Int) {
@@ -678,6 +679,155 @@ class FragmentScheduleAdd : Fragment() {
     // 유효성 체크
     private fun visibleOkButton() {
         binding.buttonOk.isEnabled = titleOK && rangeOK && purposeOK && actionOK && cycleOK && countOK
+    }
+
+    private fun applySchedule() {
+        if (scheduleDTO.docName.isNullOrEmpty()) {
+            scheduleDTO.docName = Utility.randomDocumentName()
+            scheduleDTO.order = System.currentTimeMillis()
+        }
+
+        scheduleDTO.isSelected = false
+        scheduleDTO.title = binding.editTitle.text.toString()
+        scheduleDTO.purpose = binding.editPurpose.text.toString()
+        scheduleDTO.url = binding.editUrl.text.toString()
+
+        // 수행할 동작에 따라 나머지는 비활성화
+        when (scheduleDTO.action) {
+            ScheduleDTO.Action.APP -> {
+                scheduleDTO.url = ""
+            }
+            ScheduleDTO.Action.URL -> {
+                scheduleDTO.appDTO = null
+            }
+            ScheduleDTO.Action.ETC -> {
+                scheduleDTO.url = ""
+                scheduleDTO.appDTO = null
+            }
+        }
+
+        scheduleDTO.count = binding.editCount.text.toString().toLong()
+        scheduleDTO.alarmDTO.alarmHour = binding.timepickerAlarm.currentHour
+        scheduleDTO.alarmDTO.alarmMinute = binding.timepickerAlarm.currentMinute
+
+        if (fanClubDTO == null) {
+            setPersonalSchedule()
+        } else {
+            setFanClubSchedule()
+        }
+    }
+
+    private fun addSampleData() {
+        titleOK = true
+        rangeOK = true
+        purposeOK = true
+        actionOK = true
+        cycleOK = true
+        countOK = true
+
+        binding.editTitle.setText("멜론 노래 스트리밍 하기!")
+
+        val cal = Calendar.getInstance()
+        cal.time = Date()
+        cal.add(Calendar.DATE, 30)
+        scheduleDTO.startDate = Date()
+        scheduleDTO.endDate = cal.time
+        setStartEndDate()
+
+        binding.editPurpose.setText("하루에 5번 씩 멜론 스트리밍 하기!\n\n내 가수를 위해 꼭꼭 지키기!")
+
+        scheduleDTO.action = ScheduleDTO.Action.APP
+        scheduleDTO.appDTO = AppDTO(false, "com.iloen.melon", "멜론", "https://play-lh.googleusercontent.com/GweSpOJ7p8RZ0lzMDr7sU0x5EtvbsAubkVjLY-chdyV6exnSUfl99Am0g8X0w_a2Qo4=s180-rw", 1)
+        binding.textSelectedApp.text = scheduleDTO.appDTO?.appName
+        binding.radioApp.isChecked = true
+        selectActionApp()
+
+        scheduleDTO.cycle = ScheduleDTO.Cycle.DAY
+        binding.radioDay.isChecked = true
+
+        binding.editCount.setText("5")
+
+        binding.buttonOk.isEnabled = true
+    }
+
+    private fun observeTutorial() {
+        (activity as MainActivity?)?.getTutorialStep()?.observe(viewLifecycleOwner) {
+            onTutorial((activity as MainActivity?)?.getTutorialStep()?.value!!)
+        }
+    }
+
+    private fun onTutorial(step: Int) {
+        when (step) {
+            3 -> {
+                println("튜토리얼 Step - $step")
+                TapTargetSequence(requireActivity())
+                    .targets(
+                        TapTarget.forView(binding.layoutMain,
+                            "여기에서 개인 스케줄을 추가할 수 있습니다.",
+                            "- OK 버튼을 눌러주세요.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .icon(ContextCompat.getDrawable(requireContext(), R.drawable.ok))
+                            .tintTarget(true),
+                        TapTarget.forView(binding.layoutMain,
+                            "스케줄은 필요에 따라 매일, 매주, 매월, 특정 기간내 수행할 일을 등록하실 수 있습니다.",
+                            "- OK 버튼을 눌러주세요.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .icon(ContextCompat.getDrawable(requireContext(), R.drawable.ok))
+                            .tintTarget(true)).listener(object : TapTargetSequence.Listener {
+                        override fun onSequenceFinish() {
+                            addSampleData()
+                            (activity as MainActivity?)?.addTutorialStep()
+                        }
+                        override fun onSequenceStep(tutorialStep: TapTarget, targetClicked: Boolean) {
+                            //Toast.makeText(secondActivity.this,"GREAT!",Toast.LENGTH_SHORT).show();
+
+                        }
+                        override fun onSequenceCanceled(lastTarget: TapTarget) {
+
+                        }
+                    }).start()
+            }
+            4 -> {
+                println("튜토리얼 Step - $step")
+                //var rect = Rect()
+                //binding.layoutOk.getGlobalVisibleRect(rect)
+                val location = IntArray(2)
+                binding.layoutOk.getLocationOnScreen(location)
+                val rect = Rect(location[0], location[1], location[0] + binding.layoutOk.width, location[1] + binding.layoutOk.height)
+                TapTargetSequence(requireActivity())
+                    .targets(
+                        TapTarget.forBounds(rect,
+                            "매일 멜론에서 5번씩 노래를 스트리밍 하는 목표의 스케줄을 임의로 추가하였습니다.",
+                            "- 작성 완료 버튼을 눌러 스케줄을 등록해주세요.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .transparentTarget(true)
+                            .tintTarget(true)).listener(object : TapTargetSequence.Listener {
+                        override fun onSequenceFinish() {
+                            applySchedule()
+                            (activity as MainActivity?)?.addTutorialStep()
+                        }
+                        override fun onSequenceStep(tutorialStep: TapTarget, targetClicked: Boolean) {
+                            //Toast.makeText(secondActivity.this,"GREAT!",Toast.LENGTH_SHORT).show();
+
+                        }
+                        override fun onSequenceCanceled(lastTarget: TapTarget) {
+
+                        }
+                    }).start()
+            }
+        }
     }
 
     companion object {

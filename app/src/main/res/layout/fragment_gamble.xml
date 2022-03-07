@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/black"
+    tools:context=".page.FragmentGamble">
+
+    <RelativeLayout
+        android:id="@+id/layout_title"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@color/charge_back">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/button_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="5dp"
+            android:backgroundTint="@android:color/transparent"
+            android:clickable="true"
+            app:cardElevation="0dp"
+            app:rippleColor="#fff">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/arrow_back_white" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/text_page_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/button_back"
+            android:fontFamily="@font/font"
+            android:text="행운의 뽑기"
+            android:textColor="@color/white"
+            android:textSize="24dp" />
+
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_below="@id/layout_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:layout_marginTop="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font"
+                android:text="최대 "
+                android:textColor="@color/display_board_8"
+                android:textSize="24dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font"
+                android:textStyle="bold"
+                android:text="100개"
+                android:textColor="@color/master"
+                android:textSize="28dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font"
+                android:text="의 다이아!"
+                android:textColor="@color/display_board_8"
+                android:textSize="24dp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_marginTop="3dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/font"
+            android:text="행운의 주인공이 되어보세요!"
+            android:textColor="@color/display_board_8"
+            android:textSize="24dp" />
+
+        <RelativeLayout
+            android:id="@+id/layout_background"
+            android:layout_below="@id/layout_title"
+            android:layout_width="match_parent"
+            android:layout_height="420dp">
+
+            <ImageView
+                android:id="@+id/img_background"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                android:src="@drawable/gamble_back" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:paddingLeft="0dp">
+
+                <ImageView
+                    android:id="@+id/img_diamond"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:layout_marginTop="85dp"
+                    android:background="@drawable/animation_gamble" />
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/layout_result"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true">
+
+                <TextView
+                    android:id="@+id/text_celebrate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="10dp"
+                    android:fontFamily="@font/font_title"
+                    android:shadowColor="#DD3A0426"
+                    android:shadowDx="5.0"
+                    android:shadowDy="5.0"
+                    android:shadowRadius="5.0"
+                    android:text="축하합니다!!"
+                    android:textColor="#FF0EA7"
+                    android:textSize="35dp" />
+
+                <RelativeLayout
+                    android:id="@+id/layout_text_result"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="40dp"
+                    android:layout_centerHorizontal="true">
+
+                    <TextView
+                        android:id="@+id/text_result"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_title"
+                        android:shadowColor="#DD490D0D"
+                        android:shadowDx="5.0"
+                        android:shadowDy="5.0"
+                        android:shadowRadius="5.0"
+                        android:text="100"
+                        android:textColor="#FF0E66"
+                        android:textSize="70dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="5dp"
+                        android:layout_toRightOf="@+id/text_result"
+                        android:fontFamily="@font/font_title"
+                        android:shadowColor="#DD490D0D"
+                        android:shadowDx="5.0"
+                        android:shadowDy="5.0"
+                        android:shadowRadius="5.0"
+                        android:text="다이아"
+                        android:textColor="#FF0E66"
+                        android:textSize="30dp" />
+                </RelativeLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="100dp"
+                    android:fontFamily="@font/font_title"
+                    android:shadowColor="#DD503F0D"
+                    android:shadowDx="5.0"
+                    android:shadowDy="5.0"
+                    android:shadowRadius="5.0"
+                    android:text="획득!!"
+                    android:textColor="#D8AB24"
+                    android:textSize="40dp" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/text_test"
+                android:layout_marginTop="3dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/font"
+                android:text=""
+                android:textColor="@color/display_board_8"
+                android:textSize="14dp" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_gamble_result"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/btn_circle"
+                android:fontFamily="@font/font_title"
+                android:text="결과 확인"
+                android:textColor="@color/purple"
+                android:textSize="16dp" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_gamble_finish"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="7dp"
+                android:background="@drawable/btn_circle"
+                android:fontFamily="@font/font_title"
+                android:text="확인"
+                android:textColor="@color/text_gold"
+                android:textSize="16dp" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_button"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/layout_premium"
+                android:orientation="horizontal"
+                android:background="@drawable/btn_round_premium"
+                android:layout_marginTop="5dp"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:src="@drawable/premium_enable"
+                    android:layout_marginRight="5dp"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font"
+                    android:text="프리미엄 패키지 적용중"
+                    android:textColor="@color/white"
+                    android:textSize="18dp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/text_gamble_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="5dp"
+                android:fontFamily="@font/font"
+                android:text="오늘 남은 뽑기 횟수 : 5"
+                android:textColor="@color/master"
+                android:textSize="16dp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/button_gamble_10"
+                android:layout_width="250dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="5dp"
+                android:backgroundTint="@android:color/transparent"
+                android:clickable="true"
+                app:cardElevation="0dp"
+                app:rippleColor="#fff">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/btn_round_pay"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:paddingLeft="5dp"
+                    android:paddingTop="2dp"
+                    android:paddingRight="30dp"
+                    android:paddingBottom="2dp">
+
+                    <ImageView
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:layout_gravity="center"
+                        android:layout_marginRight="-20dp"
+                        android:layout_marginBottom="3dp"
+                        android:src="@drawable/diamond_pack2" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:fontFamily="@font/font_title"
+                        android:text="10다이아 뽑기"
+                        android:textColor="@color/text_gold"
+                        android:textSize="16dp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/button_gamble_30"
+                android:layout_width="250dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="5dp"
+                android:backgroundTint="@android:color/transparent"
+                android:clickable="true"
+                app:cardElevation="0dp"
+                app:rippleColor="#fff">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/btn_round_pay"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:paddingLeft="5dp"
+                    android:paddingTop="2dp"
+                    android:paddingRight="30dp"
+                    android:paddingBottom="2dp">
+
+                    <ImageView
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:layout_gravity="center"
+                        android:layout_marginRight="-20dp"
+                        android:layout_marginBottom="3dp"
+                        android:src="@drawable/diamond_pack3" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_gravity="center"
+                        android:fontFamily="@font/font_title"
+                        android:text="30다이아 뽑기"
+                        android:textColor="@color/text_gold"
+                        android:textSize="16dp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/button_gamble_100"
+                android:layout_width="250dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="5dp"
+                android:backgroundTint="@android:color/transparent"
+                android:clickable="true"
+                app:cardElevation="0dp"
+                app:rippleColor="#fff">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/btn_round_pay"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:paddingLeft="5dp"
+                    android:paddingTop="2dp"
+                    android:paddingRight="30dp"
+                    android:paddingBottom="2dp">
+
+                    <ImageView
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginBottom="3dp"
+                        android:src="@drawable/diamond_pack4" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="0dp"
+                        android:fontFamily="@font/font_title"
+                        android:text="100다이아 뽑기"
+                        android:textColor="@color/text_gold"
+                        android:textSize="16dp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <View
+            android:layout_marginBottom="200dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+    </ScrollView>
+
+</RelativeLayout>

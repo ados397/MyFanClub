@@ -64,7 +64,7 @@ class FragmentAccountSettings : Fragment() {
     private var fanClubDTO: FanClubDTO? = null
     private var currentMember: MemberDTO? = null
 
-    private var currentUser: UserDTO? = null
+    private var currentUserEx: UserExDTO? = null
 
     private val resultLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
@@ -100,7 +100,7 @@ class FragmentAccountSettings : Fragment() {
             .build()
         googleSignInClient = GoogleSignIn.getClient(context,gso)
 
-        currentUser = (activity as MainActivity?)?.getUser()
+        currentUserEx = (activity as MainActivity?)?.getUserEx()
 
         // 메뉴는 기본 숨김
         binding.layoutMenu.visibility = View.GONE
@@ -116,19 +116,14 @@ class FragmentAccountSettings : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        if (currentUser?.imgProfile != null) {
-            firebaseStorageViewModel.getUserProfile(currentUser?.uid.toString()) { uri ->
-                if (_binding != null) { // 메인 탭에서 바로 사용자 정보 탭 이동 시 팬클럽 뷰가 Destroy 되고 나서 뒤 늦게 들어오는 경우가 있기 때문에 예외 처리
-                    Glide.with(requireContext()).load(uri).fitCenter().into(binding.imgProfile)
-                }
-            }
+        if (currentUserEx?.imgProfileUri != null) {
+            Glide.with(requireContext()).load(currentUserEx?.imgProfileUri).fitCenter().into(binding.imgProfile)
         }
 
-        binding.editNickname.setText(currentUser?.nickname)
-        binding.editAboutMe.setText(currentUser?.aboutMe)
+        binding.editNickname.setText(currentUserEx?.userDTO?.nickname)
+        binding.editAboutMe.setText(currentUserEx?.userDTO?.aboutMe)
 
-        when (currentUser?.loginType) {
+        when (currentUserEx?.userDTO?.loginType) {
             UserDTO.LoginType.GOOGLE -> binding.editLoginType.setText("구글 로그인")
             else -> binding.editLoginType.setText("이메일 로그인")
         }
@@ -143,12 +138,12 @@ class FragmentAccountSettings : Fragment() {
         }
 
         binding.buttonModifyNickname.setOnClickListener {
-            currentUser = (activity as MainActivity?)?.getUser()
+            currentUserEx = (activity as MainActivity?)?.getUserEx()
             if (isBlockChangeNickname()) {
                 val question = QuestionDTO(
                     QuestionDTO.Stat.WARNING,
                     "닉네임 변경",
-                    "아직 닉네임을 변경할 수 없습니다. 닉네임은 3일마다 변경 가능합니다.\n\n최종변경일 [${SimpleDateFormat("yyyy.MM.dd HH:mm").format(currentUser?.nicknameChangeDate)}]",
+                    "아직 닉네임을 변경할 수 없습니다. 닉네임은 3일마다 변경 가능합니다.\n\n최종변경일 [${SimpleDateFormat("yyyy.MM.dd HH:mm").format(currentUserEx?.userDTO?.nicknameChangeDate)}]",
                 )
                 val questionDialog = QuestionDialog(requireContext(), question)
                 questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -160,7 +155,7 @@ class FragmentAccountSettings : Fragment() {
                     questionDialog.dismiss()
                 }
             } else {
-                val item = EditTextDTO("닉네임 변경", currentUser?.nickname, 15, "^[가-힣ㄱ-ㅎa-zA-Z0-9.~!@#\$%^&*\\[\\](){}|_-]{1,15}\$", "사용할 수 없는 문자열이 포함되어 있습니다.")
+                val item = EditTextDTO("닉네임 변경", currentUserEx?.userDTO?.nickname, 15, "^[가-힣ㄱ-ㅎa-zA-Z0-9.~!@#\$%^&*\\[\\](){}|_-]{1,15}\$", "사용할 수 없는 문자열이 포함되어 있습니다.")
                 val dialog = EditTextModifyDialog(requireContext(), item)
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
                 dialog.setCanceledOnTouchOutside(false)
@@ -183,7 +178,7 @@ class FragmentAccountSettings : Fragment() {
                     questionDialog.button_gem_question_ok.setOnClickListener { // Ok
                         questionDialog.dismiss()
 
-                        if ((currentUser?.paidGem!! + currentUser?.freeGem!!) < preferencesDTO?.priceNickname!!) {
+                        if ((currentUserEx?.userDTO?.paidGem!! + currentUserEx?.userDTO?.freeGem!!) < preferencesDTO?.priceNickname!!) {
                             Toast.makeText(activity, "다이아가 부족합니다.", Toast.LENGTH_SHORT).show()
                         } else {
                             val nickname = dialog.edit_content.text.toString().trim()
@@ -192,8 +187,8 @@ class FragmentAccountSettings : Fragment() {
                                     Toast.makeText(activity, "닉네임이 이미 존재합니다.", Toast.LENGTH_SHORT).show()
                                 } else {
                                     dialog.dismiss()
-                                    val oldNickname = currentUser?.nickname
-                                    if (currentUser?.nickname != nickname) {
+                                    val oldNickname = currentUserEx?.userDTO?.nickname
+                                    if (currentUserEx?.userDTO?.nickname != nickname) {
                                         // 닉네임이 포함된 모든 firebase 수정 (uid 값이 키)
                                         // 1. user.nickname
                                         // 2. fanClub.masterNickname (팬클럽장 일 경우)
@@ -205,16 +200,16 @@ class FragmentAccountSettings : Fragment() {
 
                                         // 다이아 차감
                                         val date = Date()
-                                        val oldPaidGemCount = currentUser?.paidGem!!
-                                        val oldFreeGemCount = currentUser?.freeGem!!
-                                        currentUser?.nickname = nickname
-                                        currentUser?.nicknameChangeDate = date
-                                        firebaseViewModel.updateUserNickname(currentUser!!, preferencesDTO?.priceNickname!!) { userDTO ->
+                                        val oldPaidGemCount = currentUserEx?.userDTO?.paidGem!!
+                                        val oldFreeGemCount = currentUserEx?.userDTO?.freeGem!!
+                                        currentUserEx?.userDTO?.nickname = nickname
+                                        currentUserEx?.userDTO?.nicknameChangeDate = date
+                                        firebaseViewModel.updateUserNickname(currentUserEx?.userDTO!!, preferencesDTO?.priceNickname!!) { userDTO ->
                                             if (userDTO != null) {
-                                                currentUser = userDTO
+                                                currentUserEx?.userDTO = userDTO
 
-                                                var log = LogDTO("[다이아 차감] 닉네임 변경으로 ${preferencesDTO?.priceNickname} 다이아 사용 ($oldNickname -> $nickname), (paidGem : $oldPaidGemCount -> ${currentUser?.paidGem}, freeGem : $oldFreeGemCount -> ${currentUser?.freeGem})", Date())
-                                                firebaseViewModel.writeUserLog(currentUser?.uid.toString(), log) { }
+                                                var log = LogDTO("[다이아 차감] 닉네임 변경으로 ${preferencesDTO?.priceNickname} 다이아 사용 ($oldNickname -> $nickname), (paidGem : $oldPaidGemCount -> ${currentUserEx?.userDTO?.paidGem}, freeGem : $oldFreeGemCount -> ${currentUserEx?.userDTO?.freeGem})", Date())
+                                                firebaseViewModel.writeUserLog(currentUserEx?.userDTO?.uid.toString(), log) { }
 
                                                 // 가입한 팬클럽이 있을 경우
                                                 if (fanClubDTO != null && currentMember != null) {
@@ -249,8 +244,8 @@ class FragmentAccountSettings : Fragment() {
         }
 
         binding.buttonModifyAboutMe.setOnClickListener {
-            currentUser = (activity as MainActivity?)?.getUser()
-            val item = EditTextDTO("내 소개 변경", currentUser?.aboutMe, 50)
+            currentUserEx = (activity as MainActivity?)?.getUserEx()
+            val item = EditTextDTO("내 소개 변경", currentUserEx?.userDTO?.aboutMe, 50)
             val dialog = EditTextModifyDialog(requireContext(), item)
             dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
             dialog.setCanceledOnTouchOutside(false)
@@ -262,8 +257,8 @@ class FragmentAccountSettings : Fragment() {
                 dialog.dismiss()
 
                 val aboutMe = dialog.edit_content.text.toString().trim()
-                val oldAboutMe = currentUser?.aboutMe
-                if (currentUser?.aboutMe != aboutMe) {
+                val oldAboutMe = currentUserEx?.userDTO?.aboutMe
+                if (currentUserEx?.userDTO?.aboutMe != aboutMe) {
                     val question = QuestionDTO(
                         QuestionDTO.Stat.WARNING,
                         "내 소개 변경",
@@ -285,10 +280,10 @@ class FragmentAccountSettings : Fragment() {
                         // 3. 메인 Activity 반영
 
                         // 1. user.aboutMe
-                        currentUser?.aboutMe = aboutMe
-                        firebaseViewModel.updateUserAboutMe(currentUser!!) {
+                        currentUserEx?.userDTO?.aboutMe = aboutMe
+                        firebaseViewModel.updateUserAboutMe(currentUserEx?.userDTO!!) {
                             var log = LogDTO("[내 소개 변경] $oldAboutMe -> $aboutMe", Date())
-                            firebaseViewModel.writeUserLog(currentUser?.uid.toString(), log) { }
+                            firebaseViewModel.writeUserLog(currentUserEx?.userDTO?.uid.toString(), log) { }
 
                             // 가입한 팬클럽이 있을 경우
                             if (fanClubDTO != null && currentMember != null) {
@@ -307,7 +302,7 @@ class FragmentAccountSettings : Fragment() {
         }
 
         binding.buttonModifyPassword.setOnClickListener {
-            if (currentUser?.loginType != UserDTO.LoginType.EMAIL) {
+            if (currentUserEx?.userDTO?.loginType != UserDTO.LoginType.EMAIL) {
                 Toast.makeText(activity, "소셜 로그인된 상태에서는 비밀번호를 변경할 수 없습니다.", Toast.LENGTH_SHORT).show()
             } else {
                 val dialog = PasswordModifyDialog(requireContext())
@@ -325,8 +320,8 @@ class FragmentAccountSettings : Fragment() {
                     if (oldPassword == newPassword) {
                         Toast.makeText(activity, "새로운 비밀번호가 기존 비밀번호와 동일 합니다.", Toast.LENGTH_SHORT).show()
                     } else {
-                        println("현재 계정 비밀 번호 ${currentUser?.userId}, $oldPassword")
-                        val credential = EmailAuthProvider.getCredential(currentUser?.userId.toString(), oldPassword)
+                        println("현재 계정 비밀 번호 ${currentUserEx?.userDTO?.userId}, $oldPassword")
+                        val credential = EmailAuthProvider.getCredential(currentUserEx?.userDTO?.userId.toString(), oldPassword)
                         firebaseAuth?.currentUser!!.reauthenticateAndRetrieveData(credential)?.addOnCompleteListener { task ->
                         //firebaseAuth?.currentUser!!.linkWithCredential(credential).addOnCompleteListener(requireActivity()) { task ->
                             if (!task.isSuccessful) {
@@ -423,6 +418,11 @@ class FragmentAccountSettings : Fragment() {
         requireActivity().onBackPressedDispatcher.addCallback(this, callback)
     }
 
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
+    }
+
     private fun callBackPressed() {
         finishFragment()
     }
@@ -440,9 +440,9 @@ class FragmentAccountSettings : Fragment() {
     private fun isBlockChangeNickname() : Boolean {
         // 닉네임 변경 후 3일이 지나야 재 변경 가능
         var isBlock = false
-        if (currentUser?.nicknameChangeDate != null) {
+        if (currentUserEx?.userDTO?.nicknameChangeDate != null) {
             val calendar= Calendar.getInstance()
-            calendar.time = currentUser?.nicknameChangeDate
+            calendar.time = currentUserEx?.userDTO?.nicknameChangeDate
             calendar.add(Calendar.DATE, 3)
 
             if (Date() < calendar.time) {
@@ -469,8 +469,8 @@ class FragmentAccountSettings : Fragment() {
     }
 
     private fun modifyProfile(uri: Uri? = null) {
-        currentUser = (activity as MainActivity?)?.getUser()
-        if (uri == null && currentUser?.imgProfile == null) {
+        currentUserEx = (activity as MainActivity?)?.getUserEx()
+        if (uri == null && currentUserEx?.userDTO?.imgProfile == null) {
             Toast.makeText(activity, "삭제할 프로필이 없습니다.", Toast.LENGTH_SHORT).show()
         } else {
             val question = QuestionDTO(
@@ -496,25 +496,32 @@ class FragmentAccountSettings : Fragment() {
                 (activity as MainActivity?)?.loading()
                 if (uri != null) { // 프로필 업로드
                     var bitmap = (activity as MainActivity?)?.getBitmap(uri)
-                    firebaseStorageViewModel.setUserProfile(currentUser?.uid.toString(), bitmap!!) {
-                        if (!it) {
-                            Toast.makeText(activity, "이미지 업로드 실패 ", Toast.LENGTH_SHORT).show()
-                            (activity as MainActivity?)?.loadingEnd()
-                        } else {
-                            currentUser?.imgProfile = currentUser?.getProfileImageName()
-                            firebaseViewModel.updateUserProfile(currentUser!!) {
-                                Toast.makeText(activity, "프로필 사진 변경 완료!", Toast.LENGTH_SHORT).show()
-                                binding.imgProfile.setImageBitmap(bitmap)
+                    if (bitmap == null) {
+                        Toast.makeText(activity, "이미지 업로드 실패 ", Toast.LENGTH_SHORT).show()
+                        (activity as MainActivity?)?.loadingEnd()
+                    } else {
+                        firebaseStorageViewModel.setUserProfile(currentUserEx?.userDTO?.uid.toString(), bitmap!!) {
+                            if (!it) {
+                                Toast.makeText(activity, "이미지 업로드 실패 ", Toast.LENGTH_SHORT).show()
                                 (activity as MainActivity?)?.loadingEnd()
+                            } else {
+                                currentUserEx?.userDTO?.imgProfile = currentUserEx?.userDTO?.getProfileImageName()
+                                firebaseViewModel.updateUserProfile(currentUserEx?.userDTO!!) {
+                                    Toast.makeText(activity, "프로필 사진 변경 완료!", Toast.LENGTH_SHORT).show()
+                                    binding.imgProfile.setImageBitmap(bitmap)
+                                    (activity as MainActivity?)?.loadingEnd()
+                                }
                             }
                         }
                     }
                 } else { // 프로필 삭제
-                    currentUser?.imgProfile = null
-                    firebaseViewModel.updateUserProfile(currentUser!!) {
-                        Toast.makeText(activity, "프로필 삭제 완료!", Toast.LENGTH_SHORT).show()
-                        binding.imgProfile.setImageResource(R.drawable.profile)
-                        (activity as MainActivity?)?.loadingEnd()
+                    currentUserEx?.userDTO?.imgProfile = null
+                    firebaseViewModel.updateUserProfile(currentUserEx?.userDTO!!) {
+                        firebaseStorageViewModel.deleteUserProfile(currentUserEx?.userDTO?.uid.toString()) {
+                            Toast.makeText(activity, "프로필 삭제 완료!", Toast.LENGTH_SHORT).show()
+                            binding.imgProfile.setImageResource(R.drawable.profile)
+                            (activity as MainActivity?)?.loadingEnd()
+                        }
                     }
                 }
             }

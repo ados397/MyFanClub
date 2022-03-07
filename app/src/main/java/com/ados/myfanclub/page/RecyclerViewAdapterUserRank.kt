@@ -16,18 +16,10 @@ import com.ados.myfanclub.model.UserExDTO
 import com.bumptech.glide.Glide
 import java.text.DecimalFormat
 
-class RecyclerViewAdapterUserRank(private val items: ArrayList<UserDTO>, var clickListener: OnUserRankItemClickListener) : RecyclerView.Adapter<RecyclerViewAdapterUserRank.ViewHolder>() {
+class RecyclerViewAdapterUserRank(private val itemsEx: ArrayList<UserExDTO>, var clickListener: OnUserRankItemClickListener) : RecyclerView.Adapter<RecyclerViewAdapterUserRank.ViewHolder>() {
 
     var decimalFormat: DecimalFormat = DecimalFormat("###,###")
     var context: Context? = null
-
-    private val itemsEx: ArrayList<UserExDTO> = arrayListOf()
-
-    init {
-        for (it in items) {
-            itemsEx.add(UserExDTO(it))
-        }
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         context = parent.context
@@ -36,7 +28,7 @@ class RecyclerViewAdapterUserRank(private val items: ArrayList<UserDTO>, var cli
     }
 
     override fun getItemCount(): Int {
-        return items.size
+        return itemsEx.size
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

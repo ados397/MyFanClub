@@ -1,5 +1,9 @@
 package com.ados.myfanclub.page
 
+import android.graphics.Color
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
+import android.graphics.Rect
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -14,7 +18,6 @@ import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentDashboardMissionBinding
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentTransaction
@@ -28,13 +31,15 @@ import com.ados.myfanclub.dialog.MissionDialog
 import com.ados.myfanclub.dialog.QuestionDialog
 import com.ados.myfanclub.model.*
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
+import com.getkeepsafe.taptargetview.TapTarget
+import com.getkeepsafe.taptargetview.TapTargetSequence
+import com.getkeepsafe.taptargetview.TapTargetView
 import kotlinx.android.synthetic.main.edit_text_modify_dialog.*
 import kotlinx.android.synthetic.main.mission_dialog.*
 import kotlinx.android.synthetic.main.question_dialog.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.concurrent.timer
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -70,6 +75,9 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
 
     private var selectedCycle : ScheduleDTO.Cycle = ScheduleDTO.Cycle.DAY
 
+    private var missionDialog : MissionDialog? = null
+    private var editTextModifyDialog : EditTextModifyDialog? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -100,11 +108,20 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
             "month" -> ScheduleDTO.Cycle.MONTH
             else -> ScheduleDTO.Cycle.DAY
         }
-        changeTab()
+        if (selectedCycle != ScheduleDTO.Cycle.DAY) {
+            changeTab()
+        }
         getFanClubSchedule()
         getPersonalSchedule()
         observeFanClubSchedule()
         observePersonalSchedule()
+
+        binding.buttonRefreshClub.colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
+        binding.imgSuccessCalendarClub.colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
+        binding.buttonHideClub.colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
+        binding.buttonRefreshPersonal.colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
+        binding.imgSuccessCalendarPersonal.colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
+        binding.buttonHidePersonal.colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
 
         return rootView
     }
@@ -128,6 +145,9 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        println("튜토리얼 step - ${(activity as MainActivity?)?.getTutorialStep()}")
+        observeTutorial()
+
         val user = (activity as MainActivity?)?.getUser()
         if (!user?.mainTitle.isNullOrEmpty()) {
             binding.textTitle.text = user?.mainTitle
@@ -148,37 +168,31 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
         }
 
         binding.buttonRefreshClub.setOnClickListener {
-            binding.buttonRefreshClub.animate().apply{
-                rotationBy(360f)
-                duration = 1000L
-                start()
-            }
-            getFanClubSchedule()
-            Toast.makeText(activity, "새로 고침", Toast.LENGTH_SHORT).show()
+            refreshClub()
         }
 
         binding.buttonRefreshPersonal.setOnClickListener {
-            binding.buttonRefreshPersonal.animate().apply{
-                rotationBy(360f)
-                duration = 1000L
-                start()
-            }
-            getPersonalSchedule()
-            Toast.makeText(activity, "새로 고침", Toast.LENGTH_SHORT).show()
+            refreshPersonal()
         }
 
         binding.textTitle.setOnClickListener {
             val user = (activity as MainActivity?)?.getUser()
             val item = EditTextDTO("제목 변경", user?.mainTitle, 30)
-            val dialog = EditTextModifyDialog(requireContext(), item)
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.show()
-            dialog.button_modify_cancel.setOnClickListener { // No
-                dialog.dismiss()
+            if (editTextModifyDialog == null) {
+                editTextModifyDialog = EditTextModifyDialog(requireContext(), item)
+                editTextModifyDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                editTextModifyDialog?.setCanceledOnTouchOutside(false)
+            } else {
+                editTextModifyDialog?.item = item
             }
-            dialog.button_modify_ok.setOnClickListener {
-                dialog.dismiss()
+            editTextModifyDialog?.show()
+            editTextModifyDialog?.setInfo()
+
+            editTextModifyDialog?.button_modify_cancel?.setOnClickListener { // No
+                editTextModifyDialog?.dismiss()
+            }
+            editTextModifyDialog?.button_modify_ok?.setOnClickListener {
+                editTextModifyDialog?.dismiss()
 
                 val question = QuestionDTO(
                     QuestionDTO.Stat.WARNING,
@@ -195,10 +209,10 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                 questionDialog.button_question_ok.setOnClickListener {
                     questionDialog.dismiss()
 
-                    user?.mainTitle = dialog.edit_content.text.toString()
+                    user?.mainTitle = editTextModifyDialog?.edit_content?.text.toString()
                     firebaseViewModel.updateUserMainTitle(user!!) {
                         Toast.makeText(activity, "제목 변경 완료!", Toast.LENGTH_SHORT).show()
-                        binding.textTitle.text = dialog.edit_content.text
+                        binding.textTitle.text = editTextModifyDialog?.edit_content?.text
                     }
                 }
             }
@@ -308,6 +322,12 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                 animRight()
             }
         }
+
+        binding.textEmptyPersonal.setOnClickListener {
+            if (firebaseViewModel.personalDashboardMissionDTOs?.value!!.size == 0) {
+                (activity as MainActivity?)?.moveScheduleTab()
+            }
+        }
     }
 
     private fun callSuccessCalendar(type: String) {
@@ -326,8 +346,28 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
         }
     }
 
+    private fun refreshClub() {
+        binding.buttonRefreshClub.animate().apply{
+            rotationBy(360f)
+            duration = 1000L
+            start()
+        }
+        getFanClubSchedule()
+        Toast.makeText(activity, "새로 고침", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun refreshPersonal() {
+        binding.buttonRefreshPersonal.animate().apply{
+            rotationBy(360f)
+            duration = 1000L
+            start()
+        }
+        getPersonalSchedule()
+        Toast.makeText(activity, "새로 고침", Toast.LENGTH_SHORT).show()
+    }
+
     private fun observePersonalSchedule() {
-        firebaseViewModel.personalDashboardMissionDTOs.observe(requireActivity()) {
+        firebaseViewModel.personalDashboardMissionDTOs.observe(viewLifecycleOwner) {
             if (_binding != null) { // 뷰가 Destroy 되고 나서 뒤 늦게 들어오는 경우가 있기 때문에 예외 처리
                 setAdapterPersonal()
             }
@@ -342,7 +382,7 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
     }
 
     private fun observeFanClubSchedule() {
-        firebaseViewModel.fanClubDashboardMissionDTOs.observe(requireActivity()) {
+        firebaseViewModel.fanClubDashboardMissionDTOs.observe(viewLifecycleOwner) {
             if (_binding != null) { // 뷰가 Destroy 되고 나서 뒤 늦게 들어오는 경우가 있기 때문에 예외 처리
                 setAdapterFanClub()
             }
@@ -448,12 +488,12 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
     }
 
     private fun animLeft() {
-        val translateLeft = AnimationUtils.loadAnimation(context, R.anim.translate_left)
+        val translateLeft = AnimationUtils.loadAnimation(context, R.anim.translate_page_left)
         binding.layoutSchedule.startAnimation(translateLeft)
     }
 
     private fun animRight() {
-        val translateRight = AnimationUtils.loadAnimation(context, R.anim.translate_right)
+        val translateRight = AnimationUtils.loadAnimation(context, R.anim.translate_page_right)
         binding.layoutSchedule.startAnimation(translateRight)
     }
 
@@ -478,17 +518,25 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
     }
 
     override fun onItemClick(item: DashboardMissionDTO, position: Int) {
-        val dialog = MissionDialog(requireContext())
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setCanceledOnTouchOutside(false)
-        dialog.dashboardMissionDTO = item
-        dialog.show()
+        onMission(item, position)
+    }
 
-        dialog.button_mission_cancel.setOnClickListener { // No
-            dialog.dismiss()
+    private fun onMission(item: DashboardMissionDTO, position: Int) {
+        if (missionDialog == null) {
+            missionDialog = MissionDialog(requireContext())
+            missionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            missionDialog?.setCanceledOnTouchOutside(false)
+        }
+        missionDialog?.mainActivity = (activity as MainActivity?)
+        missionDialog?.dashboardMissionDTO = item
+        missionDialog?.show()
+        missionDialog?.setInfo()
+
+        missionDialog?.button_mission_cancel?.setOnClickListener { // No
+            missionDialog?.dismiss()
         }
 
-        dialog.button_mission_ok.setOnClickListener { // Ok
+        missionDialog?.button_mission_ok?.setOnClickListener { // Ok
             val docName = when (item.scheduleDTO?.cycle) {
                 ScheduleDTO.Cycle.DAY -> "day"
                 ScheduleDTO.Cycle.WEEK -> "week"
@@ -497,7 +545,7 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
             }
             val fieldValue = getStatisticsFieldValueName(item.scheduleDTO!!)
 
-            item.scheduleProgressDTO?.count = dialog.missionCount
+            item.scheduleProgressDTO?.count = missionDialog?.missionCount
             item.scheduleProgressDTO?.countMax = item.scheduleDTO?.count
             val user = (activity as MainActivity?)?.getUser()
             when (item.type) {
@@ -539,43 +587,234 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                 }
                 DashboardMissionDTO.Type.FAN_CLUB -> {
                     firebaseViewModel.updateFanClubMissionProgress(fanClubDTO?.docName.toString(), currentMember?.userUid.toString(), item) {
-                            recyclerViewFanClubAdapter.notifyItemChanged(position)
+                        recyclerViewFanClubAdapter.notifyItemChanged(position)
 
-                            // 통계 정보 기록
-                            if (item.scheduleDTO?.cycle != ScheduleDTO.Cycle.PERIOD) { // 일일, 주간, 월간 통계만 냄
-                                // 스케줄들의 모든 진행률을 통계로 계산
-                                var totalPercent = 0
-                                for (mission in firebaseViewModel.fanClubDashboardMissionDTOs?.value!!) {
-                                    if (mission.scheduleDTO?.cycle == item.scheduleDTO?.cycle) {
-                                        var percent = ((mission.scheduleProgressDTO?.count?.toDouble()!! / mission.scheduleProgressDTO?.countMax!!) * 100).toInt()
-                                        totalPercent = totalPercent.plus(percent)
-                                    }
-                                }
-
-                                val averagePercent = totalPercent / firebaseViewModel.fanClubDashboardMissionDTOs?.value!!.size
-                                firebaseViewModel.updateFanClubScheduleStatistics(fanClubDTO?.docName.toString(), currentMember?.userUid.toString(), docName, fieldValue, averagePercent) {
-
+                        // 통계 정보 기록
+                        if (item.scheduleDTO?.cycle != ScheduleDTO.Cycle.PERIOD) { // 일일, 주간, 월간 통계만 냄
+                            // 스케줄들의 모든 진행률을 통계로 계산
+                            var totalPercent = 0
+                            for (mission in firebaseViewModel.fanClubDashboardMissionDTOs?.value!!) {
+                                if (mission.scheduleDTO?.cycle == item.scheduleDTO?.cycle) {
+                                    var percent = ((mission.scheduleProgressDTO?.count?.toDouble()!! / mission.scheduleProgressDTO?.countMax!!) * 100).toInt()
+                                    totalPercent = totalPercent.plus(percent)
                                 }
                             }
 
-                            // 일일 퀘스트 - 팬클럽 일일 스케줄 완료 시 적용
-                            val user = (activity as MainActivity?)?.getUser()
-                            if (!QuestDTO("팬클럽 일일 스케줄", "팬클럽 일일 스케줄을 1회 이상 완료 하세요.", 1, user?.questSuccessTimes?.get("2"), user?.questGemGetTimes?.get("2")).isQuestSuccess()) { // 퀘스트 완료 안했을 때 적용
-                                if (item.scheduleDTO?.cycle == ScheduleDTO.Cycle.DAY && item.scheduleDTO?.count == item.scheduleProgressDTO?.count) { // 일일 미션이고 미션 완료
-                                    user?.questSuccessTimes?.set("2", Date())
-                                    firebaseViewModel.updateUserQuestSuccessTimes(user!!) {
-                                        Toast.makeText(activity, "일일 과제 달성! 보상을 획득하세요!", Toast.LENGTH_SHORT).show()
-                                    }
-                                } else {
-                                    Toast.makeText(activity,"팬클럽 미션 적용 완료.", Toast.LENGTH_SHORT).show()
+                            val averagePercent = totalPercent / firebaseViewModel.fanClubDashboardMissionDTOs?.value!!.size
+                            firebaseViewModel.updateFanClubScheduleStatistics(fanClubDTO?.docName.toString(), currentMember?.userUid.toString(), docName, fieldValue, averagePercent) {
+
+                            }
+                        }
+
+                        // 일일 퀘스트 - 팬클럽 일일 스케줄 완료 시 적용
+                        val user = (activity as MainActivity?)?.getUser()
+                        if (!QuestDTO("팬클럽 일일 스케줄", "팬클럽 일일 스케줄을 1회 이상 완료 하세요.", 1, user?.questSuccessTimes?.get("2"), user?.questGemGetTimes?.get("2")).isQuestSuccess()) { // 퀘스트 완료 안했을 때 적용
+                            if (item.scheduleDTO?.cycle == ScheduleDTO.Cycle.DAY && item.scheduleDTO?.count == item.scheduleProgressDTO?.count) { // 일일 미션이고 미션 완료
+                                user?.questSuccessTimes?.set("2", Date())
+                                firebaseViewModel.updateUserQuestSuccessTimes(user!!) {
+                                    Toast.makeText(activity, "일일 과제 달성! 보상을 획득하세요!", Toast.LENGTH_SHORT).show()
                                 }
                             } else {
                                 Toast.makeText(activity,"팬클럽 미션 적용 완료.", Toast.LENGTH_SHORT).show()
                             }
+                        } else {
+                            Toast.makeText(activity,"팬클럽 미션 적용 완료.", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
-            dialog.dismiss()
+            missionDialog?.dismiss()
         }
+    }
+
+    private fun observeTutorial() {
+        (activity as MainActivity?)?.getTutorialStep()?.observe(viewLifecycleOwner) {
+            onTutorial((activity as MainActivity?)?.getTutorialStep()?.value!!)
+        }
+    }
+
+    private fun onTutorial(step: Int) {
+        when (step) {
+            7 -> {
+                println("튜토리얼 Step - $step")
+                TapTargetSequence(requireActivity())
+                    .targets(
+                        TapTarget.forBounds((activity as MainActivity?)?.getMainLayoutRect(),
+                            "메인 화면에서 등록된 스케줄을 기준으로 매일매일 해야할 일을 확인할 수 있습니다.",
+                            "- OK 버튼을 눌러주세요.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .icon(ContextCompat.getDrawable(requireContext(), R.drawable.ok))
+                            .tintTarget(true),
+                        TapTarget.forView(binding.layoutRefreshPersonal,
+                            "스케줄을 등록했는데 보이지 않으면 새로고침을 눌러줍니다. (기간내에 속하지 않는 스케줄을 표시되지 않습니다.)",
+                            "- 새로고침 버튼을 눌러주세요.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .transparentTarget(true)
+                            .tintTarget(true)).listener(object : TapTargetSequence.Listener {
+                        override fun onSequenceFinish() {
+                            refreshPersonal()
+                            (activity as MainActivity?)?.addTutorialStep()
+                        }
+                        override fun onSequenceStep(tutorialStep: TapTarget, targetClicked: Boolean) {
+
+                        }
+                        override fun onSequenceCanceled(lastTarget: TapTarget) {
+                        }
+                    }).start()
+
+                /*TapTargetView.showFor(requireActivity(),
+                    TapTarget.forView(binding.buttonRefreshClub,
+                    //TapTarget.forBounds(Rect(70, rect.bottom.times(2), 100, 100),
+                        "스케줄을 등록했는데 보이지 않으면 새로고침을 눌러줍니다. (기간내에 속하지 않는 스케줄을 표시되지 않습니다.)",
+                        "- 새로고침 버튼을 눌러주세요.")
+                        .cancelable(false)
+                        .dimColor(R.color.black)
+                        .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                        .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                        .titleTextSize(18) // Specify the size (in sp) of the title text
+                        .transparentTarget(true)
+                        .tintTarget(true),object : TapTargetView.Listener() {
+                        // The listener can listen for regular clicks, long clicks or cancels
+                        override fun onTargetClick(view: TapTargetView) {
+                            super.onTargetClick(view) // This call is optional
+
+                            refreshPersonal()
+                            (activity as MainActivity?)?.addTutorialStep()
+                        }
+                    })*/
+            }
+            8 -> {
+                println("튜토리얼 Step - $step")
+                val location = IntArray(2)
+                val width = binding.layoutTitlePersonal.width.div(4)
+                binding.layoutTitlePersonal.getLocationOnScreen(location)
+                val rect = Rect(location[0], location[1], location[0] + width, location[1] + binding.layoutTitlePersonal.height.times(4))
+                TapTargetView.showFor(requireActivity(),
+                    TapTarget.forBounds(rect,
+                        "이제 등록된 스케줄을 선택해 스트리밍을 위한 '멜론' 실행 및 진행도를 업데이트 해보겠습니다.",
+                        "- 등록된 스케줄을 선택해 주세요.")
+                        .cancelable(false)
+                        .dimColor(R.color.black)
+                        .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                        .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                        .titleTextSize(18) // Specify the size (in sp) of the title text
+                        .transparentTarget(true)
+                        .tintTarget(true),object : TapTargetView.Listener() {
+                        // The listener can listen for regular clicks, long clicks or cancels
+                        override fun onTargetClick(view: TapTargetView) {
+                            super.onTargetClick(view) // This call is optional
+
+                            for (i in 0 until firebaseViewModel.personalDashboardMissionDTOs?.value!!.size) {
+                                if (isSampleData(firebaseViewModel.personalDashboardMissionDTOs?.value!![i].scheduleDTO!!)) {
+                                    onMission(firebaseViewModel.personalDashboardMissionDTOs?.value!![i], i)
+                                    break
+                                }
+                            }
+
+                            (activity as MainActivity?)?.addTutorialStep()
+                        }
+                    })
+            }
+            11 -> {
+                println("튜토리얼 Step - $step")
+                TapTargetSequence(requireActivity())
+                    .targets(
+                        TapTarget.forView(binding.layoutMain,
+                            "축하합니다! 오늘의 '멜론' 스트리밍 목표를 완료하였습니다!",
+                            "- OK 버튼을 눌러주세요.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .icon(ContextCompat.getDrawable(requireContext(), R.drawable.ok))
+                            .tintTarget(true),
+                        TapTarget.forView(binding.layoutMain,
+                            "다양한 목표를 설정해놓고 스마트한 덕질 라이프를 즐겨보세요!",
+                            "- OK 버튼을 눌러주세요.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .icon(ContextCompat.getDrawable(requireContext(), R.drawable.ok))
+                            .tintTarget(true),
+                        TapTarget.forView(binding.textTabDay,
+                            "등록된 스케줄은 매일, 매주, 매월, 특정 기간내 수행할 일을 구분하여 관리가 가능합니다.",
+                            "- 일일 버튼을 눌러주세요.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .transparentTarget(true)
+                            .tintTarget(true),
+                        TapTarget.forView(binding.textTabWeek,
+                            "등록된 스케줄은 매일, 매주, 매월, 특정 기간내 수행할 일을 구분하여 관리가 가능합니다.",
+                            "- 주간 버튼을 눌러주세요.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .transparentTarget(true)
+                            .tintTarget(true),
+                        TapTarget.forView(binding.textTabMonth,
+                            "등록된 스케줄은 매일, 매주, 매월, 특정 기간내 수행할 일을 구분하여 관리가 가능합니다.",
+                            "- 월간 버튼을 눌러주세요.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .transparentTarget(true)
+                            .tintTarget(true),
+                        TapTarget.forView(binding.textTabPeriod,
+                            "등록된 스케줄은 매일, 매주, 매월, 특정 기간내 수행할 일을 구분하여 관리가 가능합니다.",
+                            "- 기간내 버튼을 눌러주세요.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .transparentTarget(true)
+                            .tintTarget(true),
+                        TapTarget.forView(binding.buttonSuccessCalendarPersonal,
+                            "또한 스케줄을 내가 얼마나 잘 수행하고 있는지 통계를 통해서 성취율도 확인할 수 있습니다.",
+                            "- 통계 버튼을 눌러주세요.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .transparentTarget(true)
+                            .tintTarget(true)).listener(object : TapTargetSequence.Listener {
+                        override fun onSequenceFinish() {
+                            (activity as MainActivity?)?.addTutorialStep()
+                        }
+                        override fun onSequenceStep(tutorialStep: TapTarget, targetClicked: Boolean) {
+
+                        }
+                        override fun onSequenceCanceled(lastTarget: TapTarget) {
+                        }
+                    }).start()
+            }
+        }
+    }
+
+    private fun isSampleData(item: ScheduleDTO) : Boolean {
+        return item.title.equals("멜론 노래 스트리밍 하기!") &&
+                item.purpose.equals("하루에 5번 씩 멜론 스트리밍 하기!\n\n내 가수를 위해 꼭꼭 지키기!") &&
+                item.count == 5L &&
+                item.action == ScheduleDTO.Action.APP &&
+                item.appDTO?.appName.equals("멜론")
     }
 }

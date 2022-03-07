@@ -50,7 +50,7 @@
                                 android:fontFamily="@font/font"
                                 android:text="다이아 기부"
                                 android:textColor="@color/white"
-                                android:textSize="16sp" />
+                                android:textSize="18dp" />
 
                         </LinearLayout>
 
@@ -72,8 +72,8 @@
                                 <ImageView
                                     android:src="@drawable/premium_enable"
                                     android:layout_marginRight="5dp"
-                                    android:layout_width="16dp"
-                                    android:layout_height="16dp"/>
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"/>
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -81,7 +81,7 @@
                                     android:fontFamily="@font/font"
                                     android:text="프리미엄 패키지 적용중"
                                     android:textColor="@color/white"
-                                    android:textSize="14sp" />
+                                    android:textSize="18dp" />
 
                             </LinearLayout>
 
@@ -92,7 +92,7 @@
                                 android:fontFamily="@font/font"
                                 android:text="다이아를 기부하여 팬클럽 경험치를 올립니다."
                                 android:textColor="@color/text"
-                                android:textSize="14sp" />
+                                android:textSize="16dp" />
 
                             <TextView
                                 android:id="@+id/text_use_gem"
@@ -101,7 +101,7 @@
                                 android:fontFamily="@font/font"
                                 android:text="1 다이아 당 100의 경험치 획득!"
                                 android:textColor="@color/text"
-                                android:textSize="14sp" />
+                                android:textSize="16dp" />
 
                             <LinearLayout
                                 android:orientation="vertical"
@@ -132,7 +132,7 @@
                                         android:fontFamily="@font/font"
                                         android:text="2,300"
                                         android:textColor="@color/text"
-                                        android:textSize="12sp" />
+                                        android:textSize="14dp" />
 
                                     <TextView
                                         android:id="@+id/text_exp_total"
@@ -144,7 +144,7 @@
                                         android:paddingRight="10dp"
                                         android:text="/3,110"
                                         android:textColor="@color/text"
-                                        android:textSize="12sp" />
+                                        android:textSize="14dp" />
 
                                 </RelativeLayout>
 
@@ -159,8 +159,8 @@
                                 <ImageView
                                     android:id="@+id/img_diamond"
                                     android:src="@drawable/diamond"
-                                    android:layout_width="18dp"
-                                    android:layout_height="18dp"/>
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"/>
 
                                 <TextView
                                     android:id="@+id/text_diamond"
@@ -172,7 +172,7 @@
                                     android:fontFamily="@font/font"
                                     android:text="다이아 소모 : "
                                     android:textColor="@color/text"
-                                    android:textSize="12sp" />
+                                    android:textSize="14dp" />
 
                                 <TextView
                                     android:id="@+id/text_use_gem_count"
@@ -183,7 +183,7 @@
                                     android:fontFamily="@font/font"
                                     android:text="0"
                                     android:textColor="@color/text_red"
-                                    android:textSize="12sp" />
+                                    android:textSize="14dp" />
 
                             </RelativeLayout>
 
@@ -208,7 +208,7 @@
                                     android:fontFamily="@font/font"
                                     android:text="초기화"
                                     android:textColor="@color/white"
-                                    android:textSize="12sp" />
+                                    android:textSize="14dp" />
 
                                 <androidx.appcompat.widget.AppCompatButton
                                     android:id="@+id/button_plus"
@@ -223,7 +223,7 @@
                                     android:fontFamily="@font/font"
                                     android:text="+1"
                                     android:textColor="@color/white"
-                                    android:textSize="12sp" />
+                                    android:textSize="14dp" />
 
                                 <androidx.appcompat.widget.AppCompatButton
                                     android:id="@+id/button_plus_10"
@@ -238,7 +238,7 @@
                                     android:fontFamily="@font/font"
                                     android:text="+10"
                                     android:textColor="@color/white"
-                                    android:textSize="12sp" />
+                                    android:textSize="14dp" />
 
                                 <androidx.appcompat.widget.AppCompatButton
                                     android:id="@+id/button_plus_100"
@@ -253,7 +253,7 @@
                                     android:fontFamily="@font/font"
                                     android:text="+100"
                                     android:textColor="@color/white"
-                                    android:textSize="12sp" />
+                                    android:textSize="14dp" />
 
                                 <androidx.appcompat.widget.AppCompatButton
                                     android:id="@+id/button_max"
@@ -268,7 +268,7 @@
                                     android:fontFamily="@font/font"
                                     android:text="MAX"
                                     android:textColor="@color/white"
-                                    android:textSize="12sp" />
+                                    android:textSize="14dp" />
                             </LinearLayout>
 
                             <TextView
@@ -278,12 +278,12 @@
                                 android:fontFamily="@font/font"
                                 android:text="오늘 사용 가능한 다이아 : 50"
                                 android:textColor="@color/member"
-                                android:textSize="12sp" />
+                                android:textSize="14dp" />
 
                             <androidx.appcompat.widget.AppCompatButton
                                 android:id="@+id/button_up_exp_fan_club"
                                 android:layout_width="wrap_content"
-                                android:layout_height="25dp"
+                                android:layout_height="34dp"
                                 android:layout_gravity="right"
                                 android:layout_marginTop="10dp"
                                 android:layout_marginRight="10dp"
@@ -292,6 +292,7 @@
                                 android:fontFamily="@font/font"
                                 android:paddingLeft="50dp"
                                 android:paddingRight="50dp"
+                                android:textSize="18dp"
                                 android:text="사용하기"
                                 android:textColor="@color/text_gold" />
 
@@ -336,7 +337,7 @@
                                 android:fontFamily="@font/font"
                                 android:text="무료 경험치 획득"
                                 android:textColor="@color/white"
-                                android:textSize="16sp" />
+                                android:textSize="18dp" />
 
                         </LinearLayout>
 
@@ -358,8 +359,8 @@
                                 <ImageView
                                     android:src="@drawable/premium_enable"
                                     android:layout_marginRight="5dp"
-                                    android:layout_width="16dp"
-                                    android:layout_height="16dp"/>
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"/>
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -367,7 +368,7 @@
                                     android:fontFamily="@font/font"
                                     android:text="프리미엄 패키지 적용중"
                                     android:textColor="@color/white"
-                                    android:textSize="14sp" />
+                                    android:textSize="18dp" />
 
                             </LinearLayout>
 
@@ -379,7 +380,7 @@
                                 android:fontFamily="@font/font"
                                 android:text="광고를 시청하고 경험치 20을 받으세요!"
                                 android:textColor="@color/text"
-                                android:textSize="14sp" />
+                                android:textSize="16dp" />
 
                             <TextView
                                 android:id="@+id/text_get_exp_count"
@@ -389,12 +390,12 @@
                                 android:fontFamily="@font/font"
                                 android:text="오늘 받을 수 있는 횟수 : 50"
                                 android:textColor="@color/member"
-                                android:textSize="12sp" />
+                                android:textSize="14dp" />
 
                             <androidx.appcompat.widget.AppCompatButton
                                 android:id="@+id/button_get_fan_club_exp_ad"
                                 android:layout_width="wrap_content"
-                                android:layout_height="25dp"
+                                android:layout_height="34dp"
                                 android:layout_gravity="right"
                                 android:layout_marginTop="10dp"
                                 android:layout_marginBottom="15dp"
@@ -403,6 +404,7 @@
                                 android:fontFamily="@font/font"
                                 android:paddingLeft="50dp"
                                 android:paddingRight="50dp"
+                                android:textSize="18dp"
                                 android:text="광고보기"
                                 android:textColor="@color/text_gold" />
 
@@ -447,7 +449,7 @@
                             <TextView
                                 android:fontFamily="@font/font"
                                 android:text="무료 다이아 획득"
-                                android:textSize="16sp"
+                                android:textSize="18dp"
                                 android:textColor="@color/white"
                                 android:layout_marginTop="10dp"
                                 android:layout_marginBottom="7dp"
@@ -474,8 +476,8 @@
                                 <ImageView
                                     android:src="@drawable/premium_enable"
                                     android:layout_marginRight="5dp"
-                                    android:layout_width="16dp"
-                                    android:layout_height="16dp"/>
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"/>
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -483,7 +485,7 @@
                                     android:fontFamily="@font/font"
                                     android:text="프리미엄 패키지 적용중"
                                     android:textColor="@color/white"
-                                    android:textSize="14sp" />
+                                    android:textSize="18dp" />
 
                             </LinearLayout>
 
@@ -495,14 +497,14 @@
                                 android:fontFamily="@font/font"
                                 android:text="광고를 시청하고 무료 다이아 1개를 받으세요!"
                                 android:textColor="@color/text"
-                                android:textSize="14sp" />
+                                android:textSize="16dp" />
 
                             <TextView
                                 android:id="@+id/text_get_gem_count"
                                 android:fontFamily="@font/font"
                                 android:text="오늘 받을 수 있는 횟수 : 50"
                                 android:textColor="@color/member"
-                                android:textSize="12sp"
+                                android:textSize="14dp"
                                 android:layout_marginTop="7dp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"/>
@@ -510,7 +512,7 @@
                             <androidx.appcompat.widget.AppCompatButton
                                 android:id="@+id/button_get_fan_club_gem_ad"
                                 android:layout_width="wrap_content"
-                                android:layout_height="25dp"
+                                android:layout_height="34dp"
                                 android:layout_gravity="right"
                                 android:layout_marginTop="10dp"
                                 android:layout_marginBottom="15dp"
@@ -519,6 +521,7 @@
                                 android:paddingRight="50dp"
                                 android:background="@drawable/btn_round8"
                                 android:fontFamily="@font/font"
+                                android:textSize="18dp"
                                 android:text="광고보기"
                                 android:textColor="@color/text_gold" />
 
@@ -555,13 +558,14 @@
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_level_up_action_fan_club_cancel"
             android:layout_width="wrap_content"
-            android:layout_height="25dp"
+            android:layout_height="30dp"
             android:layout_gravity="center"
             android:layout_marginTop="7dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/btn_round4"
             android:fontFamily="@font/font"
+            android:textSize="18dp"
             android:text="닫기"
             android:textColor="@color/text" />
     </LinearLayout>

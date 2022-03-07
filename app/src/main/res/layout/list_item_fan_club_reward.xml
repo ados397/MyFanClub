@@ -43,7 +43,7 @@
                         android:id="@+id/text_title"
                         android:fontFamily="@font/font"
                         android:text="30명 출석 보상"
-                        android:textSize="18sp"
+                        android:textSize="18dp"
                         android:textColor="@color/text"
                         android:textStyle="bold"
                         android:maxLines="1"
@@ -62,7 +62,7 @@
                         android:maxLines="2"
                         android:text="팬클럽 멤버 30명 출석 완료 시 보상 획득"
                         android:textColor="@color/text"
-                        android:textSize="14sp" />
+                        android:textSize="15dp" />
 
                     <RelativeLayout
                         android:orientation="horizontal"
@@ -86,6 +86,7 @@
                             android:layout_alignParentRight="true"
                             android:layout_marginRight="10dp"
                             android:fontFamily="@font/font"
+                            android:textSize="14dp"
                             android:text="0/1"
                             android:textColor="@color/text" />
                     </RelativeLayout>
@@ -122,7 +123,7 @@
                         android:maxLines="1"
                         android:text="100,000"
                         android:textColor="@color/text"
-                        android:textSize="10sp" />
+                        android:textSize="12dp" />
 
                 </RelativeLayout>
 
@@ -147,7 +148,7 @@
                             android:fontFamily="@font/font"
                             android:text="보상받기"
                             android:textColor="@color/text"
-                            android:textSize="12sp" />
+                            android:textSize="14dp" />
 
                     </LinearLayout>
                 </LinearLayout>

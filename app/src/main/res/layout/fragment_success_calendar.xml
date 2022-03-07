@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="2020년 01월"
-        android:textSize="25sp"
+        android:textSize="25dp"
         android:textStyle="bold"
         android:textColor="@color/text"
         android:gravity="center_vertical|start"
@@ -36,6 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_horizontal"
+            android:textSize="16dp"
             android:text="일"
             android:fontFamily="@font/font"
             />
@@ -43,6 +44,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_horizontal"
+            android:textSize="16dp"
             android:text="월"
             android:fontFamily="@font/font"
             />
@@ -50,6 +52,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_horizontal"
+            android:textSize="16dp"
             android:text="화"
             android:fontFamily="@font/font"
             />
@@ -57,6 +60,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_horizontal"
+            android:textSize="16dp"
             android:text="수"
             android:fontFamily="@font/font"
             />
@@ -64,6 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_horizontal"
+            android:textSize="16dp"
             android:text="목"
             android:fontFamily="@font/font"
             />
@@ -71,6 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_horizontal"
+            android:textSize="16dp"
             android:text="금"
             android:fontFamily="@font/font"
             />
@@ -78,6 +84,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center_horizontal"
+            android:textSize="16dp"
             android:text="토"
             android:fontFamily="@font/font"
             />
@@ -117,7 +124,7 @@
                     android:id="@+id/text_total"
                     android:fontFamily="@font/font"
                     android:text="8월 달성률"
-                    android:textSize="24sp"
+                    android:textSize="24dp"
                     android:textColor="@color/text"
                     android:layout_centerVertical="true"
                     android:layout_width="wrap_content"
@@ -152,7 +159,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="70%"
-                android:textSize="20sp"
+                android:textSize="20dp"
                 android:textColor="#FF0000"
                 android:layout_gravity="center_vertical"/>
 

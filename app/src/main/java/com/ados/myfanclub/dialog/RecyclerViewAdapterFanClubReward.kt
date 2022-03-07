@@ -47,7 +47,7 @@ class RecyclerViewAdapterFanClubReward(private val items: ArrayList<FanClubRewar
                     } else {
                         buttonGet.isEnabled = false
                         buttonGet.background = AppCompatResources.getDrawable(context!!, R.drawable.btn_round9)
-                        textButtonGet.setTextColor(ContextCompat.getColor(context!!, R.color.text_gold))
+                        textButtonGet.setTextColor(ContextCompat.getColor(context!!, R.color.text_button_disable))
                         textButtonGet.text = "획득완료"
                     }
                 } else {
@@ -56,7 +56,7 @@ class RecyclerViewAdapterFanClubReward(private val items: ArrayList<FanClubRewar
 
                     buttonGet.isEnabled = false
                     buttonGet.background = AppCompatResources.getDrawable(context!!, R.drawable.btn_round9)
-                    textButtonGet.setTextColor(ContextCompat.getColor(context!!, R.color.text_gold))
+                    textButtonGet.setTextColor(ContextCompat.getColor(context!!, R.color.text_button_disable))
                 }
             }
         }

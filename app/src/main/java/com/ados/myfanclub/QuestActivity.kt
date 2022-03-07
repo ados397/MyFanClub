@@ -26,6 +26,7 @@ class QuestActivity : AppCompatActivity(), OnQuestItemClickListener {
     lateinit var recyclerViewAdapter : RecyclerViewAdapterQuest
 
     private var loadingDialog : LoadingDialog? = null
+    private var getItemDialog : GetItemDialog? = null
 
     private val firebaseViewModel : FirebaseViewModel by viewModels()
     private var currentUser: UserDTO? = null
@@ -119,14 +120,17 @@ class QuestActivity : AppCompatActivity(), OnQuestItemClickListener {
                     }
                     loadingEnd()
 
-                    val getDialog = GetItemDialog(this)
-                    getDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                    getDialog.setCanceledOnTouchOutside(false)
-                    getDialog.mailDTO = MailDTO("", "", "", "", MailDTO.Item.FREE_GEM, gemCount)
-                    getDialog.show()
+                    if (getItemDialog == null) {
+                        getItemDialog = GetItemDialog(this)
+                        getItemDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                        getItemDialog?.setCanceledOnTouchOutside(false)
+                    }
+                    getItemDialog?.mailDTO = MailDTO("", "", "", "", MailDTO.Item.FREE_GEM, gemCount)
+                    getItemDialog?.show()
+                    getItemDialog?.setInfo()
 
-                    getDialog.button_get_item_ok.setOnClickListener {
-                        getDialog.dismiss()
+                    getItemDialog?.button_get_item_ok?.setOnClickListener {
+                        getItemDialog?.dismiss()
                     }
                 }
             }

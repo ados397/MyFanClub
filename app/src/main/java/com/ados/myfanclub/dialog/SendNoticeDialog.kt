@@ -26,6 +26,11 @@ class SendNoticeDialog(context: Context) : Dialog(context) {
         window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         //window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
+        binding.editNoticeContent.setOnTouchListener { view, motionEvent ->
+            binding.scrollView.requestDisallowInterceptTouchEvent(true)
+            false
+        }
+
         binding.editNoticeTitle.doAfterTextChanged {
             if (binding.editNoticeTitle.text.toString().trim().isNullOrEmpty()) {
                 binding.textNoticeTitleError.text = "제목을 입력해 주세요."

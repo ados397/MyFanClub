@@ -61,7 +61,7 @@ class RecyclerViewAdapterQuest(private val items: ArrayList<QuestDTO>, var click
 
                         buttonGet.isEnabled = false
                         buttonGet.background = AppCompatResources.getDrawable(context!!, R.drawable.btn_round9)
-                        textButtonGet.setTextColor(ContextCompat.getColor(context!!, R.color.text_gold))
+                        textButtonGet.setTextColor(ContextCompat.getColor(context!!, R.color.text_button_disable))
                     }
                 } else {
                     if (item.isQuestSuccess()) {
@@ -75,7 +75,7 @@ class RecyclerViewAdapterQuest(private val items: ArrayList<QuestDTO>, var click
                         } else {
                             buttonGet.isEnabled = false
                             buttonGet.background = AppCompatResources.getDrawable(context!!, R.drawable.btn_round9)
-                            textButtonGet.setTextColor(ContextCompat.getColor(context!!, R.color.text_gold))
+                            textButtonGet.setTextColor(ContextCompat.getColor(context!!, R.color.text_button_disable))
                             textButtonGet.text = "획득완료"
                         }
                     } else {
@@ -84,7 +84,7 @@ class RecyclerViewAdapterQuest(private val items: ArrayList<QuestDTO>, var click
 
                         buttonGet.isEnabled = false
                         buttonGet.background = AppCompatResources.getDrawable(context!!, R.drawable.btn_round9)
-                        textButtonGet.setTextColor(ContextCompat.getColor(context!!, R.color.text_gold))
+                        textButtonGet.setTextColor(ContextCompat.getColor(context!!, R.color.text_button_disable))
                     }
                 }
             }

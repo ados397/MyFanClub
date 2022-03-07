@@ -83,6 +83,19 @@ class FirebaseStorageRepository() {
         }
     }
 
+    // 사용자 프로필 이미지 삭제
+    fun deleteUserProfile(uid: String, myCallback: (Boolean) -> Unit) {
+        val fileName = "user_profile_${uid}.jpg"
+
+        var imagesRef = storageRef.child(userProfilePath).child(fileName)    //기본 참조 위치/images/${fileName}
+        //이미지 파일 삭제
+        imagesRef.delete().addOnSuccessListener {
+            myCallback(true)
+        }.addOnFailureListener {
+            myCallback(false)
+        }
+    }
+
     // 팬클럽 심볼 이미지 불러오기
     fun getFanClubSymbol(fanClubId: String, myCallback: (Uri?) -> Unit) {
         val fileName = "${fanClubSymbolPath}fan_club_symbol_${fanClubId}.jpg"
@@ -101,6 +114,19 @@ class FirebaseStorageRepository() {
         var imagesRef = storageRef.child(fanClubSymbolPath).child(fileName)    //기본 참조 위치/images/${fileName}
         //이미지 파일 업로드
         imagesRef.putBytes(compressBitmap(bitmap)).addOnSuccessListener {
+            myCallback(true)
+        }.addOnFailureListener {
+            myCallback(false)
+        }
+    }
+
+    // 팬클럽 심볼 이미지 삭제
+    fun deleteFanClubSymbol(fanClubId: String, myCallback: (Boolean) -> Unit) {
+        val fileName = "fan_club_symbol_${fanClubId}.jpg"
+
+        var imagesRef = storageRef.child(fanClubSymbolPath).child(fileName)    //기본 참조 위치/images/${fileName}
+        //이미지 파일 업로드
+        imagesRef.delete().addOnSuccessListener {
             myCallback(true)
         }.addOnFailureListener {
             myCallback(false)

@@ -14,11 +14,27 @@
       },
       "oauth_client": [
         {
+          "client_id": "892875125287-1fedot8veb9p1vcrc80ga2qi1j4h86hf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ados.myfanclub",
+            "certificate_hash": "a4d034ee1f892b260a683ad0887e371c3fbe9874"
+          }
+        },
+        {
           "client_id": "892875125287-k5rnuod17rj1ni6qrcv55cu3sn7mu2c9.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.ados.myfanclub",
             "certificate_hash": "5e40b2ae52f48828d8ef30a39332202186cab587"
+          }
+        },
+        {
+          "client_id": "892875125287-prq689kaes8hv2vb5sra3fj4r5ic8gao.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ados.myfanclub",
+            "certificate_hash": "7451cb4f52f866515c893f81d41395287ce9cb81"
           }
         },
         {

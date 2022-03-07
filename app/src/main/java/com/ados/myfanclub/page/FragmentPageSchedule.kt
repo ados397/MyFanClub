@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentTransaction
 import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.databinding.FragmentPageScheduleBinding
 
@@ -57,8 +58,12 @@ class FragmentPageSchedule : Fragment() {
 
         var rootView = binding.root.rootView
 
-        println("언제 들어오나?? 페이지5555555")
         val fragment = FragmentScheduleList.newInstance(param1!!, param2!!)
+        /*childFragmentManager.beginTransaction().apply{
+            replace(R.id.layout_fragment, fragment)
+            addToBackStack("scheduleList")
+            commit()
+        }*/
         childFragmentManager.beginTransaction().replace(R.id.layout_fragment, fragment).commit()
 
         return rootView

@@ -103,7 +103,7 @@ class FragmentSuccessCalendarWeek : Fragment() {
             firebaseViewModel.getPersonalScheduleStatistics(user?.uid.toString(), "week", fieldName)
         }
 
-        firebaseViewModel.scheduleStatistics.observe(requireActivity()) {
+        firebaseViewModel.scheduleStatistics.observe(viewLifecycleOwner) {
             recyclerViewAdapterWeek = RecyclerViewAdapterSuccessCalendarWeek(firebaseViewModel.scheduleStatistics.value!!, successCalendarWeek)
             recyclerView.adapter = recyclerViewAdapterWeek
 

@@ -2,15 +2,15 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="5dp"></corners>
+            <corners android:radius="20dp"></corners>
             <solid android:color="@color/premium"></solid>
-            <padding android:top="3dp"/>
-            <padding android:bottom="3dp"/>
-            <padding android:left="15dp"/>
-            <padding android:right="15dp"/>
+            <padding android:top="6dp"/>
+            <padding android:bottom="6dp"/>
+            <padding android:left="20dp"/>
+            <padding android:right="20dp"/>
             <stroke
-                android:width="0.5dp"
-                android:color="@color/premium" />
+                android:width="2dp"
+                android:color="@color/master" />
         </shape>
     </item>
 </selector>

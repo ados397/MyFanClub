@@ -22,6 +22,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
@@ -39,6 +40,8 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var resultLauncher: ActivityResultLauncher<Intent>
     private var callbackManager : CallbackManager? = null
+
+    private var backWaitTime = 0L //뒤로가기 연속 클릭 대기 시간
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -321,5 +324,16 @@ class LoginActivity : AppCompatActivity() {
         intent.putExtra("user", user)
         startActivity(intent)
         finish()
+    }
+
+    override fun onBackPressed() {
+        //super.onBackPressed()
+        //appExit()
+        if(System.currentTimeMillis() - backWaitTime >=2000 ) {
+            backWaitTime = System.currentTimeMillis()
+            Snackbar.make(binding.layoutMain,"'뒤로' 버튼을 한번 더 누르면 종료됩니다.", Snackbar.LENGTH_LONG).show()
+        } else {
+            finish() //액티비티 종료
+        }
     }
 }

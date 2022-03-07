@@ -21,7 +21,7 @@
             android:fontFamily="@font/font"
             android:text="전광판 등록"
             android:textColor="@color/white"
-            android:textSize="20sp" />
+            android:textSize="24dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -54,9 +54,9 @@
                     android:gravity="center"
                     android:orientation="horizontal"
                     android:paddingLeft="10dp"
-                    android:paddingTop="2dp"
+                    android:paddingTop="6dp"
                     android:paddingRight="10dp"
-                    android:paddingBottom="2dp">
+                    android:paddingBottom="4dp">
 
                     <ImageView
                         android:layout_width="24dp"
@@ -72,6 +72,7 @@
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
                         android:fontFamily="@font/font"
+                        android:textSize="18dp"
                         android:text="미리 보기"
                         android:textColor="@color/text" />
                 </LinearLayout>
@@ -191,7 +192,7 @@
                 android:singleLine="true"
                 android:textColor="@color/text"
                 android:textCursorDrawable="@drawable/edit_cursor"
-                android:textSize="14sp" />
+                android:textSize="18dp" />
 
             <TextView
                 android:id="@+id/text_display_board_len"
@@ -201,6 +202,7 @@
                 android:layout_gravity="right"
                 android:layout_marginRight="10dp"
                 android:fontFamily="@font/font"
+                android:textSize="16dp"
                 android:text="0/40" />
 
         </LinearLayout>
@@ -221,7 +223,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/button_display_board_add_ok"
                 android:layout_width="wrap_content"
-                android:layout_height="25dp"
+                android:layout_height="30dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="7dp"
                 android:layout_marginRight="10dp"
@@ -243,17 +245,16 @@
                     android:paddingBottom="2dp">
 
                     <ImageView
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:layout_gravity="center"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
                         android:layout_marginRight="5dp"
                         android:src="@drawable/diamond" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
                         android:fontFamily="@font/font"
+                        android:textSize="18dp"
                         android:text="등록"
                         android:textColor="@color/text" />
                 </LinearLayout>
@@ -262,13 +263,14 @@
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/button_display_board_add_cancel"
                 android:layout_width="wrap_content"
-                android:layout_height="25dp"
+                android:layout_height="30dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="7dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="10dp"
                 android:background="@drawable/btn_round4"
                 android:fontFamily="@font/font"
+                android:textSize="18dp"
                 android:text="취소"
                 android:textColor="@color/text" />
         </LinearLayout>

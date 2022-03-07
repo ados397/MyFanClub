@@ -36,6 +36,13 @@ class FirebaseStorageViewModel(application: Application) : AndroidViewModel(appl
         }
     }
 
+    // 사용자 프로필 이미지 삭제
+    fun deleteUserProfile(uid: String, myCallback: (Boolean) -> Unit) {
+        repository.deleteUserProfile(uid) {
+            myCallback(it)
+        }
+    }
+
     // 팬클럽 심볼 이미지 불러오기
     fun getFanClubSymbol(fanClubId: String, myCallback: (Uri?) -> Unit) {
         repository.getFanClubSymbol(fanClubId) {
@@ -46,6 +53,13 @@ class FirebaseStorageViewModel(application: Application) : AndroidViewModel(appl
     // 팬클럽 심볼 이미지 저장
     fun setFanClubSymbol(fanClubId: String, bitmap: Bitmap, myCallback: (Boolean) -> Unit) {
         repository.setFanClubSymbol(fanClubId, bitmap) {
+            myCallback(it)
+        }
+    }
+
+    // 팬클럽 심볼 이미지 삭제
+    fun deleteFanClubSymbol(fanClubId: String, myCallback: (Boolean) -> Unit) {
+        repository.deleteFanClubSymbol(fanClubId) {
             myCallback(it)
         }
     }

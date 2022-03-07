@@ -106,7 +106,7 @@ class FragmentSuccessCalendarMonth : Fragment() {
             firebaseViewModel.getPersonalScheduleStatistics(user?.uid.toString(), "month", fieldName)
         }
 
-        firebaseViewModel.scheduleStatistics.observe(requireActivity()) {
+        firebaseViewModel.scheduleStatistics.observe(viewLifecycleOwner) {
             recyclerViewAdapter = RecyclerViewAdapterSuccessCalendarMonth(date, firebaseViewModel.scheduleStatistics.value!!, successCalendar)
             recyclerView.adapter = recyclerViewAdapter
 

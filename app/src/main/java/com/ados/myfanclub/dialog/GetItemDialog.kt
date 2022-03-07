@@ -31,6 +31,10 @@ class GetItemDialog(context: Context) : Dialog(context), View.OnClickListener {
         //window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
+        setInfo()
+    }
+
+    fun setInfo() {
         when (mailDTO?.item) {
             MailDTO.Item.NONE -> {
                 binding.imgItem.visibility = View.GONE
@@ -42,8 +46,6 @@ class GetItemDialog(context: Context) : Dialog(context), View.OnClickListener {
                 binding.textItemCount.text = "${decimalFormat.format(mailDTO?.itemCount)}"
             }
         }
-
-
     }
 
     private fun init() {

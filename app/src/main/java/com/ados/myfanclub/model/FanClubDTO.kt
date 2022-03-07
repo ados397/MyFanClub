@@ -115,7 +115,7 @@ data class FanClubDTO(
 }
 
 data class FanClubExDTO(
-    val fanClubDTO: FanClubDTO? = null,
+    var fanClubDTO: FanClubDTO? = null,
     var imgSymbolCustomUri: Uri? = null
 )
 

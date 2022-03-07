@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:src="@drawable/purple_line_top"
+        android:layout_marginBottom="-5dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:background="@drawable/gradient_purple"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:fontFamily="@font/font_title"
+            android:gravity="center"
+            android:text="공지사항"
+            android:textColor="@color/white"
+            android:textSize="24dp"
+            android:shadowColor="#B583E1"
+            android:shadowDx="0.0"
+            android:shadowDy="0.0"
+            android:shadowRadius="15.0" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:background="@color/report_dialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:background="@color/report_dialog_sub"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="3dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp"
+            android:padding="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/text_title"
+                android:fontFamily="@font/font"
+                android:text="공지사항 제목"
+                android:textColor="@color/report_text_content"
+                android:textSize="22dp"
+                android:layout_marginTop="5dp"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/text_time"
+                android:fontFamily="@font/font"
+                android:text="2022.03.06 22:13"
+                android:textColor="@color/text_disable"
+                android:textSize="14dp"
+                android:layout_marginTop="5dp"
+                android:layout_gravity="right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/text_content"
+                android:fontFamily="@font/font"
+                android:text="튜토리얼을 진행하시겠습니까?"
+                android:textColor="@color/report_text_content"
+                android:textSize="18dp"
+                android:lines="13"
+                android:scrollbars="vertical"
+                android:autoLink="web"
+                android:linksClickable="true"
+                android:layout_marginTop="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/button_notice_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="30dp"
+            android:backgroundTint="@android:color/transparent"
+            android:clickable="true"
+            app:cardElevation="0dp"
+            app:rippleColor="#fff">
+            <TextView
+                android:id="@+id/text_notice_link"
+                android:fontFamily="@font/font"
+                android:text="공지사항 바로가기 ->"
+                android:textColor="@color/display_board_8"
+                android:textSize="16dp"
+                android:layout_margin="3dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_notice_ok"
+                android:layout_width="150dp"
+                android:layout_height="35dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/btn_round3"
+                android:fontFamily="@font/font_title"
+                android:textSize="18dp"
+                android:text="확인"
+                android:textColor="@color/text_gold" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <ImageView
+        android:src="@drawable/purple_line_bottom"
+        android:layout_marginTop="-5dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

@@ -5,9 +5,9 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_app_list"
-        android:layout_above="@+id/layout_menu"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_above="@+id/layout_menu" />
 
     <LinearLayout
         android:id="@+id/layout_menu"
@@ -25,25 +25,27 @@
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_app_ok"
             android:layout_width="wrap_content"
-            android:layout_height="25dp"
+            android:layout_height="30dp"
             android:layout_gravity="center"
             android:layout_marginTop="7dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/btn_round4"
             android:fontFamily="@font/font"
+            android:textSize="18dp"
             android:text="확인"
             android:textColor="@color/text" />
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_app_cancel"
             android:layout_width="wrap_content"
-            android:layout_height="25dp"
+            android:layout_height="30dp"
             android:layout_gravity="center"
             android:layout_marginTop="7dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/btn_round4"
             android:fontFamily="@font/font"
+            android:textSize="18dp"
             android:text="취소"
             android:textColor="@color/text" />
     </LinearLayout>

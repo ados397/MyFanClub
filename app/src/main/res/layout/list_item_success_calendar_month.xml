@@ -17,7 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="1월"
-            android:textSize="20sp"/>
+            android:textSize="20dp"/>
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
@@ -42,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/progress_percent"
                 android:text="30%"
-                android:textSize="16sp"
+                android:textSize="16dp"
                 android:textColor="#FF0000"/>
 
             <ImageView

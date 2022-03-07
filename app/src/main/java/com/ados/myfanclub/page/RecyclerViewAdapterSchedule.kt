@@ -34,6 +34,11 @@ class RecyclerViewAdapterSchedule(private val items: ArrayList<ScheduleDTO>, pri
                 no.text = "${position + 1}"
                 title.text = "${item.title}"
                 range.text = "${SimpleDateFormat("yyyy.MM.dd").format(item.startDate)} ~ ${SimpleDateFormat("yyyy.MM.dd").format(item.endDate)}"
+                if (item.isExpired()) {
+                    expired.visibility = View.VISIBLE
+                } else {
+                    expired.visibility = View.GONE
+                }
 
                 when (item.cycle) {
                     ScheduleDTO.Cycle.DAY -> imgScheduleType.setImageResource(R.drawable.schedule_day)
@@ -88,6 +93,7 @@ class RecyclerViewAdapterSchedule(private val items: ArrayList<ScheduleDTO>, pri
         var no = viewBinding.textNo
         var title = viewBinding.textTitle
         var range = viewBinding.textRange
+        var expired = viewBinding.textExpired
         var imgScheduleType = viewBinding.imgScheduleType
         var mainLayout = viewBinding.layoutMain
         var imgReorder = viewBinding.imgReorder

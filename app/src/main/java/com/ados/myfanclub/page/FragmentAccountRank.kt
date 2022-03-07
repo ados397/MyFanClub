@@ -23,6 +23,10 @@ import com.ados.myfanclub.model.UserExDTO
 import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.bumptech.glide.Glide
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -89,6 +93,11 @@ class FragmentAccountRank : Fragment(), OnUserRankItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.editAboutMe.setOnTouchListener { view, motionEvent ->
+            binding.scrollView.requestDisallowInterceptTouchEvent(true)
+            false
+        }
+
         binding.buttonBack.setOnClickListener {
             callBackPressed()
         }
@@ -115,6 +124,11 @@ class FragmentAccountRank : Fragment(), OnUserRankItemClickListener {
         requireActivity().onBackPressedDispatcher.addCallback(this, callback)
     }
 
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
+    }
+
     private fun callBackPressed() {
         finishFragment()
     }
@@ -136,24 +150,46 @@ class FragmentAccountRank : Fragment(), OnUserRankItemClickListener {
     }
 
     private fun observeUsers() {
-        firebaseViewModel.userDTOs.observe(requireActivity()) {
+        firebaseViewModel.userDTOs.observe(viewLifecycleOwner) {
             setAdapter()
         }
     }
 
     private fun setAdapter() {
-        recyclerViewAdapter = RecyclerViewAdapterUserRank(firebaseViewModel.userDTOs.value!!, this)
-        recyclerView.adapter = recyclerViewAdapter
-        for (index in 0 until firebaseViewModel.userDTOs.value!!.size) {
-            if (firebaseViewModel.userDTOs.value!![index].imgProfile != null) {
-                firebaseStorageViewModel.getUserProfile(firebaseViewModel.userDTOs.value!![index].uid.toString()) { uri ->
-                    if (uri != null) {
-                        recyclerViewAdapter.updateProfile(index, uri)
-                    }
-                }
+        var uidSet = hashSetOf<String>()
+        val itemsEx: ArrayList<UserExDTO> = arrayListOf()
+        for (user in firebaseViewModel.userDTOs.value!!) {
+            itemsEx.add(UserExDTO(user))
+            if (!user.uid.isNullOrEmpty()) {
+                uidSet.add(user.uid.toString())
             }
         }
-        (activity as MainActivity?)?.loadingEnd()
+
+        var uriCheckIndex = 0
+        for (uid in uidSet) {
+            firebaseStorageViewModel.getUserProfile(uid) { uri ->
+                if (uri != null) {
+                    for (item in itemsEx) {
+                        if (item.userDTO?.uid == uid) {
+                            item.imgProfileUri = uri
+                        }
+                    }
+                }
+                uriCheckIndex++
+            }
+        }
+
+        CoroutineScope(Dispatchers.Main).launch {
+            while(true) {
+                if (uriCheckIndex == uidSet.size) {
+                    recyclerViewAdapter = RecyclerViewAdapterUserRank(itemsEx, this@FragmentAccountRank)
+                    recyclerView.adapter = recyclerViewAdapter
+                    (activity as MainActivity?)?.loadingEnd()
+                    break
+                }
+                delay(100)
+            }
+        }
     }
 
     companion object {

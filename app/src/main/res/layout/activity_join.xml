@@ -16,7 +16,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="5dp"
+            android:layout_marginLeft="15dp"
             android:layout_marginTop="5dp"
             android:layout_marginRight="20dp"
             android:layout_marginBottom="5dp"
@@ -26,8 +26,8 @@
             app:rippleColor="#fff">
 
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
                 android:src="@drawable/arrow_back" />
         </com.google.android.material.card.MaterialCardView>
 
@@ -39,7 +39,7 @@
             android:fontFamily="@font/font"
             android:text="회원 가입"
             android:textColor="@color/text"
-            android:textSize="20sp" />
+            android:textSize="24dp" />
 
     </RelativeLayout>
 
@@ -62,7 +62,7 @@
             android:fontFamily="@font/font"
             android:text="이메일"
             android:textColor="@color/text"
-            android:textSize="16sp" />
+            android:textSize="20dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -72,7 +72,7 @@
             android:layout_marginBottom="2dp"
             android:fontFamily="@font/font"
             android:text="실제 사용가능한 이메일 주소가 아닐 경우 비밀번호 분실 시 찾을 수 없으니 정확히 입력해주시기 바랍니다."
-            android:textSize="14sp" />
+            android:textSize="16dp" />
 
         <EditText
             android:id="@+id/edit_email"
@@ -83,11 +83,12 @@
             android:background="@drawable/edit_rectangle"
             android:fontFamily="@font/font"
             android:hint="이메일 주소 입력"
-            android:maxLines="1"
             android:inputType="textEmailAddress"
+            android:maxLines="1"
+            android:nextFocusDown="@id/edit_password"
             android:textColor="@color/text"
             android:textCursorDrawable="@drawable/edit_cursor"
-            android:textSize="16sp" />
+            android:textSize="18dp" />
 
         <TextView
             android:id="@+id/text_email_error"
@@ -98,7 +99,7 @@
             android:fontFamily="@font/font"
             android:text=""
             android:textColor="@color/text_red"
-            android:textSize="12sp" />
+            android:textSize="16dp" />
 
         <TextView
             android:id="@+id/text_password"
@@ -108,7 +109,7 @@
             android:fontFamily="@font/font"
             android:text="비밀번호"
             android:textColor="@color/text"
-            android:textSize="16sp" />
+            android:textSize="20dp" />
 
         <EditText
             android:id="@+id/edit_password"
@@ -121,9 +122,10 @@
             android:hint="비밀번호 입력"
             android:inputType="textPassword"
             android:maxLength="30"
+            android:nextFocusDown="@id/edit_password_confirm"
             android:textColor="@color/text"
             android:textCursorDrawable="@drawable/edit_cursor"
-            android:textSize="16sp" />
+            android:textSize="18dp" />
 
         <TextView
             android:id="@+id/text_password_error"
@@ -134,7 +136,7 @@
             android:fontFamily="@font/font"
             android:text=""
             android:textColor="@color/text_red"
-            android:textSize="12sp" />
+            android:textSize="16dp" />
 
         <TextView
             android:id="@+id/text_password_confirm"
@@ -144,7 +146,7 @@
             android:fontFamily="@font/font"
             android:text="비밀번호 확인"
             android:textColor="@color/text"
-            android:textSize="16sp" />
+            android:textSize="20dp" />
 
         <EditText
             android:id="@+id/edit_password_confirm"
@@ -157,9 +159,10 @@
             android:hint="비밀번호 한번 더 입력"
             android:inputType="textPassword"
             android:maxLength="30"
+            android:nextFocusDown="@id/edit_nickname"
             android:textColor="@color/text"
             android:textCursorDrawable="@drawable/edit_cursor"
-            android:textSize="16sp" />
+            android:textSize="18dp" />
 
         <TextView
             android:id="@+id/text_password_confirm_error"
@@ -170,7 +173,7 @@
             android:fontFamily="@font/font"
             android:text=""
             android:textColor="@color/text_red"
-            android:textSize="12sp" />
+            android:textSize="16dp" />
 
         <TextView
             android:id="@+id/text_nickname"
@@ -180,7 +183,7 @@
             android:fontFamily="@font/font"
             android:text="닉네임"
             android:textColor="@color/text"
-            android:textSize="16sp" />
+            android:textSize="20dp" />
 
         <EditText
             android:id="@+id/edit_nickname"
@@ -191,12 +194,13 @@
             android:background="@drawable/edit_rectangle"
             android:fontFamily="@font/font"
             android:hint="닉네임 입력"
+            android:inputType="text"
             android:maxLength="15"
             android:maxLines="1"
-            android:inputType="text"
+            android:nextFocusDown="@id/button_ok"
             android:textColor="@color/text"
             android:textCursorDrawable="@drawable/edit_cursor"
-            android:textSize="16sp" />
+            android:textSize="18dp" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -211,7 +215,7 @@
                 android:fontFamily="@font/font"
                 android:text=""
                 android:textColor="@color/text_red"
-                android:textSize="12sp" />
+                android:textSize="16dp" />
 
             <TextView
                 android:id="@+id/text_nickname_len"
@@ -220,7 +224,8 @@
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="10dp"
                 android:fontFamily="@font/font"
-                android:text="0/15" />
+                android:text="0/15"
+                android:textSize="16dp" />
         </RelativeLayout>
     </LinearLayout>
 
@@ -232,7 +237,6 @@
 
         <Button
             android:id="@+id/button_ok"
-            android:enabled="false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
@@ -241,8 +245,11 @@
             android:layout_marginEnd="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
+            android:enabled="false"
             android:fontFamily="@font/font"
-            android:text="회원 가입" />
+            android:padding="10dp"
+            android:text="회원 가입"
+            android:textSize="20dp" />
     </RelativeLayout>
 
 </RelativeLayout>

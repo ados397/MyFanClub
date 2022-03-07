@@ -53,6 +53,12 @@ class RecyclerViewAdapterMail(private val items: ArrayList<MailDTO>, var clickLi
                     }
                 }
 
+                if (item.read!!) {
+                    imgMail.setImageResource(R.drawable.mail_open)
+                } else {
+                    imgMail.setImageResource(R.drawable.mail_close)
+                }
+
 
 
                 //text_timer.text = "[${String.format("%02d",hour)}시${String.format("%02d",min)}분${String.format("%02d",sec)}초] 후 티켓이 사라집니다."
@@ -85,6 +91,7 @@ class RecyclerViewAdapterMail(private val items: ArrayList<MailDTO>, var clickLi
     }*/
 
     inner class ViewHolder(private val viewBinding: ListItemMailBinding) : RecyclerView.ViewHolder(viewBinding.root) {
+        var imgMail = viewBinding.imgMail
         var mainLayout = viewBinding.layoutMain
         val title = viewBinding.textTitle
         val content = viewBinding.textContent

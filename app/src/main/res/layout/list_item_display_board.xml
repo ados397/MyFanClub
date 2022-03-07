@@ -13,7 +13,7 @@
         <RelativeLayout
             android:background="@color/text"
             android:layout_width="match_parent"
-            android:layout_height="40dp">
+            android:layout_height="54dp">
 
             <TextView
                 android:id="@+id/text_title"
@@ -29,19 +29,17 @@
                 android:shadowDy="0.0"
                 android:shadowRadius="15.0"
                 android:text=""
+                android:minLines="1"
                 android:maxLines="2"
-                android:ellipsize="end"
                 android:textColor="@color/display_board_10"
-                android:textSize="14sp" />
+                android:textSize="18dp" />
         </RelativeLayout>
-
-
 
         <ImageView
             android:src="@drawable/display_board_center"
             android:scaleType="fitXY"
             android:layout_width="match_parent"
-            android:layout_height="40dp"/>
+            android:layout_height="54dp"/>
 
 
     </RelativeLayout>

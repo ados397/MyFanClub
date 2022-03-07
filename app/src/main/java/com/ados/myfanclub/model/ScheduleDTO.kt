@@ -31,7 +31,7 @@ data class ScheduleDTO(
     var alarmDTO: AlarmDTO = AlarmDTO()
 ) {
     enum class Action {
-        APP, URL
+        APP, URL, ETC
     }
 
     enum class Cycle {
@@ -76,6 +76,12 @@ data class ScheduleDTO(
         var date = Date()
 
         return date >= calStart.time && date <= calEnd.time
+    }
+
+    fun isExpired() : Boolean {
+        var endTime = SimpleDateFormat("yyyyMMdd").format(endDate).toInt()
+        var currentTime = SimpleDateFormat("yyyyMMdd").format(Date()).toInt()
+        return endTime < currentTime
     }
 }
 

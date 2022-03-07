@@ -21,6 +21,10 @@ import com.ados.myfanclub.model.MemberDTO
 import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.bumptech.glide.Glide
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -91,6 +95,11 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.editDescription.setOnTouchListener { view, motionEvent ->
+            binding.scrollView.requestDisallowInterceptTouchEvent(true)
+            false
+        }
+
         binding.buttonClose.setOnClickListener {
             selectRecyclerView()
         }
@@ -124,18 +133,40 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
     }
 
     private fun setAdapter() {
-        recyclerViewAdapter = RecyclerViewAdapterFanClubRank(firebaseViewModel.fanClubDTOs.value!!, this)
-        recyclerView.adapter = recyclerViewAdapter
-        for (index in 0 until firebaseViewModel.fanClubDTOs.value!!.size) {
-            if (firebaseViewModel.fanClubDTOs.value!![index].imgSymbolCustom != null) {
-                firebaseStorageViewModel.getFanClubSymbol(firebaseViewModel.fanClubDTOs.value!![index].docName.toString()) { uri ->
-                    if (uri != null) {
-                        recyclerViewAdapter.updateSymbol(index, uri)
-                    }
-                }
+        var uidSet = hashSetOf<String>()
+        val itemsEx: ArrayList<FanClubExDTO> = arrayListOf()
+        for (fanClub in firebaseViewModel.fanClubDTOs.value!!) {
+            itemsEx.add(FanClubExDTO(fanClub))
+            if (!fanClub.docName.isNullOrEmpty()) {
+                uidSet.add(fanClub.docName.toString())
             }
         }
-        (activity as MainActivity?)?.loadingEnd()
+
+        var uriCheckIndex = 0
+        for (uid in uidSet) {
+            firebaseStorageViewModel.getFanClubSymbol(uid) { uri ->
+                if (uri != null) {
+                    for (item in itemsEx) {
+                        if (item.fanClubDTO?.docName == uid) {
+                            item.imgSymbolCustomUri = uri
+                        }
+                    }
+                }
+                uriCheckIndex++
+            }
+        }
+
+        CoroutineScope(Dispatchers.Main).launch {
+            while(true) {
+                if (uriCheckIndex == uidSet.size) {
+                    recyclerViewAdapter = RecyclerViewAdapterFanClubRank(itemsEx, this@FragmentFanClubRank)
+                    recyclerView.adapter = recyclerViewAdapter
+                    (activity as MainActivity?)?.loadingEnd()
+                    break
+                }
+                delay(100)
+            }
+        }
     }
 
     private fun refresh() {
@@ -145,7 +176,7 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
     }
 
     private fun observeFanClubs() {
-        firebaseViewModel.fanClubDTOs.observe(requireActivity()) {
+        firebaseViewModel.fanClubDTOs.observe(viewLifecycleOwner) {
             if (_binding != null) { // 메인 탭에서 바로 사용자 정보 탭 이동 시 팬클럽 뷰가 Destroy 되고 나서 뒤 늦게 들어오는 경우가 있기 때문에 예외 처리
                 setAdapter()
             }

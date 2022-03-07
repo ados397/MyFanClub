@@ -17,7 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="5dp"
+            android:layout_marginLeft="15dp"
             android:layout_marginTop="5dp"
             android:layout_marginRight="20dp"
             android:layout_marginBottom="5dp"
@@ -27,8 +27,8 @@
             app:rippleColor="#fff">
 
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
                 android:src="@drawable/arrow_back_white" />
         </com.google.android.material.card.MaterialCardView>
 
@@ -41,7 +41,7 @@
             android:fontFamily="@font/font"
             android:text="프리미엄 패키지 구매"
             android:textColor="@color/white"
-            android:textSize="20sp" />
+            android:textSize="24dp" />
 
     </RelativeLayout>
 
@@ -82,7 +82,7 @@
                         android:fontFamily="@font/font_title"
                         android:text="매일 30일 동안"
                         android:textColor="@color/white"
-                        android:textSize="30sp" />
+                        android:textSize="30dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -92,7 +92,7 @@
                         android:fontFamily="@font/font_title"
                         android:text="특별한 VIP 혜택"
                         android:textColor="@color/white"
-                        android:textSize="30sp" />
+                        android:textSize="30dp" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -108,7 +108,7 @@
                 android:fontFamily="@font/font_sub_title"
                 android:text="남은 보상 일수 : 5"
                 android:textColor="@color/master"
-                android:textSize="16sp" />
+                android:textSize="16dp" />
 
             <LinearLayout
                 android:id="@+id/button_buy_premium_package"
@@ -131,7 +131,7 @@
                     android:fontFamily="@font/font_title"
                     android:text="\\ 9,900"
                     android:textColor="@color/text_red"
-                    android:textSize="14sp" />
+                    android:textSize="14dp" />
 
                 <TextView
                     android:id="@+id/text_price"
@@ -141,7 +141,7 @@
                     android:fontFamily="@font/font_title"
                     android:text="\\ 8,900 갱신"
                     android:textColor="@color/text_gold"
-                    android:textSize="16sp" />
+                    android:textSize="16dp" />
 
             </LinearLayout>
 
@@ -161,7 +161,7 @@
                     android:id="@+id/layout_premium_gem"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/btn_round9"
+                    android:background="@drawable/btn_round_disable"
                     android:orientation="horizontal"
                     android:paddingLeft="5dp"
                     android:paddingTop="2dp"
@@ -185,16 +185,16 @@
                         android:fontFamily="@font/font_title"
                         android:text="프리미엄 다이아 수령"
                         android:textColor="@color/text_gold"
-                        android:textSize="14sp" />
+                        android:textSize="16dp" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
+                android:layout_gravity="center"
                 android:layout_marginTop="30dp"
                 android:orientation="horizontal">
 
@@ -206,9 +206,10 @@
                     android:fontFamily="@font/font"
                     android:text="하나!"
                     android:textColor="@color/display_board_8"
-                    android:textSize="24sp" />
+                    android:textSize="24dp" />
 
                 <TextView
+                    android:id="@+id/text_premium_buy_gem"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
@@ -216,13 +217,13 @@
                     android:fontFamily="@font/font"
                     android:text=" 즉시 다이아 200개 지급!"
                     android:textColor="@color/master"
-                    android:textSize="24sp" />
+                    android:textSize="24dp" />
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
+                android:layout_gravity="center"
                 android:layout_marginTop="10dp"
                 android:orientation="horizontal">
 
@@ -234,9 +235,10 @@
                     android:fontFamily="@font/font"
                     android:text="둘!"
                     android:textColor="@color/display_board_8"
-                    android:textSize="24sp" />
+                    android:textSize="24dp" />
 
                 <TextView
+                    android:id="@+id/text_premium_everyday_gem"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
@@ -244,19 +246,19 @@
                     android:fontFamily="@font/font"
                     android:text=" 매일 다이아 30개 지급!"
                     android:textColor="@color/master"
-                    android:textSize="24sp" />
+                    android:textSize="24dp" />
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <ImageView
                     android:layout_width="100dp"
                     android:layout_height="100dp"
-                    android:layout_marginLeft="40dp"
                     android:src="@drawable/diamond_pack4" />
 
                 <LinearLayout
@@ -272,9 +274,10 @@
                         android:fontFamily="@font/font"
                         android:text="총 다이아"
                         android:textColor="@color/white"
-                        android:textSize="24sp" />
+                        android:textSize="24dp" />
 
                     <TextView
+                        android:id="@+id/text_premium_total_gem"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
@@ -282,7 +285,7 @@
                         android:fontFamily="@font/font"
                         android:text="1,100개의 혜택!!"
                         android:textColor="@color/premium"
-                        android:textSize="28sp" />
+                        android:textSize="28dp" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -294,9 +297,9 @@
 
                 <LinearLayout
                     android:id="@+id/layout_benefit_3"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
+                    android:layout_centerHorizontal="true"
                     android:layout_marginTop="10dp"
                     android:orientation="horizontal">
 
@@ -308,7 +311,7 @@
                         android:fontFamily="@font/font"
                         android:text="셋!"
                         android:textColor="@color/display_board_8"
-                        android:textSize="24sp" />
+                        android:textSize="24dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -318,15 +321,15 @@
                         android:fontFamily="@font/font"
                         android:text=" 개인 출석체크 경험치 2배!"
                         android:textColor="@color/master"
-                        android:textSize="24sp" />
+                        android:textSize="24dp" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/layout_benefit_4"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
                     android:layout_below="@id/layout_benefit_3"
-                    android:layout_marginLeft="20dp"
                     android:layout_marginTop="10dp"
                     android:orientation="horizontal">
 
@@ -338,7 +341,7 @@
                         android:fontFamily="@font/font"
                         android:text="넷!"
                         android:textColor="@color/display_board_8"
-                        android:textSize="24sp" />
+                        android:textSize="24dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -348,15 +351,15 @@
                         android:fontFamily="@font/font"
                         android:text=" 개인 다이아 레벨업 효과 2배!"
                         android:textColor="@color/master"
-                        android:textSize="24sp" />
+                        android:textSize="24dp" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/layout_benefit_5"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
                     android:layout_below="@id/layout_benefit_4"
-                    android:layout_marginLeft="20dp"
                     android:layout_marginTop="10dp"
                     android:orientation="horizontal">
 
@@ -368,7 +371,7 @@
                         android:fontFamily="@font/font"
                         android:text="다섯!"
                         android:textColor="@color/display_board_8"
-                        android:textSize="24sp" />
+                        android:textSize="24dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -378,20 +381,49 @@
                         android:fontFamily="@font/font"
                         android:text=" 개인 무료 경험치 효과 2배!"
                         android:textColor="@color/master"
-                        android:textSize="24sp" />
+                        android:textSize="24dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_below="@id/layout_benefit_5"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_toRightOf="@+id/button_back"
+                        android:fontFamily="@font/font"
+                        android:text="여섯!"
+                        android:textColor="@color/display_board_8"
+                        android:textSize="24dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_toRightOf="@+id/button_back"
+                        android:fontFamily="@font/font"
+                        android:text=" 행운의 뽑기 횟수 2배!"
+                        android:textColor="@color/master"
+                        android:textSize="24dp" />
                 </LinearLayout>
             </RelativeLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <ImageView
                     android:layout_width="60dp"
                     android:layout_height="60dp"
-                    android:layout_marginLeft="40dp"
                     android:src="@drawable/exp" />
 
                 <LinearLayout
@@ -407,7 +439,7 @@
                         android:fontFamily="@font/font"
                         android:text="빠른 성장의 지름길!"
                         android:textColor="@color/premium"
-                        android:textSize="24sp" />
+                        android:textSize="24dp" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -420,39 +452,9 @@
 
                 <LinearLayout
                     android:id="@+id/layout_benefit_6"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginTop="10dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_toRightOf="@+id/button_back"
-                        android:fontFamily="@font/font"
-                        android:text="여섯!"
-                        android:textColor="@color/display_board_8"
-                        android:textSize="24sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_toRightOf="@+id/button_back"
-                        android:fontFamily="@font/font"
-                        android:text=" 클럽 출석체크 경험치 2배!"
-                        android:textColor="@color/master"
-                        android:textSize="24sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/layout_benefit_7"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/layout_benefit_6"
-                    android:layout_marginLeft="20dp"
+                    android:layout_centerHorizontal="true"
                     android:layout_marginTop="10dp"
                     android:orientation="horizontal">
 
@@ -464,7 +466,7 @@
                         android:fontFamily="@font/font"
                         android:text="일곱!"
                         android:textColor="@color/display_board_8"
-                        android:textSize="24sp" />
+                        android:textSize="24dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -472,17 +474,17 @@
                         android:layout_centerVertical="true"
                         android:layout_toRightOf="@+id/button_back"
                         android:fontFamily="@font/font"
-                        android:text=" 클럽 다이아 기부 효과 2배!"
+                        android:text=" 클럽 출석체크 경험치 2배!"
                         android:textColor="@color/master"
-                        android:textSize="24sp" />
+                        android:textSize="24dp" />
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/layout_benefit_8"
-                    android:layout_width="match_parent"
+                    android:id="@+id/layout_benefit_7"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/layout_benefit_7"
-                    android:layout_marginLeft="20dp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_below="@id/layout_benefit_6"
                     android:layout_marginTop="10dp"
                     android:orientation="horizontal">
 
@@ -494,7 +496,37 @@
                         android:fontFamily="@font/font"
                         android:text="여덟!"
                         android:textColor="@color/display_board_8"
-                        android:textSize="24sp" />
+                        android:textSize="24dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_toRightOf="@+id/button_back"
+                        android:fontFamily="@font/font"
+                        android:text=" 클럽 다이아 기부 효과 2배!"
+                        android:textColor="@color/master"
+                        android:textSize="24dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layout_benefit_8"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_below="@id/layout_benefit_7"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_toRightOf="@+id/button_back"
+                        android:fontFamily="@font/font"
+                        android:text="아홉!"
+                        android:textColor="@color/display_board_8"
+                        android:textSize="24dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -504,20 +536,20 @@
                         android:fontFamily="@font/font"
                         android:text=" 클럽 무료 경험치 효과 2배!"
                         android:textColor="@color/master"
-                        android:textSize="24sp" />
+                        android:textSize="24dp" />
                 </LinearLayout>
             </RelativeLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <ImageView
                     android:layout_width="60dp"
                     android:layout_height="60dp"
-                    android:layout_marginLeft="40dp"
                     android:src="@drawable/reward_icon_25" />
 
                 <LinearLayout
@@ -533,15 +565,15 @@
                         android:fontFamily="@font/font"
                         android:text="최고의 팬클럽을 위한 필수!"
                         android:textColor="@color/premium"
-                        android:textSize="24sp" />
+                        android:textSize="24dp" />
                 </LinearLayout>
 
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
+                android:layout_gravity="center"
                 android:layout_marginTop="20dp"
                 android:orientation="horizontal">
 
@@ -551,9 +583,9 @@
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@+id/button_back"
                     android:fontFamily="@font/font"
-                    android:text="아홉!"
+                    android:text="열!"
                     android:textColor="@color/display_board_8"
-                    android:textSize="24sp" />
+                    android:textSize="24dp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -563,7 +595,7 @@
                     android:fontFamily="@font/font"
                     android:text=" 모든 광고 충전 시간 1/2 단축!"
                     android:textColor="@color/master"
-                    android:textSize="24sp" />
+                    android:textSize="24dp" />
             </LinearLayout>
 
             <View
