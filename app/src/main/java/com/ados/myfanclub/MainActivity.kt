@@ -1,6 +1,7 @@
 package com.ados.myfanclub
 
 import android.content.Intent
+import android.content.pm.PackageInfo
 import android.graphics.*
 import android.media.ExifInterface
 import android.net.Uri
@@ -12,6 +13,7 @@ import android.view.Window
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -32,13 +34,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
-import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.fan_club_question_dialog.*
 import kotlinx.android.synthetic.main.gem_question_dialog.*
+import kotlinx.android.synthetic.main.maintenance_dialog.*
 import kotlinx.android.synthetic.main.notice_dialog.*
 import kotlinx.android.synthetic.main.question_dialog.*
 import kotlinx.android.synthetic.main.tutorial_dialog.*
@@ -84,12 +86,20 @@ class MainActivity : AppCompatActivity() {
     // 최초에 모든 항목들이 로딩 완료 되었을 때 ViewPager 호출
     // currentLoadingCount 가 successLoadingCount 와 같아져야 로딩이 완료된 것
     private var checkLoadingCount = 0 // 일정 시간이 지나도 완료가 안되면 강제로 완료 처리
+    private var reTryLoadingCount = 0 // 데이터 로딩에 실패했을 때 재실행 수
     private var currentLoadingCount = 0
     private var successLoadingCount = 9
     private var isFirstRun = false // 최초 실행을 체크하기 위한 변수
+    private var loadingData = mutableMapOf<Int, Boolean>()
 
     private var tutorialStep : MutableLiveData<Int> = MutableLiveData() // 튜토리얼 진행상태
     lateinit var dbHandler : DBHelperReport
+
+    private val updateResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode != RESULT_OK) {
+            Toast.makeText(this, "업데이트가 취소되었습니다.", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,6 +125,9 @@ class MainActivity : AppCompatActivity() {
 
         // 로그인 체크
         loginCheck()
+        for (i in 1..successLoadingCount) {
+            loadingData[i] = false
+        }
 
         setInfo()
 
@@ -140,12 +153,16 @@ class MainActivity : AppCompatActivity() {
         // 로그인 시간 기록 (중복 로그인 방지)
         oldUserDTO?.loginTime = Date()
         firebaseViewModel.updateUserLoginTime(oldUserDTO!!) {
-            firebaseViewModel.getUserListen(oldUserDTO?.uid.toString()) // 사용자 정보 획득
-            println("[로딩] 로그인 시간 기록")
-            addLoadingCount()
+            // 중요 데이터 로딩
+            loadingMainData()
+            observeMainData()
+
+            //firebaseViewModel.getUserListen(oldUserDTO?.uid.toString()) // 사용자 정보 획득
+            //println("[로딩] 로그인 시간 기록")
+            //addLoadingCount()
         }
 
-        // 광고 설정 획득
+        /*// 광고 설정 획득
         firebaseViewModel.getAdPolicy()
         firebaseViewModel.adPolicyDTO.observe(this) {
             println("[로딩] 광고 획득")
@@ -153,11 +170,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         // 환경 설정 획득
-        firebaseViewModel.getPreferences()
+        firebaseViewModel.getPreferencesListen()
         firebaseViewModel.preferencesDTO.observe(this) {
             println("[로딩] 환경 설정 획득")
             addLoadingCount()
         }
+
+        // 업데이트 설정 획득
+        firebaseViewModel.getServerUpdateListen()
+        observeUpdate()
 
         firebaseViewModel.getNotices(true) // 공지사항 리스트 획득
         observeNotice()
@@ -171,27 +192,66 @@ class MainActivity : AppCompatActivity() {
         observeUser() // 실시간 사용자 정보 모니터링
         observeFanClub() // 실시간 팬클럽 정보 모니터링
         observeMember() // 실시간 팬클럽 멤버 정보 모니터링
+
+         */
+
         observeTutorial() // 튜토리얼
 
         // 데이터 획득이 끝나면 ViewPager 호출
         timer(period = 100)
         {
-            if (checkLoadingCount > 100) {
-                cancel()
-                runOnUiThread {
-                    failedLoading()
+            if (checkLoadingCount > 50) { // 데이터 로딩에 실패 했을 경우
+                if (reTryLoadingCount >= 2) { // 재시도 횟수까지 모두 실패하면 프로그램 종료
+                    cancel()
+                    runOnUiThread {
+                        failedLoading()
+                    }
+                } else {
+                    reTryLoadingCount++
+                    checkLoadingCount = 0
+                    runOnUiThread {
+                        loadingMainData()
+                    }
                 }
             }
 
-            if (currentLoadingCount >= successLoadingCount) {
+            if (loadingData.filterValues { !it }.keys.isEmpty()) {
+            //if (currentLoadingCount >= successLoadingCount) {
                 println("[로딩] 카운트 $checkLoadingCount")
                 cancel()
                 runOnUiThread {
                     isFirstRun = true
                     loadingEnd()
                     setViewPager()
-                    tutorialStart()
-                    onNoticeDialog()
+
+                    val info: PackageInfo = packageManager.getPackageInfo(packageName, 0)
+                    val localVersion = info.versionName
+                    println("업데이트 버전 - 현재 : $localVersion, 서버 : ${firebaseViewModel.updateDTO.value!!}")
+
+                    checkDeleteAccount()
+
+                    // 서버 점검이 아닐때만 튜토리얼 및 공지 대화상자 호출
+                    if (!firebaseViewModel.updateDTO.value!!.maintenance!!) {
+                        // 튜토리얼을 아직 진행 안했다면 튜토리얼 대화상자 실행
+                        if (firebaseViewModel.userDTO.value?.tutorialEndedTime == null) {
+                            tutorialStart()
+                        } else { // 튜토리얼을 끝냈다면 공지 대화상자 실행
+                            onNoticeDialog()
+                        }
+
+                        // 업데이트가 필요할 경우 업데이트 창 호출
+                        if (localVersion < firebaseViewModel.updateDTO.value!!.minVersion.toString()) {
+                            // 앱 구동 최소 버전을 만족하지 못하므로 강제 업데이트
+                            if (firebaseViewModel.updateDTO.value!!.minVersionDisplay!!) { // 표시 여부 확인 후 표시
+                                onUpdateDialog(MaintenanceDialog.JobType.UPDATE_IMMEDIATE, localVersion)
+                            }
+                        } else if (localVersion < firebaseViewModel.updateDTO.value!!.updateVersion.toString()) {
+                            // 앱 권장 버전을 만족하지 못하므로 업데이트 권장
+                            if (firebaseViewModel.updateDTO.value!!.updateVersionDisplay!!) { // 표시 여부 확인 후 표시
+                                onUpdateDialog(MaintenanceDialog.JobType.UPDATE_FLEXIBLE, localVersion)
+                            }
+                        }
+                    }
                 }
             }
             checkLoadingCount++
@@ -231,31 +291,172 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        binding.imgNotice.setOnClickListener {
+            startActivity(Intent(this, NoticeActivity::class.java))
+        }
+
         adminSendMail()
     }
 
+    // 로딩해야 할 데이터라면 true 반환, 아니라면 false 반환
+    private fun checkLoadingData(number: Int) : Boolean {
+        return if (number <= successLoadingCount) {
+            loadingData[number] == false
+        } else
+            false
+    }
+
+    // 중요 데이터 로딩
+    private fun loadingMainData() {
+        // 1. 광고 설정 획득
+        if (checkLoadingData(1)) {
+            firebaseViewModel.getAdPolicy()
+            println("[01.로딩] 광고 설정 획득")
+        }
+
+        // 2. 환경 설정 획득
+        if (checkLoadingData(2)) {
+            firebaseViewModel.stopPreferencesListen()
+            firebaseViewModel.getPreferencesListen()
+            println("[02.로딩] 환경 설정 획득")
+        }
+
+        // 3. 업데이트 설정 획득
+        if (checkLoadingData(3)) {
+            firebaseViewModel.stopServerUpdateListen()
+            firebaseViewModel.getServerUpdateListen()
+            println("[03.로딩] 업데이트 설정 획득")
+        }
+
+        // 4. 공지사항 획득
+        if (checkLoadingData(4)) {
+            firebaseViewModel.getNotices(true)
+            println("[04.로딩] 공지사항 획득")
+        }
+
+        // 5. 사용자 정보 획득 (내부에서 팬클럽과 멤버 정보 획득)
+        if (checkLoadingData(5)) {
+            firebaseViewModel.stopUserListen()
+            firebaseViewModel.getUserListen(oldUserDTO?.uid.toString())
+            println("[05.로딩] 사용자 정보 획득")
+        }
+
+        // 6. 전광판 리스트 획득
+        if (checkLoadingData(6)) {
+            firebaseViewModel.stopDisplayBoardListen()
+            firebaseViewModel.getDisplayBoardListen() // 전광판 리스트 획득
+            println("[06.로딩] 전광판 리스트 획득")
+        }
+
+        // 7. 메일 리스트 획득
+        if (checkLoadingData(7)) {
+            firebaseViewModel.stopMailsListen()
+            firebaseViewModel.getMailsListen(oldUserDTO?.uid.toString())
+            println("[07.로딩] 메일 리스트 획득")
+        }
+
+        // 8. 팬클럽 정보 획득
+        // 팬클럽 정보는 사용자 정보 획득하면서 호출
+
+        // 9. 팬클럽 멤버 정보 획득
+        // 팬클럽 멤버 정보는 사용자 정보 획득하면서 호출
+    }
+
+    // 중요 데이터 로딩
+    private fun observeMainData() {
+        // 1. 광고 설정 획득
+        firebaseViewModel.adPolicyDTO.observe(this) {
+            loadingData[1] = true
+            println("[01.로딩] 광고 획득 성공")
+        }
+
+        // 2. 환경 설정 획득
+        firebaseViewModel.preferencesDTO.observe(this) {
+            loadingData[2] = true
+            println("[02.로딩] 환경 설정 획득 성공")
+        }
+
+        // 3. 업데이트 설정 획득
+        observeUpdate()
+
+        // 4. 공지사항 획득
+        observeNotice()
+
+        // 5. 사용자 정보 획득 (내부에서 팬클럽과 멤버 정보 획득)
+        observeUser()
+        if (checkLoadingData(5)) {
+            firebaseViewModel.stopUserListen()
+            firebaseViewModel.getUserListen(oldUserDTO?.uid.toString())
+            println("[05.로딩] 사용자 정보 획득")
+        }
+
+        // 6. 전광판 리스트 획득
+        observeDisplayBoard()
+
+        // 7. 메일 리스트 획득
+        observeMail()
+
+        // 8. 팬클럽 정보 획득
+        observeFanClub()
+
+        // 9. 팬클럽 멤버 정보 획득
+        observeMember()
+    }
+
     private fun tutorialStart() {
-        if (firebaseViewModel.userDTO.value?.tutorialEndedTime == null) {
-            var cancelCount = 0
-            val tutorialDialog = TutorialDialog(this)
-            tutorialDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            tutorialDialog.setCanceledOnTouchOutside(false)
-            tutorialDialog.show()
-            tutorialDialog.button_tutorial_cancel.setOnClickListener { // No
-                if (cancelCount >= 1) {
-                    tutorialDialog.dismiss()
-                    finishTutorialStep(false) // 튜토리얼 취소
-                    Toast.makeText(this, "튜토리얼이 취소되었습니다.", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this, "정말 취소하시려면 다시 한번 눌러주세요.", Toast.LENGTH_SHORT).show()
-                    cancelCount++
-                }
-            }
-            tutorialDialog.button_tutorial_ok.setOnClickListener { // Ok
+        var cancelCount = 0
+        val tutorialDialog = TutorialDialog(this)
+        tutorialDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        tutorialDialog.setCanceledOnTouchOutside(false)
+        tutorialDialog.show()
+        tutorialDialog.button_tutorial_cancel.setOnClickListener { // No
+            if (cancelCount >= 1) {
                 tutorialDialog.dismiss()
-                binding.viewpager.currentItem = 0 // 메인 탭 이동
-                tutorialStep.value = 1
+                finishTutorialStep(false) // 튜토리얼 취소
+                Toast.makeText(this, "튜토리얼이 취소되었습니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "정말 취소하시려면 다시 한번 눌러주세요.", Toast.LENGTH_SHORT).show()
+                cancelCount++
             }
+        }
+        tutorialDialog.button_tutorial_ok.setOnClickListener { // Ok
+            tutorialDialog.dismiss()
+            binding.viewpager.currentItem = 0 // 메인 탭 이동
+            tutorialStep.value = 1
+        }
+    }
+
+    private fun onMaintenanceDialog() {
+        val maintenanceDialog = MaintenanceDialog(this, MaintenanceDialog.JobType.MAINTENANCE)
+        maintenanceDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        maintenanceDialog.setCanceledOnTouchOutside(false)
+        maintenanceDialog.updateDTO = firebaseViewModel.updateDTO.value
+        maintenanceDialog.show()
+        maintenanceDialog.button_maintenance_ok.setOnClickListener {
+            maintenanceDialog.dismiss()
+            finish() //액티비티 종료
+        }
+    }
+
+    private fun onUpdateDialog(jobType: MaintenanceDialog.JobType, version: String) {
+        val maintenanceDialog = MaintenanceDialog(this, jobType)
+        maintenanceDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        maintenanceDialog.setCanceledOnTouchOutside(false)
+        maintenanceDialog.updateDTO = firebaseViewModel.updateDTO.value
+        maintenanceDialog.currentVersion = version
+        maintenanceDialog.show()
+        maintenanceDialog.button_maintenance_ok.setOnClickListener {
+            maintenanceDialog.dismiss()
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse(firebaseViewModel.updateDTO.value?.updateUri)
+                setPackage("com.android.vending")
+            }
+            startActivity(intent)
+            finish() //액티비티 종료
+        }
+        maintenanceDialog.button_maintenance_cancel.setOnClickListener {
+            maintenanceDialog.dismiss()
+            Toast.makeText(this, "업데이트가 취소되었습니다.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -267,6 +468,10 @@ class MainActivity : AppCompatActivity() {
         noticeDialog.show()
         noticeDialog.button_notice_ok.setOnClickListener {
             noticeDialog.dismiss()
+        }
+        noticeDialog.button_notice_link.setOnClickListener {
+            noticeDialog.dismiss()
+            startActivity(Intent(this, NoticeActivity::class.java))
         }
     }
 
@@ -373,36 +578,41 @@ class MainActivity : AppCompatActivity() {
     // 실시간 사용자 정보 모니터링
     private fun observeUser() {
         firebaseViewModel.userDTO.observe(this) {
-            currentUserExDTO?.userDTO = it
-            if (currentUserExDTO?.userDTO?.imgProfile == null) {
-                currentUserExDTO?.imgProfileUri = null
-            } else {
-                firebaseStorageViewModel.getUserProfile(it?.uid.toString()) { uri ->
-                    currentUserExDTO?.imgProfileUri = uri
+            if (firebaseViewModel.userDTO?.value != null) {
+                println("로딩 사용자 ${firebaseViewModel.userDTO?.value}")
+                currentUserExDTO?.userDTO = it
+                if (currentUserExDTO?.userDTO?.imgProfile == null) {
+                    currentUserExDTO?.imgProfileUri = null
+                } else {
+                    firebaseStorageViewModel.getUserProfile(it?.uid.toString()) { uri ->
+                        currentUserExDTO?.imgProfileUri = uri
+                    }
                 }
+
+                // 차단 여부 확인
+                checkBlock()
+
+                // 팬클럽 상태 확인
+                checkFanClubState()
+
+                // 로그인 시간이 변경되었으면 중복 로그인으로 판단하여 종료
+                checkMultiLogin()
+
+                // 다이아 실시간 반영
+                binding.textGemCount.text = "${decimalFormat.format(firebaseViewModel.userDTO.value?.paidGem!! + firebaseViewModel.userDTO.value?.freeGem!!)}"
+
+                // 프리미엄 패키지
+                checkPremium()
+
+                // 일일 퀘스트 수령할 보상이 있다면 UI 출력
+                checkQuestNew()
+
+                oldUserDTO = it?.copy() // 기존 정보와 변경사항 체크를 위해 복사
+                //println("[로딩] 사용자 획득")
+                //addLoadingCount()
+                loadingData[5] = true
+                println("[05.로딩] 사용자 정보 획득 성공")
             }
-
-            // 차단 여부 확인
-            checkBlock()
-
-            // 팬클럽 상태 확인
-            checkFanClubState()
-
-            // 로그인 시간이 변경되었으면 중복 로그인으로 판단하여 종료
-            checkMultiLogin()
-
-            // 다이아 실시간 반영
-            binding.textGemCount.text = "${decimalFormat.format(firebaseViewModel.userDTO.value?.paidGem!! + firebaseViewModel.userDTO.value?.freeGem!!)}"
-
-            // 프리미엄 패키지
-            checkPremium()
-
-            // 일일 퀘스트 수령할 보상이 있다면 UI 출력
-            checkQuestNew()
-
-            oldUserDTO = it?.copy() // 기존 정보와 변경사항 체크를 위해 복사
-            println("[로딩] 사용자 획득")
-            addLoadingCount()
         }
     }
 
@@ -417,8 +627,10 @@ class MainActivity : AppCompatActivity() {
             }
 
             oldFanClubDTO = fanClubDTO?.copy() // 기존 정보와 변경사항 체크를 위해 복사
-            println("[로딩] 팬클럽 획득")
-            addLoadingCount()
+            //println("[로딩] 팬클럽 획득")
+            //addLoadingCount()
+            loadingData[8] = true
+            println("[08.로딩] 팬클럽 정보 획득 성공")
         }
     }
 
@@ -426,8 +638,26 @@ class MainActivity : AppCompatActivity() {
     private fun observeMember() {
         firebaseViewModel.memberDTO.observe(this) {
             oldMemberDTO = it?.copy() // 기존 정보와 변경사항 체크를 위해 복사
-            println("[로딩] 멤버 획득")
-            addLoadingCount()
+            //println("[로딩] 멤버 획득")
+            //addLoadingCount()
+            loadingData[9] = true
+            println("[09.로딩] 팬클럽 멤버 정보 획득 성공")
+        }
+    }
+
+    // 업데이트 모니터링
+    private fun observeUpdate() {
+        firebaseViewModel.updateDTO.observe(this) {
+            if (firebaseViewModel.updateDTO.value != null) {
+                if (firebaseViewModel.updateDTO.value!!.maintenance!!) { // 서버 점검 대화상자 출력
+                    onMaintenanceDialog()
+                }
+
+                //println("[로딩] 업데이트 설정 획득")
+                //addLoadingCount()
+                loadingData[3] = true
+                println("[03.로딩] 업데이트 설정 획득 성공")
+            }
         }
     }
 
@@ -435,8 +665,10 @@ class MainActivity : AppCompatActivity() {
     private fun observeNotice() {
         firebaseViewModel.noticeDTOs.observe(this) {
             if (firebaseViewModel.noticeDTOs.value != null) {
-                println("[로딩] 공지사항 획득")
-                addLoadingCount()
+                //println("[로딩] 공지사항 획득")
+                //addLoadingCount()
+                loadingData[4] = true
+                println("[04.로딩] 공지사항 획득 성공")
             }
         }
     }
@@ -460,8 +692,10 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     displayList.add(displayBoard)
-                    println("[로딩] 전광판 획득 ${firebaseViewModel.displayBoardDTO.value!!}")
-                    addLoadingCount()
+                    //println("[로딩] 전광판 획득 ${firebaseViewModel.displayBoardDTO.value!!}")
+                    //addLoadingCount()
+                    loadingData[6] = true
+                    println("[06.로딩] 전광판 리스트 획득 성공")
                 }
             }
         }
@@ -493,8 +727,10 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     binding.imgMailNew.visibility = View.GONE
                 }*/
-                println("[로딩] 메일 획득")
-                addLoadingCount()
+                //println("[로딩] 메일 획득")
+                //addLoadingCount()
+                loadingData[7] = true
+                println("[07.로딩] 메일 리스트 획득 성공")
             }
         }
     }
@@ -524,7 +760,7 @@ class MainActivity : AppCompatActivity() {
         if (tutorialStep.value == 0) { // 튜토리얼이 진행중이 아닐때만 종료
             if(System.currentTimeMillis() - backWaitTime >=2000 ) {
                 backWaitTime = System.currentTimeMillis()
-                Snackbar.make(binding.layoutMain,"'뒤로' 버튼을 한번 더 누르면 종료됩니다.", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(binding.layoutMain,"'뒤로' 버튼을 한번 더 누르면 앱이 종료됩니다.", Snackbar.LENGTH_LONG).show()
             } else {
                 finish() //액티비티 종료
             }
@@ -623,15 +859,35 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // 회원 탈퇴 확인
+    private fun checkDeleteAccount() {
+        if (firebaseViewModel.userDTO.value?.deleteTime != null) {
+            val question = QuestionDTO(
+                QuestionDTO.Stat.ERROR,
+                "탈퇴처리된 사용자입니다.", "마이팬클럽을 종료합니다."
+            )
+            val dialog = QuestionDialog(this, question)
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            dialog.setCanceledOnTouchOutside(false)
+            dialog.show()
+            dialog.showButtonOk(false)
+            dialog.setButtonCancel("확인")
+            dialog.button_question_cancel.setOnClickListener { // No
+                dialog.dismiss()
+                firebaseAuth?.signOut()
+                googleSignInClient?.signOut()?.addOnCompleteListener { }
+                appExit()
+            }
+        }
+    }
+
     // 로그인 시간이 변경되었으면 중복 로그인으로 판단하여 종료
     private fun checkMultiLogin() {
         if (oldUserDTO?.loginTime != firebaseViewModel.userDTO.value?.loginTime) {
             // 로그아웃 처리됨
             firebaseAuth?.signOut()
             //Auth.GoogleSignInApi.signOut()
-            googleSignInClient?.signOut()?.addOnCompleteListener {
-
-            }
+            googleSignInClient?.signOut()?.addOnCompleteListener { }
 
             val question = QuestionDTO(
                 QuestionDTO.Stat.WARNING,
@@ -1215,7 +1471,7 @@ class MainActivity : AppCompatActivity() {
                     // or AppUpdateType.FLEXIBLE
                     appUpdateManager?.startUpdateFlowForResult(
                         appUpdateInfo,
-                        AppUpdateType.IMMEDIATE, // or AppUpdateType.FLEXIBLE
+                        AppUpdateType.FLEXIBLE, // or AppUpdateType.FLEXIBLE
                         this,
                         100
                     )

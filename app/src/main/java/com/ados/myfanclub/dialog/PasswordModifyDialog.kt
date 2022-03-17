@@ -26,7 +26,8 @@ class PasswordModifyDialog(context: Context) : Dialog(context), View.OnClickList
         binding = PasswordModifyDialogBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.buttonPasswordModifyOk.isEnabled = false
+        setInfo()
+
         binding.imgModifyOk.visibility = View.GONE
         binding.imgModifyCancel.visibility = View.GONE
 
@@ -63,6 +64,13 @@ class PasswordModifyDialog(context: Context) : Dialog(context), View.OnClickList
 
             visibleOkButton()
         }
+    }
+
+    fun setInfo() {
+        binding.buttonPasswordModifyOk.isEnabled = false
+        binding.editPasswordOld.setText("")
+        binding.editPasswordNew.setText("")
+        binding.editPasswordConfirm.setText("")
     }
 
     private fun isValidPassword(password: String) : Boolean {

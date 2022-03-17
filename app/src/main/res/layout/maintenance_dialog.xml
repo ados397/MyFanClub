@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:src="@drawable/purple_line_top"
+        android:src="@drawable/red_line_top"
         android:layout_marginBottom="-5dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
@@ -15,19 +15,20 @@
 
     <LinearLayout
         android:orientation="vertical"
-        android:background="@drawable/gradient_purple"
+        android:background="@drawable/gradient_red"
         android:padding="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <TextView
+            android:id="@+id/text_main_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
             android:fontFamily="@font/font_title"
             android:gravity="center"
-            android:text="공지사항"
+            android:text="서버 점검"
             android:textColor="@color/white"
             android:textSize="24dp"
             android:shadowColor="#B583E1"
@@ -45,7 +46,6 @@
         <LinearLayout
             android:orientation="vertical"
             android:background="@color/report_dialog_sub"
-            android:layout_marginBottom="3dp"
             android:layout_marginLeft="25dp"
             android:layout_marginRight="25dp"
             android:padding="20dp"
@@ -54,85 +54,77 @@
 
             <TextView
                 android:id="@+id/text_title"
-                android:fontFamily="@font/font"
-                android:text="공지사항 제목"
+                android:fontFamily="@font/font_sub_title"
+                android:text="업데이트를 위한 서버 점검"
                 android:textColor="@color/report_text_content"
-                android:textSize="20dp"
+                android:textSize="18dp"
                 android:layout_gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-            <TextView
-                android:id="@+id/text_time"
-                android:fontFamily="@font/font"
-                android:text="2022.03.06 22:13"
-                android:textColor="@color/text_disable"
-                android:textSize="14dp"
-                android:layout_marginTop="5dp"
-                android:layout_gravity="right"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
             <ImageView
                 android:id="@+id/img_notice"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="7dp"
                 android:layout_width="match_parent"
                 android:layout_height="90dp"/>
 
             <TextView
                 android:id="@+id/text_content"
-                android:fontFamily="@font/font"
-                android:text="공지 내용"
+                android:fontFamily="@font/font_sub_title"
+                android:text="업데이트를 위한 서버 점검 중입니다."
                 android:textColor="@color/report_text_content"
-                android:textSize="17dp"
-                android:lines="13"
+                android:textSize="16dp"
+                android:lines="2"
+                android:maxLines="6"
                 android:scrollbars="vertical"
                 android:autoLink="web"
                 android:linksClickable="true"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
         </LinearLayout>
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/button_notice_link"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <TextView
+            android:id="@+id/text_version"
+            android:fontFamily="@font/font_sub_title"
+            android:text="version : 1.0.1"
+            android:textColor="@color/report_text_categories"
+            android:textSize="14dp"
             android:layout_gravity="center"
-            android:layout_marginBottom="20dp"
-            android:backgroundTint="@android:color/transparent"
-            android:clickable="true"
-            app:cardElevation="0dp"
-            app:rippleColor="#fff">
-            <TextView
-                android:id="@+id/text_notice_link"
-                android:fontFamily="@font/font"
-                android:text="공지사항 바로가기 ->"
-                android:textColor="@color/display_board_8"
-                android:textSize="16dp"
-                android:layout_margin="3dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        </com.google.android.material.card.MaterialCardView>
+            android:layout_marginTop="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_gravity="center"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="15dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/button_notice_ok"
+                android:id="@+id/button_maintenance_cancel"
                 android:layout_width="150dp"
                 android:layout_height="35dp"
                 android:layout_gravity="center"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="15dp"
                 android:background="@drawable/btn_round3"
                 android:fontFamily="@font/font_title"
                 android:textSize="18dp"
-                android:text="확인"
+                android:text="다음에"
+                android:textColor="@color/report_dialog_sub" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/button_maintenance_ok"
+                android:layout_width="150dp"
+                android:layout_height="35dp"
+                android:layout_marginLeft="10dp"
+                android:layout_gravity="center"
+                android:background="@drawable/btn_round3"
+                android:fontFamily="@font/font_title"
+                android:textSize="18dp"
+                android:text="종료"
                 android:textColor="@color/report_dialog_sub" />
 
         </LinearLayout>
@@ -140,7 +132,7 @@
     </LinearLayout>
 
     <ImageView
-        android:src="@drawable/purple_line_bottom"
+        android:src="@drawable/red_line_bottom"
         android:layout_marginTop="-5dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"

@@ -20,6 +20,10 @@ class QuestionDialog(context: Context, var question: QuestionDTO) : Dialog(conte
         binding = QuestionDialogBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setInfo()
+    }
+
+    fun setInfo() {
         binding.imgQuestionOk.visibility = View.GONE
         binding.imgQuestionCancel.visibility = View.GONE
 
@@ -49,7 +53,7 @@ class QuestionDialog(context: Context, var question: QuestionDTO) : Dialog(conte
     }
 
     fun showButtonOk(visible: Boolean) {
-        if (visible == true) {
+        if (visible) {
             binding.buttonQuestionOk.visibility = View.VISIBLE
         } else {
             binding.buttonQuestionOk.visibility = View.GONE
@@ -57,7 +61,7 @@ class QuestionDialog(context: Context, var question: QuestionDTO) : Dialog(conte
     }
 
     fun showButtonCancel(visible: Boolean) {
-        if (visible == true) {
+        if (visible) {
             binding.buttonQuestionCancel.visibility = View.VISIBLE
         } else {
             binding.buttonQuestionCancel.visibility = View.GONE

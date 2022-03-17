@@ -12,6 +12,7 @@ import android.view.View
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.NoticeDialogBinding
 import com.ados.myfanclub.model.NoticeDTO
+import com.bumptech.glide.Glide
 import java.text.SimpleDateFormat
 
 class NoticeDialog(context: Context) : Dialog(context), View.OnClickListener {
@@ -34,8 +35,15 @@ class NoticeDialog(context: Context) : Dialog(context), View.OnClickListener {
         binding.textNoticeLink.paintFlags = Paint.UNDERLINE_TEXT_FLAG
         if (noticeDTO != null) {
             binding.textTitle.text = noticeDTO?.title
-            binding.textTime.text = SimpleDateFormat("yyyy.MM.dd HH:mm").format(noticeDTO?.insertTime)
-            binding.textContent.text = noticeDTO?.content
+            binding.textTime.text = SimpleDateFormat("yyyy.MM.dd HH:mm").format(noticeDTO?.time)
+            binding.textContent.text = noticeDTO?.content?.replace("\\n","\n")
+
+            if (!noticeDTO?.imageUrl.isNullOrEmpty()) {
+                Glide.with(context).load(noticeDTO?.imageUrl).fitCenter().into(binding.imgNotice)
+                binding.imgNotice.visibility = View.VISIBLE
+            } else {
+                binding.imgNotice.visibility = View.GONE
+            }
         }
     }
 
@@ -49,9 +57,5 @@ class NoticeDialog(context: Context) : Dialog(context), View.OnClickListener {
                 dismiss()
             }
         }*/
-    }
-
-    override fun onBackPressed() {
-        //super.onBackPressed()
     }
 }

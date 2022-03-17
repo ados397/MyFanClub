@@ -50,9 +50,7 @@ class SplashActivity : AppCompatActivity() {
     private fun callLoginActivity() {
         firebaseAuth?.signOut()
         //Auth.GoogleSignInApi.signOut()
-        googleSignInClient?.signOut()?.addOnCompleteListener {
-
-        }
+        googleSignInClient?.signOut()?.addOnCompleteListener { }
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }

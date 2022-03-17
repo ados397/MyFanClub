@@ -21,10 +21,21 @@ class ToggleAnimation {
             }
         }
 
-        fun expandAction(view: RecyclerView) {
+        fun toggleArrow(view: View, isExpanded: Boolean): Boolean {
+            return if (isExpanded) {
+                view.animate().setDuration(200).rotation(180f)
+                true
+            } else {
+                view.animate().setDuration(200).rotation(0f)
+                false
+            }
+        }
+
+        //fun expandAction(view: RecyclerView) {
+        fun expandAction(view: View) {
             view.measure(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            val actualHeight = view.measuredHeight - 50
-            //val actualHeight = view.height
+            //val actualHeight = view.measuredHeight - 50
+            val actualHeight = view.height
 
             view.layoutParams.height = 0
             view.visibility = View.VISIBLE
@@ -42,9 +53,10 @@ class ToggleAnimation {
             view.startAnimation(animation)
         }
 
-        fun collapse(view: RecyclerView) {
-            val actualHeight = view.measuredHeight
-            //val actualHeight = view.height
+        //fun collapse(view: RecyclerView) {
+        fun collapse(view: View) {
+            //val actualHeight = view.measuredHeight
+            val actualHeight = view.height
 
             val animation = object : Animation() {
                 override fun applyTransformation(interpolatedTime: Float, t: Transformation?) {

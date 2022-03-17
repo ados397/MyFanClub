@@ -38,6 +38,7 @@ data class UserDTO(
     var blockStartTime: Date? = null,
     var blockEndTime: Date? = null,
     var blockReason: String? = null,
+    var deleteTime: Date? = null, // 회원 탈퇴 시간
     var tutorialEndedTime: Date? = null,
     var token: String? = null
 ) : Parcelable {

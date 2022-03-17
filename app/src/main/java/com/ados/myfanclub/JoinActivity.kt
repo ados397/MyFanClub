@@ -24,6 +24,7 @@ class JoinActivity : AppCompatActivity() {
     private val firebaseViewModel : FirebaseViewModel by viewModels()
 
     private var emailOK: Boolean = false
+    private var emailConfirmOK: Boolean = false
     private var passwordOK: Boolean = false
     private var passwordConfirmOK: Boolean = false
     private var nicknameOK: Boolean = false
@@ -117,6 +118,17 @@ class JoinActivity : AppCompatActivity() {
             if (binding.editEmail.text.toString().isEmpty())
                 emailOK = false
 
+            isValidEmailConfirm()
+
+            visibleOkButton()
+        }
+
+        binding.editEmailConfirm.doAfterTextChanged {
+            isValidEmailConfirm()
+
+            if (binding.editEmailConfirm.text.toString().isEmpty())
+                emailConfirmOK = false
+
             visibleOkButton()
         }
 
@@ -189,6 +201,18 @@ class JoinActivity : AppCompatActivity() {
         }
     }
 
+    private fun isValidEmailConfirm() {
+        if (binding.editEmailConfirm.text.toString() != binding.editEmail.text.toString()) {
+            binding.textEmailConfirmError.text = "이메일 주소가 일치하지 않습니다."
+            binding.editEmailConfirm.setBackgroundResource(R.drawable.edit_rectangle_red)
+            emailConfirmOK = false
+        } else {
+            binding.textEmailConfirmError.text = ""
+            binding.editEmailConfirm.setBackgroundResource(R.drawable.edit_rectangle)
+            emailConfirmOK = true
+        }
+    }
+
     private fun isValidPasswordConfirm() {
         if (binding.editPasswordConfirm.text.toString() != binding.editPassword.text.toString()) {
             binding.textPasswordConfirmError.text = "비밀번호가 일치하지 않습니다."
@@ -227,6 +251,6 @@ class JoinActivity : AppCompatActivity() {
     }
 
     private fun visibleOkButton() {
-        binding.buttonOk.isEnabled = emailOK && passwordOK && passwordConfirmOK && nicknameOK
+        binding.buttonOk.isEnabled = emailOK && emailConfirmOK && passwordOK && passwordConfirmOK && nicknameOK
     }
 }

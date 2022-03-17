@@ -11,7 +11,8 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import com.ados.myfanclub.databinding.ActivityLoginBinding
-import com.ados.myfanclub.dialog.TermsOfUseDialog
+import com.ados.myfanclub.dialog.DocumentDialog
+import com.ados.myfanclub.dialog.MaintenanceDialog
 import com.ados.myfanclub.model.UserDTO
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.facebook.*
@@ -26,7 +27,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import kotlinx.android.synthetic.main.terms_of_use_dialog.*
+import kotlinx.android.synthetic.main.document_dialog.*
+import kotlinx.android.synthetic.main.maintenance_dialog.*
 import java.util.*
 
 
@@ -40,6 +42,7 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var resultLauncher: ActivityResultLauncher<Intent>
     private var callbackManager : CallbackManager? = null
+    private var documentDialog : DocumentDialog? = null
 
     private var backWaitTime = 0L //뒤로가기 연속 클릭 대기 시간
 
@@ -50,8 +53,13 @@ class LoginActivity : AppCompatActivity() {
 
         firebaseAuth = FirebaseAuth.getInstance()
 
+        // 업데이트 설정 획득
+        firebaseViewModel.getServerUpdateListen()
+        observeUpdate()
+
         // 구글 로그인 처리
         resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            println("구글 로그인 $result")
             if (result.resultCode == RESULT_OK) {
                 var result = Auth.GoogleSignInApi.getSignInResultFromIntent(result.data)
                 if (result.isSuccess) {
@@ -71,15 +79,28 @@ class LoginActivity : AppCompatActivity() {
         callbackManager = CallbackManager.Factory.create()
 
         binding.buttonJoin.setOnClickListener {
+            firebaseViewModel.getTermsOfUse { document ->
+                if (documentDialog == null) {
+                    documentDialog = DocumentDialog(this, document)
+                    documentDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    documentDialog?.setCanceledOnTouchOutside(false)
+                } else {
+                    documentDialog?.content = document
+                }
+                documentDialog?.show()
+                documentDialog?.setInfo()
+                documentDialog?.setButtonOk("동의")
+                documentDialog?.setButtonCancel("동의안함")
+                documentDialog?.button_document_cancel?.setOnClickListener { // No
+                    documentDialog?.dismiss()
+                    Toast.makeText(this, "약관에 동의해야 회원가입이 가능합니다.", Toast.LENGTH_SHORT).show()
+                }
+                documentDialog?.button_document_ok?.setOnClickListener { // Ok
+                    documentDialog?.dismiss()
+                    Toast.makeText(this, "약관에 동의 하셨습니다.", Toast.LENGTH_SHORT).show()
 
-            val dialog = TermsOfUseDialog(this)
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.show()
-            dialog.button_terms_of_use_cancel.setOnClickListener { // No
-                dialog.dismiss()
-
-                startActivity(Intent(this, JoinActivity::class.java))
+                    startActivity(Intent(this, JoinActivity::class.java))
+                }
             }
         }
 
@@ -106,6 +127,29 @@ class LoginActivity : AppCompatActivity() {
 
         binding.buttonLoginFacebook.setOnClickListener {
             facebookLogin()
+        }
+    }
+
+    // 업데이트 모니터링
+    private fun observeUpdate() {
+        firebaseViewModel.updateDTO.observe(this) {
+            if (firebaseViewModel.updateDTO.value != null) {
+                if (firebaseViewModel.updateDTO.value!!.maintenance!!) { // 서버 점검 대화상자 출력
+                    onMaintenanceDialog()
+                }
+            }
+        }
+    }
+
+    private fun onMaintenanceDialog() {
+        val maintenanceDialog = MaintenanceDialog(this, MaintenanceDialog.JobType.MAINTENANCE)
+        maintenanceDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        maintenanceDialog.setCanceledOnTouchOutside(false)
+        maintenanceDialog.updateDTO = firebaseViewModel.updateDTO.value
+        maintenanceDialog.show()
+        maintenanceDialog.button_maintenance_ok.setOnClickListener {
+            maintenanceDialog.dismiss()
+            finish() //액티비티 종료
         }
     }
 
@@ -144,8 +188,14 @@ class LoginActivity : AppCompatActivity() {
                     if (task.isSuccessful) {
                         firebaseViewModel.getUser(firebaseAuth?.uid!!) { userDTO ->
                             if (userDTO != null) {
-                                callMainActivity(userDTO)
-                                Toast.makeText(this, "로그인 성공", Toast.LENGTH_SHORT).show()
+                                if (userDTO.deleteTime != null) { // 탈퇴한 사용자
+                                    firebaseAuth?.signOut()
+                                    googleSignInClient?.signOut()?.addOnCompleteListener { }
+                                    Toast.makeText(this, "탈퇴처리된 사용자입니다.", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    callMainActivity(userDTO)
+                                    Toast.makeText(this, "로그인 성공", Toast.LENGTH_SHORT).show()
+                                }
                             } else {
                                 Toast.makeText(this, "로그인에 실패하였습니다. 관리자에게 문의 하세요.", Toast.LENGTH_SHORT).show()
                             }
@@ -179,11 +229,14 @@ class LoginActivity : AppCompatActivity() {
         // 구글 로그인은 동일한 이메일로 로그인한 계정(페이스북, 이메일)이 있어도 로그인이 되어버리기 때문에 이미 가입된 정보가 있는지 확인해서 없을때만 처리
         firebaseViewModel.findUserFromEmail(account?.email.toString()) { userDTO ->
             if (userDTO != null) { // 로그인한 구글 계정과 동일한 이메일의 사용자 존재
-                if (userDTO.loginType != UserDTO.LoginType.GOOGLE) { // 구글 로그인이 아니라면 다른 방법으로 이미 가입한 사용자
+                if (userDTO.deleteTime != null) { // 탈퇴한 사용자
+                    firebaseAuth?.signOut()
+                    googleSignInClient?.signOut()?.addOnCompleteListener { }
+                    Toast.makeText(this, "탈퇴처리된 사용자입니다.", Toast.LENGTH_SHORT).show()
+                    return@findUserFromEmail
+                } else if (userDTO.loginType != UserDTO.LoginType.GOOGLE) { // 구글 로그인이 아니라면 다른 방법으로 이미 가입한 사용자
                     Toast.makeText(this, "이미 가입된 이메일 입니다.", Toast.LENGTH_SHORT).show()
-                    googleSignInClient?.signOut()?.addOnCompleteListener {
-
-                    }
+                    googleSignInClient?.signOut()?.addOnCompleteListener { }
                     return@findUserFromEmail
                 }
             }
@@ -331,7 +384,7 @@ class LoginActivity : AppCompatActivity() {
         //appExit()
         if(System.currentTimeMillis() - backWaitTime >=2000 ) {
             backWaitTime = System.currentTimeMillis()
-            Snackbar.make(binding.layoutMain,"'뒤로' 버튼을 한번 더 누르면 종료됩니다.", Snackbar.LENGTH_LONG).show()
+            Snackbar.make(binding.layoutMain,"'뒤로' 버튼을 한번 더 누르면 앱이 종료됩니다.", Snackbar.LENGTH_LONG).show()
         } else {
             finish() //액티비티 종료
         }

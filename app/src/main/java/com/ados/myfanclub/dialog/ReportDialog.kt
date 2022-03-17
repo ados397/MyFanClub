@@ -57,6 +57,7 @@ class ReportDialog(context: Context) : Dialog(context), View.OnClickListener {
 
     fun setInfo() {
         if (reportDTO != null) {
+            binding.radioGroup.clearCheck()
             binding.textNickname.text = reportDTO?.toUserNickname
             binding.textContent.text = reportDTO?.content
         }

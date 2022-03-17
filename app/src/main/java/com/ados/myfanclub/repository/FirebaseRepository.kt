@@ -62,6 +62,9 @@ class FirebaseRepository() {
     val scheduleStatistics = MutableLiveData<MutableMap<String, Int>>() // 스케줄 통계 정보
     val adPolicyDTO = MutableLiveData<AdPolicyDTO>() // 광고 설정
     val preferencesDTO = MutableLiveData<PreferencesDTO>() // 환경 설정
+    var preferencesDTOListener : ListenerRegistration? = null
+    val updateDTO = MutableLiveData<UpdateDTO>() // 업데이트 설정
+    var updateDTOListener : ListenerRegistration? = null
     val token = MutableLiveData<String>() // 토큰 정보
     val myResponse : MutableLiveData<Response<ResponseBody>> = MutableLiveData() // 메세지 수신 정보
 
@@ -278,6 +281,99 @@ class FirebaseRepository() {
         }
     }
 
+    // 팬클럽 스케줄 리스트 획득(실시간), 팬클럽 스케줄은 여러 사람이 추가할 수 있기 때문에 Listener 사용
+    fun getFanClubSchedulesListen(fanClubId: String) {
+        if (scheduleDTOsListener == null) {
+            scheduleDTOsListener = firestore.collection("fanClub")?.document(fanClubId)?.collection("schedule")?.orderBy("order", Query.Direction.ASCENDING)?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                if(querySnapshot == null)return@addSnapshotListener
+
+                var schedules : ArrayList<ScheduleDTO> = arrayListOf()
+                for(snapshot in querySnapshot){
+                    var schedule = snapshot.toObject(ScheduleDTO::class.java)!!
+                    schedules.add(schedule)
+                }
+                scheduleDTOs.value = schedules
+            }
+        }
+    }
+
+    // 팬클럽 스케줄 리스트 획득(실시간) 중지
+    fun stopFanClubSchedulesListen() {
+        if (scheduleDTOsListener != null) {
+            scheduleDTOsListener?.remove()
+            scheduleDTOsListener = null
+            scheduleDTOs.value = arrayListOf()
+        }
+    }
+
+    // 환경 설정 불러오기 (실시간)
+    fun getPreferencesListen() {
+        if (preferencesDTOListener == null) {
+            preferencesDTOListener = firestore.collection("preferences").document("preferences")?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
+                if (documentSnapshot == null) return@addSnapshotListener
+                val preferences = documentSnapshot?.toObject(PreferencesDTO::class.java)!!
+                preferencesDTO.value = preferences
+            }
+        }
+    }
+
+    // 환경 설정 불러오기 (실시간) 중지
+    fun stopPreferencesListen() {
+        if (preferencesDTOListener != null) {
+            preferencesDTOListener?.remove()
+            preferencesDTOListener = null
+            preferencesDTO.value = null
+        }
+    }
+
+    // 업데이트 및 서버점검 체크 (실시간)
+    fun getServerUpdateListen() {
+        if (updateDTOListener == null) {
+            updateDTOListener = firestore.collection("preferences").document("update")?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
+                if (documentSnapshot == null) return@addSnapshotListener
+                val update = documentSnapshot?.toObject(UpdateDTO::class.java)!!
+                updateDTO.value = update
+            }
+        }
+    }
+
+    // 업데이트 및 서버점검 체크 (실시간) 중지
+    fun stopServerUpdateListen() {
+        if (updateDTOListener != null) {
+            updateDTOListener?.remove()
+            updateDTOListener = null
+            updateDTO.value = null
+        }
+    }
+
+    // 이용약관 불러오기
+    fun getTermsOfUse(myCallback: (String) -> Unit) {
+        firestore.collection("admin").document("documents").get().addOnCompleteListener { task ->
+            var doc = ""
+            if (task.isSuccessful && task.result.exists()) {
+                if (task.result.contains("terms_of_use")) {
+                    doc = task.result!!["terms_of_use"] as String
+                }
+            }
+            //documents.value = doc.replace("\\n","\n")
+            myCallback(doc.replace("\\n","\n"))
+        }
+    }
+
+    // 개인정보 처리방침 불러오기
+    fun getPrivacyPolicy(myCallback: (String) -> Unit) {
+        firestore.collection("admin").document("documents").get().addOnCompleteListener { task ->
+            var doc = ""
+            if (task.isSuccessful && task.result.exists()) {
+                if (task.result.contains("privacy_policy")) {
+                    doc = task.result!!["privacy_policy"] as String
+                }
+            }
+            //documents.value = doc.replace("\\n","\n")
+            myCallback(doc.replace("\\n","\n"))
+        }
+    }
+
     // 사용자 불러오기
     fun getUser(uid: String, myCallback: (UserDTO?) -> Unit) {
         var user: UserDTO? = null
@@ -314,7 +410,7 @@ class FirebaseRepository() {
 
     // 공지사항 리스트 획득(최신순)
     fun getNotices(isMain: Boolean) {
-        firestore.collection("notice")?.orderBy("insertTime", Query.Direction.DESCENDING)?.limit(30)?.get().addOnCompleteListener { task ->
+        firestore.collection("notice")?.orderBy("time", Query.Direction.DESCENDING)?.limit(30)?.get().addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 var notices : ArrayList<NoticeDTO> = arrayListOf()
                 for (document in task.result) {
@@ -444,54 +540,6 @@ class FirebaseRepository() {
             scheduleDTOs.value = schedules
         }?.addOnFailureListener { exception ->
 
-        }
-    }
-
-    // 팬클럽 스케줄 리스트 획득(실시간), 팬클럽 스케줄은 여러 사람이 추가할 수 있기 때문에 Listener 사용
-    fun getFanClubSchedulesListen(fanClubId: String) {
-        if (scheduleDTOsListener == null) {
-            scheduleDTOsListener = firestore.collection("fanClub")?.document(fanClubId)?.collection("schedule")?.orderBy("order", Query.Direction.ASCENDING)?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                println("언제 들어오나?? ㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁㅁ")
-                if(querySnapshot == null)return@addSnapshotListener
-
-                var schedules : ArrayList<ScheduleDTO> = arrayListOf()
-                for(snapshot in querySnapshot){
-                    var schedule = snapshot.toObject(ScheduleDTO::class.java)!!
-                    schedules.add(schedule)
-                }
-                scheduleDTOs.value = schedules
-            }
-        }
-    }
-
-    // 팬클럽 스케줄 리스트 획득(실시간) 중지
-    fun stopFanClubSchedulesListen() {
-        if (scheduleDTOsListener != null) {
-            scheduleDTOsListener?.remove()
-            scheduleDTOsListener = null
-            scheduleDTOs.value = arrayListOf()
-        }
-    }
-
-    // 업데이트 및 서버점검 체크 (실시간)
-    fun getServerUpdate() {
-        if (displayBoardDTOListener == null) {
-            displayBoardDTOListener = firestore.collection("displayBoard")?.orderBy("order", Query.Direction.DESCENDING)?.limit(1)?.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-                if (querySnapshot == null) return@addSnapshotListener
-                for(snapshot in querySnapshot){
-                    var displayBoard = snapshot.toObject(DisplayBoardDTO::class.java)!!
-                    displayBoardDTO.value = displayBoard
-                }
-            }
-        }
-    }
-
-    // 전광판 불러오기(실시간) 중지
-    fun stopServerUpdate() {
-        if (displayBoardDTOListener != null) {
-            displayBoardDTOListener?.remove()
-            displayBoardDTOListener = null
-            displayBoardDTO.value = null
         }
     }
 
@@ -674,15 +722,6 @@ class FirebaseRepository() {
                 val adPolicy = task.result.toObject(AdPolicyDTO::class.java)!!
                 adPolicyDTO.value = adPolicy
             }
-        }
-    }
-
-    // 환결 설정 불러오기
-    fun getPreferences() {
-        firestore.collection("preferences").document("preferences")?.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
-            if (documentSnapshot == null) return@addSnapshotListener
-            val preferences = documentSnapshot?.toObject(PreferencesDTO::class.java)!!
-            preferencesDTO.value = preferences
         }
     }
 
@@ -1080,6 +1119,13 @@ class FirebaseRepository() {
             ?.collection("mail")?.document(mail.docName.toString())?.set(mail)?.addOnCompleteListener {
                 myCallback(true)
             }
+    }
+
+    // 사용자 회원 탈퇴
+    fun updateUserDeleteTime(user: UserDTO, myCallback: (Boolean) -> Unit) {
+        firestore.collection("user")?.document(user.uid.toString())?.update("deleteTime", user.deleteTime).addOnCompleteListener {
+            myCallback(true)
+        }
     }
 
     // 전광판 등록

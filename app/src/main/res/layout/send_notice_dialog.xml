@@ -28,6 +28,7 @@
                 android:src="@drawable/ads" />
 
             <TextView
+                android:id="@+id/text_info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
@@ -36,6 +37,16 @@
                 android:text="     전체 공지 발송은 모든 팬클럽 멤버에게 실시간으로 [푸시 알림]과 [우편]을 발송하여 중요 전달사항이 있을 때 즉시 누락없이 확인이 가능합니다."
                 android:textColor="@color/text"
                 android:textSize="16dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/text_info"
+                android:layout_marginTop="2dp"
+                android:fontFamily="@font/font"
+                android:text="(알림을 꺼놓은 사용자는 [푸시 알림]을 받을 수 없습니다.)"
+                android:textColor="@color/text_red"
+                android:textSize="14dp" />
 
         </RelativeLayout>
 

@@ -131,6 +131,16 @@ class FragmentAccountInfo : Fragment() {
             false
         }
 
+        binding.buttonProfileSettings.setOnClickListener {
+            val fragment = FragmentAccountProfileSettings()
+            parentFragmentManager.beginTransaction().apply{
+                replace(R.id.layout_fragment, fragment)
+                setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                addToBackStack(null)
+                commit()
+            }
+        }
+
         binding.buttonRank.setOnClickListener {
             val fragment = FragmentAccountRank()
             parentFragmentManager.beginTransaction().apply{
@@ -178,6 +188,7 @@ class FragmentAccountInfo : Fragment() {
                     questionDialog?.question = question
                 }
                 questionDialog?.show()
+                questionDialog?.setInfo()
                 questionDialog?.button_question_cancel?.setOnClickListener { // No
                     questionDialog?.dismiss()
                 }

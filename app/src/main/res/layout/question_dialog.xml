@@ -11,6 +11,7 @@
 
         <RelativeLayout
             android:id="@+id/layout_user_info"
+            android:layout_margin="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -31,8 +32,8 @@
                 android:layout_marginRight="20dp"
                 android:layout_toRightOf="@+id/img_stat"
                 android:fontFamily="@font/font"
-                android:textSize="18dp"
                 android:text="제목"
+                android:textSize="18dp"
                 android:textStyle="bold" />
 
             <TextView
@@ -41,13 +42,13 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/text_title"
                 android:layout_marginLeft="20dp"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="15dp"
                 android:layout_marginRight="20dp"
                 android:layout_marginBottom="10dp"
                 android:layout_toRightOf="@+id/img_stat"
                 android:fontFamily="@font/font"
-                android:textSize="16dp"
-                android:text="내용" />
+                android:text="내용"
+                android:textSize="16dp" />
 
         </RelativeLayout>
     </RelativeLayout>

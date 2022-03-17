@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".page.FragmentAccountDeleteAccount">
+
+    <RelativeLayout
+        android:id="@+id/layout_title"
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/button_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="5dp"
+            android:backgroundTint="@android:color/transparent"
+            android:clickable="true"
+            app:cardElevation="0dp"
+            app:rippleColor="#fff">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/arrow_back" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/text_page_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/button_back"
+            android:fontFamily="@font/font"
+            android:text=""
+            android:textColor="@color/text"
+            android:textSize="24dp" />
+
+    </RelativeLayout>
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/layout_ok"
+        android:layout_below="@id/layout_title">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/font_sub_title"
+                android:textStyle="bold"
+                android:text="회원 탈퇴 신청 전에"
+                android:textColor="@color/text"
+                android:textSize="28dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="25dp"
+                android:fontFamily="@font/font_sub_title"
+                android:textStyle="bold"
+                android:text="꼭 확인하세요."
+                android:textColor="@color/text"
+                android:textSize="28dp" />
+
+
+            <RelativeLayout
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_sub_title"
+                    android:text="탈퇴 시 소멸 다이아"
+                    android:textColor="@color/text"
+                    android:textSize="14dp" />
+
+                <TextView
+                    android:id="@+id/text_gem_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:fontFamily="@font/font_title"
+                    android:textStyle="bold"
+                    android:text="1,000 다이아"
+                    android:textColor="@color/text"
+                    android:textSize="14dp" />
+
+                <View
+                    android:background="@color/report_text_categories"
+                    android:layout_below="@+id/text_gem_count"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/layout_explain_1"
+                    android:orientation="vertical"
+                    android:layout_toLeftOf="@id/checkbox_explain_1"
+                    android:layout_marginRight="5dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/text_explain_1_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_sub_title"
+                        android:text="마이팬클럽을 탈퇴하면 회원 정보 및 서비스 이용 기록이 삭제됩니다."
+                        android:textColor="@color/text"
+                        android:textSize="17dp" />
+
+                    <TextView
+                        android:id="@+id/text_explain_1_desc_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:fontFamily="@font/font_sub_title"
+                        android:text="· 미사용 보유 다이아, 프리미엄 패키지, 우편함, 개인 스케줄, 개인 목표달성 통계, 내 프로필 등 사용자의 모든 정보가 사라지며 재가입 하더라도 복구가 불가능합니다."
+                        android:textColor="@color/text_disable"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:id="@+id/text_explain_1_desc_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/font_sub_title"
+                        android:text="· 탈퇴 14일 이내 재가입 할 수 없으며, 탈퇴 후 동일 이메일로 재 가입할 수 없습니다. "
+                        android:textColor="@color/text_disable"
+                        android:textSize="14dp" />
+                </LinearLayout>
+
+                <CheckBox
+                    android:id="@+id/checkbox_explain_1"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentRight="true" />
+
+                <View
+                    android:background="@color/report_text_categories"
+                    android:layout_below="@+id/layout_explain_1"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/layout_explain_2"
+                    android:orientation="vertical"
+                    android:layout_toLeftOf="@id/checkbox_explain_2"
+                    android:layout_marginRight="5dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/text_explain_2_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_sub_title"
+                        android:text="관련 법령 및 내부 기준에 따라 별도 보관하는 경우에는 일부 정보가 보관될 수 있습니다."
+                        android:textColor="@color/text"
+                        android:textSize="17dp" />
+
+                    <TextView
+                        android:id="@+id/text_explain_2_sub_title_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:fontFamily="@font/font_sub_title"
+                        android:text="1. 전자상거래 등 소비자 보호에 관한 법률"
+                        android:textColor="@color/text_sub"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:id="@+id/text_explain_2_desc_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/font_sub_title"
+                        android:text="· 계약 또는 청약철회 등에 관한 기록: 5년 보관"
+                        android:textColor="@color/text_disable"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:id="@+id/text_explain_2_desc_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/font_sub_title"
+                        android:text="· 대금결제 및 재화 등의 공급에 관한 기록: 5년 보관"
+                        android:textColor="@color/text_disable"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:id="@+id/text_explain_2_desc_3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/font_sub_title"
+                        android:text="· 소비자의 불만 또는 분쟁 처리에 관한 기록: 3년 보관"
+                        android:textColor="@color/text_disable"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:id="@+id/text_explain_2_sub_title_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:fontFamily="@font/font_sub_title"
+                        android:text="2. 통신비밀보호법"
+                        android:textColor="@color/text_sub"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:id="@+id/text_explain_2_desc_4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/font_sub_title"
+                        android:text="· 접속 로그 기록: 3개월 보관"
+                        android:textColor="@color/text_disable"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:id="@+id/text_explain_2_sub_title_3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:fontFamily="@font/font_sub_title"
+                        android:text="3. 내부 기준에 따라 별도 보관"
+                        android:textColor="@color/text_sub"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:id="@+id/text_explain_2_desc_5"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/font_sub_title"
+                        android:text="· 부정이용 방지를 위해 이메일(로그인ID): 3년 보관"
+                        android:textColor="@color/text_disable"
+                        android:textSize="14dp" />
+
+
+                </LinearLayout>
+
+                <CheckBox
+                    android:id="@+id/checkbox_explain_2"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentRight="true" />
+
+                <View
+                    android:background="@color/report_text_categories"
+                    android:layout_below="@+id/layout_explain_2"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/layout_explain_3"
+                    android:orientation="vertical"
+                    android:layout_toLeftOf="@id/checkbox_explain_3"
+                    android:layout_marginRight="5dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/text_explain_3_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/font_sub_title"
+                        android:text="마이팬클럽 탈퇴가 제한된 경우에는 아래 내용을 참고하시기 바랍니다."
+                        android:textColor="@color/text"
+                        android:textSize="17dp" />
+
+                    <TextView
+                        android:id="@+id/text_explain_3_desc_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:fontFamily="@font/font_sub_title"
+                        android:text="· 팬클럽에 가입되어 있을 경우: 팬클럽 탈퇴 후 탈퇴 가능"
+                        android:textColor="@color/text_disable"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:id="@+id/text_explain_3_desc_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/font_sub_title"
+                        android:text="· 프리미엄 패키지가 활성화 되어 있을 경우: 프리미엄 패키지 만료 후 탈퇴 가능"
+                        android:textColor="@color/text_disable"
+                        android:textSize="14dp" />
+
+                    <TextView
+                        android:id="@+id/text_explain_3_desc_3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/font_sub_title"
+                        android:text="· 이용 정지 상태인 경우: 이용 정지 해제 후 탈퇴 가능"
+                        android:textColor="@color/text_disable"
+                        android:textSize="14dp" />
+                </LinearLayout>
+
+                <CheckBox
+                    android:id="@+id/checkbox_explain_3"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentRight="true" />
+
+                <View
+                    android:background="@color/report_text_categories"
+                    android:layout_below="@+id/layout_explain_3"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/text_explain_last_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5dp"
+                    android:fontFamily="@font/font_sub_title"
+                    android:textStyle="bold"
+                    android:text="회원 탈퇴 안내를 모두 확인하였으며\n탈퇴에 동의합니다."
+                    android:textColor="@color/text"
+                    android:textSize="17dp" />
+
+                <CheckBox
+                    android:id="@+id/checkbox_explain_last"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_alignParentRight="true" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <RelativeLayout
+        android:id="@+id/layout_ok"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/button_ok"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:enabled="false"
+            android:fontFamily="@font/font_sub_title"
+            android:padding="10dp"
+            android:text="탈퇴하기"
+            android:textSize="18dp" />
+    </RelativeLayout>
+
+</RelativeLayout>

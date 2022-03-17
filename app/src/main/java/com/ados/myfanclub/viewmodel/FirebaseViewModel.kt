@@ -29,9 +29,9 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
     val personalDashboardMissionDTOs = repository.personalDashboardMissionDTOs
     val fanClubDashboardMissionDTOs = repository.fanClubDashboardMissionDTOs
     val scheduleStatistics = repository.scheduleStatistics
-    //val currentQuiz = repository.currentQuiz
     val adPolicyDTO = repository.adPolicyDTO
     val preferencesDTO = repository.preferencesDTO
+    val updateDTO = repository.updateDTO
     val token = repository.token
     val myResponse = repository.myResponse
 
@@ -120,6 +120,50 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
         repository.stopFanClubChatsListen()
     }
 
+    // 팬클럽 스케줄 리스트 획득(실시간), 팬클럽 스케줄은 여러 사람이 추가할 수 있기 때문에 Listener 사용
+    fun getFanClubSchedulesListen(fanClubId: String) {
+        repository.getFanClubSchedulesListen(fanClubId)
+    }
+
+    // 팬클럽 스케줄 리스트 획득(실시간) 중지
+    fun stopFanClubSchedulesListen() {
+        repository.stopFanClubSchedulesListen()
+    }
+
+    // 환경 설정 불러오기 (실시간)
+    fun getPreferencesListen() {
+        repository.getPreferencesListen()
+    }
+
+    // 환경 설정 불러오기 (실시간) 중지
+    fun stopPreferencesListen() {
+        repository.stopPreferencesListen()
+    }
+
+    // 업데이트 및 서버점검 체크 (실시간)
+    fun getServerUpdateListen() {
+        repository.getServerUpdateListen()
+    }
+
+    // 업데이트 및 서버점검 체크 (실시간) 중지
+    fun stopServerUpdateListen() {
+        repository.stopServerUpdateListen()
+    }
+
+    // 이용약관 불러오기
+    fun getTermsOfUse(myCallback: (String) -> Unit) {
+        repository.getTermsOfUse() {
+            myCallback(it)
+        }
+    }
+
+    // 개인정보 처리방침 불러오기
+    fun getPrivacyPolicy(myCallback: (String) -> Unit) {
+        repository.getPrivacyPolicy() {
+            myCallback(it)
+        }
+    }
+
     // 사용자 불러오기
     fun getUser(uid: String, myCallback: (UserDTO?) -> Unit) {
         repository.getUser(uid) {
@@ -173,16 +217,6 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
         repository.getPersonalSchedules(uid)
     }
 
-    // 팬클럽 스케줄 리스트 획득(실시간), 팬클럽 스케줄은 여러 사람이 추가할 수 있기 때문에 Listener 사용
-    fun getFanClubSchedulesListen(fanClubId: String) {
-        repository.getFanClubSchedulesListen(fanClubId)
-    }
-
-    // 팬클럽 스케줄 리스트 획득(실시간) 중지
-    fun stopFanClubSchedulesListen() {
-        repository.stopFanClubSchedulesListen()
-    }
-
     // 개인 스케줄 및 진행도 불러오기
     fun getPersonalDashboardMission(uid: String, selectedCycle: ScheduleDTO.Cycle) {
         repository.getPersonalDashboardMission(uid, selectedCycle)
@@ -220,11 +254,6 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
     // 광고 설정 불러오기
     fun getAdPolicy() {
         repository.getAdPolicy()
-    }
-
-    // 환결 설정 불러오기
-    fun getPreferences() {
-        repository.getPreferences()
     }
 
     // 토큰 정보 불러오기
@@ -413,6 +442,13 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
     // 사용자 메일 발송
     fun sendUserMail(uid: String, mail: MailDTO, myCallback: (Boolean) -> Unit) {
         repository.sendUserMail(uid, mail) {
+            myCallback(it)
+        }
+    }
+
+    // 사용자 회원 탈퇴
+    fun updateUserDeleteTime(user: UserDTO, myCallback: (Boolean) -> Unit) {
+        repository.updateUserDeleteTime(user) {
             myCallback(it)
         }
     }

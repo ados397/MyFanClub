@@ -93,15 +93,19 @@ data class PreferencesDTO (
 }
 
 data class UpdateDTO (
+    var updateUri : String = "https://play.google.com/store/apps/details?id=com.ados.myfanclub", // 업데이트 Uri
     var minVersion : String? = null, // 실행 가능한 최소 버전, 해당 버전 미만은 앱 실행 불가
     var minVersionDisplay : Boolean? = false, // 최소 버전 경고 표시 여부
+    var minVersionTitle : String? = null, // 업데이트 경고 제목
+    var minVersionDesc : String? = null, // 업데이트 경고 내용
     var updateVersion : String? = null, // 업데이트 필요 버전, 해당 버전 미만은 앱 업데이트 필요
     var updateVersionDisplay : Boolean? = false, // 업데이트 필요 버전 경고 표시 여부
-    var essential : Boolean? = false,
-    var updateUrl : String? = null,
-    var maintainance : Boolean? = false,
-    var maintainanceTitle : String? = null,
-    var maintainanceDesc : String? = null
+    var updateVersionTitle : String? = null, // 업데이트 경고 제목
+    var updateVersionDesc : String? = null, // 업데이트 경고 내용
+    var maintenance : Boolean? = false, // 서버 점검 여부
+    var maintenanceTitle : String? = null, // 서버 점검 시 표시될 제목
+    var maintenanceDesc : String? = null, // 서버 점검 시 표시될 내용
+    var maintenanceImgUrl : String? = null // 서버 점검 시 표시할 이미지
 ) { }
 
 data class AdPolicyDTO(
@@ -138,7 +142,8 @@ data class ReportDTO(
 data class NoticeDTO(
     var title: String? = null,
     var content: String? = null,
-    var insertTime: Date? = null,
+    var imageUrl: String? = null,
+    var time: Date? = null,
     var displayMain: Boolean? = null // 메인 공지에 표시 여부
 ) {}
 

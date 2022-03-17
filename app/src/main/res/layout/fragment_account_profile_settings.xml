@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".page.FragmentAccountProfileSettings">
+
+    <RelativeLayout
+        android:id="@+id/layout_title"
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/button_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="5dp"
+            android:backgroundTint="@android:color/transparent"
+            android:clickable="true"
+            app:cardElevation="0dp"
+            app:rippleColor="#fff">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/arrow_back" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:id="@+id/text_page_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/button_back"
+            android:fontFamily="@font/font"
+            android:text="프로필 설정"
+            android:textColor="@color/text"
+            android:textSize="24dp" />
+
+    </RelativeLayout>
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/layout_title">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <RelativeLayout
+                android:id="@+id/layout_profile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="3dp">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/img_profile"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/profile" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:background="@drawable/btn_round5"
+                    android:fontFamily="@font/font"
+                    android:paddingLeft="15dp"
+                    android:paddingTop="3dp"
+                    android:paddingRight="15dp"
+                    android:paddingBottom="3dp"
+                    android:text="변경"
+                    android:textColor="@color/white"
+                    android:textSize="16dp" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="15dp"
+                android:fontFamily="@font/font"
+                android:text="프로필 수정"
+                android:textColor="@color/text"
+                android:textSize="20dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/text_nickname"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font"
+                android:text="닉네임"
+                android:textColor="@color/text"
+                android:textSize="18dp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp">
+
+                <EditText
+                    android:id="@+id/edit_nickname"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_toLeftOf="@id/button_modify_nickname"
+                    android:background="@drawable/edit_rectangle_read_only"
+                    android:ellipsize="end"
+                    android:focusable="false"
+                    android:fontFamily="@font/font"
+                    android:maxLines="1"
+                    android:textColor="@color/text"
+                    android:textCursorDrawable="@drawable/edit_cursor"
+                    android:textSize="16dp" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/button_modify_nickname"
+                    android:layout_width="70dp"
+                    android:layout_height="26dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="5dp"
+                    android:background="@drawable/btn_round4"
+                    android:fontFamily="@font/font"
+                    android:text="변경"
+                    android:textColor="@color/text"
+                    android:textSize="16dp" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/text_about_me"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font"
+                android:text="내 소개"
+                android:textColor="@color/text"
+                android:textSize="18dp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp">
+
+                <EditText
+                    android:id="@+id/edit_about_me"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_toLeftOf="@id/button_modify_about_me"
+                    android:background="@drawable/edit_rectangle_read_only"
+
+                    android:focusable="false"
+                    android:fontFamily="@font/font"
+                    android:maxLines="5"
+                    android:minLines="1"
+                    android:scrollbars="vertical"
+                    android:textColor="@color/text"
+                    android:textCursorDrawable="@drawable/edit_cursor"
+                    android:textSize="16dp" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/button_modify_about_me"
+                    android:layout_width="70dp"
+                    android:layout_height="26dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="5dp"
+                    android:background="@drawable/btn_round4"
+                    android:fontFamily="@font/font"
+                    android:text="변경"
+                    android:textColor="@color/text"
+                    android:textSize="16dp" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="15dp"
+                android:fontFamily="@font/font"
+                android:text="내 계정"
+                android:textColor="@color/text"
+                android:textSize="20dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:visibility="gone"
+                android:id="@+id/text_login_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font"
+                android:text="로그인 종류"
+                android:textColor="@color/text"
+                android:textSize="18dp" />
+
+            <RelativeLayout
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp">
+
+                <EditText
+                    android:id="@+id/edit_login_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/edit_rectangle_read_only"
+                    android:ellipsize="end"
+                    android:focusable="false"
+                    android:fontFamily="@font/font"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:textColor="@color/text"
+                    android:textCursorDrawable="@drawable/edit_cursor"
+                    android:textSize="16dp" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:visibility="gone"
+                android:id="@+id/text_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font"
+                android:text="비밀번호"
+                android:textColor="@color/text"
+                android:textSize="18dp" />
+
+            <RelativeLayout
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp">
+
+                <EditText
+                    android:id="@+id/edit_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_toLeftOf="@id/button_modify_password"
+                    android:background="@drawable/edit_rectangle_read_only"
+                    android:ellipsize="end"
+                    android:focusable="false"
+                    android:fontFamily="@font/font"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
+                    android:text="00000000"
+                    android:textColor="@color/text"
+                    android:textCursorDrawable="@drawable/edit_cursor"
+                    android:textSize="16dp" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/button_modify_password"
+                    android:layout_width="70dp"
+                    android:layout_height="26dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="5dp"
+                    android:background="@drawable/btn_round4"
+                    android:fontFamily="@font/font"
+                    android:text="변경"
+                    android:textColor="@color/text"
+                    android:textSize="16dp" />
+
+            </RelativeLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/button_logout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginTop="30dp"
+                android:layout_marginRight="5dp"
+                android:backgroundTint="@android:color/transparent"
+                android:clickable="true"
+                android:visibility="gone"
+                app:cardElevation="0dp"
+                app:rippleColor="#fff">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/btn_round4"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="5dp"
+                    android:paddingRight="10dp"
+                    android:paddingBottom="5dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:src="@drawable/logout" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:fontFamily="@font/font"
+                        android:text="로그아웃"
+                        android:textColor="@color/text_red"
+                        android:textSize="16dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/layout_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#DDDDDDDD"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button_menu_modify"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/btn_ripple"
+            android:fontFamily="@font/font"
+            android:text="앨범에서 선택하기"
+            android:textColor="#0090FF"
+            android:textSize="18dp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button_menu_delete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="3dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/btn_ripple2"
+            android:fontFamily="@font/font"
+            android:text="현재 사진 지우기"
+            android:textColor="#FF0077"
+            android:textSize="18dp" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/button_menu_cancel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/btn_ripple"
+            android:fontFamily="@font/font"
+            android:text="취소"
+            android:textColor="#0090FF"
+            android:textSize="18dp" />
+    </LinearLayout>
+
+</RelativeLayout>

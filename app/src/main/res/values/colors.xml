@@ -56,6 +56,7 @@
     <color name="chat_content_me">#FFEB3B</color>
     <color name="report_dialog">#202023</color>
     <color name="report_dialog_sub">#2B2B2E</color>
+    <color name="report_dialog_empty">#363639</color>
     <color name="report_text_categories">#767678</color>
     <color name="report_text_content">#DADDE0</color>
 </resources>

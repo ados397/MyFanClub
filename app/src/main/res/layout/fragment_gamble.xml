@@ -74,33 +74,23 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/font"
                 android:textStyle="bold"
-                android:text="100개"
+                android:text="100 다이아"
                 android:textColor="@color/master"
                 android:textSize="28dp" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/font"
-                android:text="의 다이아!"
+                android:text="의 다이아!!"
                 android:textColor="@color/display_board_8"
                 android:textSize="24dp" />
         </LinearLayout>
-
-        <TextView
-            android:layout_marginTop="3dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:fontFamily="@font/font"
-            android:text="행운의 주인공이 되어보세요!"
-            android:textColor="@color/display_board_8"
-            android:textSize="24dp" />
 
         <RelativeLayout
             android:id="@+id/layout_background"
             android:layout_below="@id/layout_title"
             android:layout_width="match_parent"
-            android:layout_height="420dp">
+            android:layout_height="400dp">
 
             <ImageView
                 android:id="@+id/img_background"
@@ -148,8 +138,8 @@
                     android:id="@+id/layout_text_result"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="40dp"
-                    android:layout_centerHorizontal="true">
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="40dp">
 
                     <TextView
                         android:id="@+id/text_result"
@@ -409,7 +399,7 @@
         </LinearLayout>
 
         <View
-            android:layout_marginBottom="200dp"
+            android:layout_marginBottom="100dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
     </LinearLayout>
