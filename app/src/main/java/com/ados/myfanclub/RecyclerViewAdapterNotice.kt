@@ -6,7 +6,6 @@ import android.graphics.PorterDuffColorFilter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RelativeLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.ados.myfanclub.databinding.ListItemNoticeBinding
 import com.ados.myfanclub.model.NoticeDTO
@@ -28,7 +27,7 @@ class RecyclerViewAdapterNotice(private val items: ArrayList<NoticeDTO>) : Recyc
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.initalize(items[position])
+        holder.initialize()
 
         items[position].let { item ->
             with(holder) {
@@ -36,7 +35,7 @@ class RecyclerViewAdapterNotice(private val items: ArrayList<NoticeDTO>) : Recyc
                 buttonExpand.colorFilter = PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
 
                 title.text = item.title
-                textTime.text = SimpleDateFormat("yyyy.MM.dd HH:mm").format(item.time)
+                textTime.text = SimpleDateFormat("yyyy.MM.dd HH:mm").format(item.time!!)
                 content.text = item.content?.replace("\\n","\n")
 
                 if (!item.imageUrl.isNullOrEmpty()) {
@@ -87,23 +86,12 @@ class RecyclerViewAdapterNotice(private val items: ArrayList<NoticeDTO>) : Recyc
         var layoutContent = viewBinding.layoutContent
         var buttonExpand = viewBinding.buttonExpand
 
-        fun initalize(item: NoticeDTO) {
-            /*itemView.setOnClickListener {
-                action.onItemClick(item, adapterPosition)
-                itemView.img_favorite.setImageResource(R.drawable.star_icon_fill)
-            }*/
-            /*itemView.movie_item_relative_layout.setOnClickListener {
-                action.onItemClick(item, adapterPosition)
-                itemView.img_favorite.setImageResource(R.drawable.star_icon_fill)
-            }*/
+        fun initialize() {
             viewBinding.buttonExpand.setOnClickListener {
                 //viewBinding.layoutContent.visibility = View.VISIBLE
 
                 isExpanded = toggleLayout(!isExpanded, viewBinding.buttonExpand, viewBinding.layoutContent)
             }
-            /*viewBinding.imgFavorite.setOnClickListener {
-                action.onItemClick_favorite(item, viewBinding.imgFavorite)
-            }*/
         }
 
         private fun toggleLayout(isExpanded: Boolean, view: View, rv: View): Boolean {

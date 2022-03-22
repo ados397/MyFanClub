@@ -2,6 +2,7 @@ package com.ados.myfanclub
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Looper
 import android.view.Window
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -15,7 +16,6 @@ import com.ados.myfanclub.model.MailDTO
 import com.ados.myfanclub.model.QuestDTO
 import com.ados.myfanclub.model.UserDTO
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
-import kotlinx.android.synthetic.main.get_item_dialog.*
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -98,7 +98,7 @@ class QuestActivity : AppCompatActivity(), OnQuestItemClickListener {
 
     override fun onItemClick(item: QuestDTO, position: Int) {
         loading()
-        addGem(item?.gemCount!!, arrayListOf("$position"), false)
+        addGem(item.gemCount!!, arrayListOf("$position"), false)
         item.questGemGetTime = Date()
         recyclerViewAdapter.notifyItemChanged(position)
     }
@@ -108,7 +108,7 @@ class QuestActivity : AppCompatActivity(), OnQuestItemClickListener {
         firebaseViewModel.addUserGem(currentUser?.uid.toString(), 0, gemCount) { userDTO ->
             if (userDTO != null) {
                 for (pos in positions) {
-                    userDTO?.questGemGetTimes?.set("$pos", Date())
+                    userDTO.questGemGetTimes.set("$pos", Date())
                 }
                 currentUser = userDTO
                 firebaseViewModel.updateUserQuestGemGetTimes(userDTO) { // 일일 퀘스트 보상 획득 시간 기록
@@ -129,7 +129,7 @@ class QuestActivity : AppCompatActivity(), OnQuestItemClickListener {
                     getItemDialog?.show()
                     getItemDialog?.setInfo()
 
-                    getItemDialog?.button_get_item_ok?.setOnClickListener {
+                    getItemDialog?.binding?.buttonGetItemOk?.setOnClickListener {
                         getItemDialog?.dismiss()
                     }
                 }
@@ -149,7 +149,7 @@ class QuestActivity : AppCompatActivity(), OnQuestItemClickListener {
     }
 
     private fun loadingEnd() {
-        android.os.Handler().postDelayed({
+        android.os.Handler(Looper.getMainLooper()).postDelayed({
             if (loadingDialog != null) {
                 loadingDialog?.dismiss()
             }

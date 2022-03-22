@@ -21,10 +21,7 @@ import com.ados.myfanclub.model.MailDTO
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetSequence
-import com.getkeepsafe.taptargetview.TapTargetView
-import kotlinx.android.synthetic.main.get_item_dialog.*
 import java.util.*
-import kotlin.concurrent.thread
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -222,7 +219,7 @@ class FragmentFanClubInitalize : Fragment() {
         val oldFreeGemCount = user.freeGem!!
         firebaseViewModel.addUserGem(user.uid.toString(), 0, gemCount) { userDTO ->
             if (userDTO != null) {
-                var log = LogDTO("[튜토리얼 완료 다이아 획득] 다이아 $gemCount 획득 (freeGem : $oldFreeGemCount -> ${userDTO?.freeGem})", Date())
+                var log = LogDTO("[튜토리얼 완료 다이아 획득] 다이아 $gemCount 획득 (freeGem : $oldFreeGemCount -> ${userDTO.freeGem})", Date())
                 firebaseViewModel.writeUserLog(user.uid.toString(), log) { }
 
                 val getDialog = GetItemDialog(requireContext())
@@ -231,7 +228,7 @@ class FragmentFanClubInitalize : Fragment() {
                 getDialog.mailDTO = MailDTO("", "", "", "", MailDTO.Item.FREE_GEM, gemCount)
                 getDialog.show()
 
-                getDialog.button_get_item_ok.setOnClickListener {
+                getDialog.binding.buttonGetItemOk.setOnClickListener {
                     getDialog.dismiss()
 
                 }

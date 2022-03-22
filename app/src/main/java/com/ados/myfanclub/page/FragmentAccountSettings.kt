@@ -3,17 +3,14 @@ package com.ados.myfanclub.page
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInfo
-import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
-import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import com.ados.myfanclub.LoginActivity
@@ -22,20 +19,12 @@ import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentAccountSettingsBinding
 import com.ados.myfanclub.dialog.*
 import com.ados.myfanclub.model.*
-import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
-import com.bumptech.glide.Glide
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.android.synthetic.main.document_dialog.*
-import kotlinx.android.synthetic.main.edit_text_modify_dialog.*
-import kotlinx.android.synthetic.main.gem_question_dialog.*
-import kotlinx.android.synthetic.main.password_modify_dialog.*
-import kotlinx.android.synthetic.main.question_dialog.*
-import java.text.SimpleDateFormat
 import java.util.*
 
 // TODO: Rename parameter arguments, choose names that match
@@ -86,12 +75,22 @@ class FragmentAccountSettings : Fragment() {
         _binding = FragmentAccountSettingsBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
 
+        binding.layoutFaq.visibility = View.GONE
+        firebaseViewModel.getFaq()
+        firebaseViewModel.faqDTOs.observe(viewLifecycleOwner) {
+            if (firebaseViewModel.faqDTOs.value != null) {
+                if (firebaseViewModel.faqDTOs.value!!.size > 0) {
+                    binding.layoutFaq.visibility = View.VISIBLE
+                }
+            }
+        }
+
         firebaseAuth = FirebaseAuth.getInstance()
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN) //기본 로그인 방식 사용
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
-        googleSignInClient = GoogleSignIn.getClient(context,gso)
+        googleSignInClient = GoogleSignIn.getClient(requireActivity(),gso)
 
         currentUserEx = (activity as MainActivity?)?.getUserEx()
 
@@ -132,11 +131,11 @@ class FragmentAccountSettings : Fragment() {
                 }
                 passwordModifyDialog?.show()
                 passwordModifyDialog?.setInfo()
-                passwordModifyDialog?.button_password_modify_cancel?.setOnClickListener {
+                passwordModifyDialog?.binding?.buttonPasswordModifyCancel?.setOnClickListener {
                     passwordModifyDialog?.dismiss()
                 }
 
-                passwordModifyDialog?.button_password_modify_ok?.setOnClickListener { // Ok
+                passwordModifyDialog?.binding?.buttonPasswordModifyOk?.setOnClickListener { // Ok
                     val oldPassword = passwordModifyDialog?.binding?.editPasswordOld?.text.toString()
                     val newPassword = passwordModifyDialog?.binding?.editPasswordNew?.text.toString()
 
@@ -145,7 +144,7 @@ class FragmentAccountSettings : Fragment() {
                     } else {
                         println("현재 계정 비밀 번호 ${currentUserEx?.userDTO?.userId}, $oldPassword")
                         val credential = EmailAuthProvider.getCredential(currentUserEx?.userDTO?.userId.toString(), oldPassword)
-                        firebaseAuth?.currentUser!!.reauthenticateAndRetrieveData(credential)?.addOnCompleteListener { task ->
+                        firebaseAuth?.currentUser!!.reauthenticateAndRetrieveData(credential).addOnCompleteListener { task ->
                             //firebaseAuth?.currentUser!!.linkWithCredential(credential).addOnCompleteListener(requireActivity()) { task ->
                             if (!task.isSuccessful) {
                                 Toast.makeText(activity, "현재 비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show()
@@ -165,14 +164,14 @@ class FragmentAccountSettings : Fragment() {
                                 }
                                 questionDialog?.show()
                                 questionDialog?.setInfo()
-                                questionDialog?.button_question_cancel?.setOnClickListener { // No
+                                questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                                     questionDialog?.dismiss()
                                 }
 
-                                questionDialog?.button_question_ok?.setOnClickListener {
+                                questionDialog?.binding?.buttonQuestionOk?.setOnClickListener {
                                     questionDialog?.dismiss()
 
-                                    firebaseAuth?.currentUser!!.updatePassword(newPassword)?.addOnCompleteListener {
+                                    firebaseAuth?.currentUser!!.updatePassword(newPassword).addOnCompleteListener {
                                         Toast.makeText(activity, "비밀번호가 변경되었습니다.", Toast.LENGTH_SHORT).show()
                                     }
                                 }
@@ -185,37 +184,39 @@ class FragmentAccountSettings : Fragment() {
 
         binding.layoutTermsOfUse.setOnClickListener {
             firebaseViewModel.getTermsOfUse { document ->
-                if (documentDialog == null) {
-                    documentDialog = DocumentDialog(requireContext(), document)
-                    documentDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                    documentDialog?.setCanceledOnTouchOutside(false)
-                } else {
-                    documentDialog?.content = document
-                }
-                documentDialog?.show()
-                documentDialog?.setInfo()
-                documentDialog?.showButtonOk(false)
-                documentDialog?.button_document_cancel?.setOnClickListener { // No
-                    documentDialog?.dismiss()
-                }
+                onDocumentDialog(document)
             }
         }
 
         binding.layoutPrivacyPolicy.setOnClickListener {
             firebaseViewModel.getPrivacyPolicy { document ->
-                if (documentDialog == null) {
-                    documentDialog = DocumentDialog(requireContext(), document)
-                    documentDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                    documentDialog?.setCanceledOnTouchOutside(false)
-                } else {
-                    documentDialog?.content = document
-                }
-                documentDialog?.show()
-                documentDialog?.setInfo()
-                documentDialog?.showButtonOk(false)
-                documentDialog?.button_document_cancel?.setOnClickListener { // No
-                    documentDialog?.dismiss()
-                }
+                onDocumentDialog(document)
+            }
+        }
+
+        binding.layoutOpenSourceLicense.setOnClickListener {
+            firebaseViewModel.getOpenSourceLicense { document ->
+                onDocumentDialog(document)
+            }
+        }
+
+        binding.layoutFaq.setOnClickListener {
+            val fragment = FragmentAccountFaq()
+            parentFragmentManager.beginTransaction().apply{
+                replace(R.id.layout_fragment, fragment)
+                setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                addToBackStack(null)
+                commit()
+            }
+        }
+
+        binding.layoutQna.setOnClickListener {
+            val fragment = FragmentAccountQna()
+            parentFragmentManager.beginTransaction().apply{
+                replace(R.id.layout_fragment, fragment)
+                setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                addToBackStack(null)
+                commit()
             }
         }
 
@@ -235,11 +236,11 @@ class FragmentAccountSettings : Fragment() {
             questionDialog?.show()
             questionDialog?.setInfo()
             questionDialog?.setButtonOk("로그아웃")
-            questionDialog?.button_question_cancel?.setOnClickListener { // No
+            questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                 questionDialog?.dismiss()
             }
 
-            questionDialog?.button_question_ok?.setOnClickListener {
+            questionDialog?.binding?.buttonQuestionOk?.setOnClickListener {
                 firebaseAuth?.signOut()
                 //Auth.GoogleSignInApi.signOut()
                 googleSignInClient?.signOut()?.addOnCompleteListener { }
@@ -309,6 +310,22 @@ class FragmentAccountSettings : Fragment() {
             toast?.setText(message)
         }
         toast?.show()
+    }
+
+    private fun onDocumentDialog(document: String) {
+        if (documentDialog == null) {
+            documentDialog = DocumentDialog(requireContext(), document)
+            documentDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            documentDialog?.setCanceledOnTouchOutside(false)
+        } else {
+            documentDialog?.content = document
+        }
+        documentDialog?.show()
+        documentDialog?.setInfo()
+        documentDialog?.showButtonOk(false)
+        documentDialog?.binding?.buttonDocumentCancel?.setOnClickListener { // No
+            documentDialog?.dismiss()
+        }
     }
 
     companion object {

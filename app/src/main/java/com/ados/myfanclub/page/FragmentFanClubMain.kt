@@ -22,11 +22,7 @@ import com.ados.myfanclub.model.*
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetSequence
-import kotlinx.android.synthetic.main.get_item_dialog.*
-import kotlinx.android.synthetic.main.question_dialog.*
-import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.concurrent.thread
 import kotlin.concurrent.timer
 
 // TODO: Rename parameter arguments, choose names that match
@@ -88,6 +84,7 @@ class FragmentFanClubMain : Fragment() {
     }
 
     override fun onDestroyView() {
+        chatTimer?.cancel()
         _binding = null
         super.onDestroyView()
     }
@@ -208,7 +205,7 @@ class FragmentFanClubMain : Fragment() {
             questionDialog.show()
             questionDialog.showButtonOk(false)
             questionDialog.setButtonCancel("확인")
-            questionDialog.button_question_cancel.setOnClickListener { // No
+            questionDialog.binding.buttonQuestionCancel.setOnClickListener { // No
                 questionDialog.dismiss()
                 (activity as MainActivity?)?.loading()
                 binding.viewpager.apply {
@@ -382,7 +379,7 @@ class FragmentFanClubMain : Fragment() {
         val oldFreeGemCount = user.freeGem!!
         firebaseViewModel.addUserGem(user.uid.toString(), 0, gemCount) { userDTO ->
             if (userDTO != null) {
-                var log = LogDTO("[튜토리얼 완료 다이아 획득] 다이아 $gemCount 획득 (freeGem : $oldFreeGemCount -> ${userDTO?.freeGem})", Date())
+                var log = LogDTO("[튜토리얼 완료 다이아 획득] 다이아 $gemCount 획득 (freeGem : $oldFreeGemCount -> ${userDTO.freeGem})", Date())
                 firebaseViewModel.writeUserLog(user.uid.toString(), log) { }
 
                 val getDialog = GetItemDialog(requireContext())
@@ -391,7 +388,7 @@ class FragmentFanClubMain : Fragment() {
                 getDialog.mailDTO = MailDTO("", "", "", "", MailDTO.Item.FREE_GEM, gemCount)
                 getDialog.show()
 
-                getDialog.button_get_item_ok.setOnClickListener {
+                getDialog.binding.buttonGetItemOk.setOnClickListener {
                     getDialog.dismiss()
 
                 }

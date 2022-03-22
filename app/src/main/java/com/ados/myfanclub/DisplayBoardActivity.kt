@@ -2,24 +2,17 @@ package com.ados.myfanclub
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.view.Window
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ados.myfanclub.database.DBHelperReport
 import com.ados.myfanclub.databinding.ActivityDisplayBoardBinding
 import com.ados.myfanclub.dialog.*
 import com.ados.myfanclub.model.*
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
-import kotlinx.android.synthetic.main.display_board_add_dialog.*
-import kotlinx.android.synthetic.main.gem_question_dialog.*
 import java.util.*
 
 class DisplayBoardActivity : AppCompatActivity(), OnDisplayBoardItemClickListener {
@@ -31,7 +24,9 @@ class DisplayBoardActivity : AppCompatActivity(), OnDisplayBoardItemClickListene
 
     var preferencesDTO : PreferencesDTO? = null
     var currentUser: UserDTO? = null
-    private var reportDialog : ReportDialog? = null
+    private var reportDialog: ReportDialog? = null
+    private var displayBoardAddDialog: DisplayBoardAddDialog? = null
+    private var gemQuestionDialog: GemQuestionDialog? = null
     lateinit var dbHandler : DBHelperReport
 
     val anim = AlphaAnimation(0.1f, 1.0f)
@@ -62,7 +57,7 @@ class DisplayBoardActivity : AppCompatActivity(), OnDisplayBoardItemClickListene
         firebaseViewModel.displayBoardDTOs.observe(this) {
             val itemsEx: ArrayList<DisplayBoardExDTO> = arrayListOf()
             for (display in firebaseViewModel.displayBoardDTOs.value!!) {
-                itemsEx.add(DisplayBoardExDTO(display, dbHandler?.getBlock(display.docName.toString())))
+                itemsEx.add(DisplayBoardExDTO(display, dbHandler.getBlock(display.docName.toString())))
             }
             recyclerViewAdapter = RecyclerViewAdapterDisplayBoard(itemsEx, this)
             binding.rvDisplayBoard.adapter = recyclerViewAdapter
@@ -73,34 +68,40 @@ class DisplayBoardActivity : AppCompatActivity(), OnDisplayBoardItemClickListene
             if (currentUser?.level!! < 5) {
                 Toast.makeText(this, "레벨 [ 5 ] 달성 시 등록 가능합니다.", Toast.LENGTH_SHORT).show()
             } else {
-                val dialog = DisplayBoardAddDialog(this)
-                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                dialog.setCanceledOnTouchOutside(false)
-                dialog.currentUser = currentUser
-                dialog.show()
-
-                dialog.button_display_board_add_cancel.setOnClickListener { // Ok
-                    dialog.dismiss()
+                if (displayBoardAddDialog == null) {
+                    displayBoardAddDialog = DisplayBoardAddDialog(this)
+                    displayBoardAddDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    displayBoardAddDialog?.setCanceledOnTouchOutside(false)
                 }
-
-                dialog.button_display_board_add_ok.setOnClickListener { // Ok
-                    val displayText = dialog.binding.editDisplayBoard.text.toString().trim()
-                    val color = dialog.binding.layoutDisplayBoardTest.textDisplayBoard.currentTextColor
+                displayBoardAddDialog?.currentUser = currentUser
+                displayBoardAddDialog?.show()
+                displayBoardAddDialog?.setInfo()
+                displayBoardAddDialog?.binding?.buttonDisplayBoardAddCancel?.setOnClickListener { // Ok
+                    displayBoardAddDialog?.dismiss()
+                }
+                displayBoardAddDialog?.binding?.buttonDisplayBoardAddOk?.setOnClickListener { // Ok
+                    val displayText = displayBoardAddDialog?.binding?.editDisplayBoard?.text.toString().trim()
+                    val color = displayBoardAddDialog?.binding?.layoutDisplayBoardTest?.textDisplayBoard?.currentTextColor!!
 
                     if (displayText.isNullOrEmpty()) {
                         Toast.makeText(this, "내용을 입력 하세요.", Toast.LENGTH_SHORT).show()
                     } else {
                         val question = GemQuestionDTO("다이아를 사용해 전광판을 등록합니다.", preferencesDTO?.priceDisplayBoard)
-                        val questionDialog = GemQuestionDialog(this, question)
-                        questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                        questionDialog.setCanceledOnTouchOutside(false)
-                        questionDialog.show()
-                        questionDialog.button_gem_question_cancel.setOnClickListener { // No
-                            questionDialog.dismiss()
+                        if (gemQuestionDialog == null) {
+                            gemQuestionDialog = GemQuestionDialog(this, question)
+                            gemQuestionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                            gemQuestionDialog?.setCanceledOnTouchOutside(false)
+                        } else {
+                            gemQuestionDialog?.question = question
                         }
-                        questionDialog.button_gem_question_ok.setOnClickListener { // Ok
-                            dialog.dismiss()
-                            questionDialog.dismiss()
+                        gemQuestionDialog?.show()
+                        gemQuestionDialog?.setInfo()
+                        gemQuestionDialog?.binding?.buttonGemQuestionCancel?.setOnClickListener { // No
+                            gemQuestionDialog?.dismiss()
+                        }
+                        gemQuestionDialog?.binding?.buttonGemQuestionOk?.setOnClickListener { // Ok
+                            displayBoardAddDialog?.dismiss()
+                            gemQuestionDialog?.dismiss()
 
                             if ((currentUser?.paidGem!! + currentUser?.freeGem!!) < preferencesDTO?.priceDisplayBoard!!) {
                                 Toast.makeText(this, "다이아가 부족합니다.", Toast.LENGTH_SHORT).show()
@@ -133,7 +134,7 @@ class DisplayBoardActivity : AppCompatActivity(), OnDisplayBoardItemClickListene
     }
 
     override fun onItemClick(item: DisplayBoardExDTO, position: Int) {
-        if (!dbHandler?.getBlock(item.displayBoardDTO?.docName.toString())) {
+        if (!dbHandler.getBlock(item.displayBoardDTO?.docName.toString())) {
             if (reportDialog == null) {
                 reportDialog = ReportDialog(this)
                 reportDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -146,10 +147,10 @@ class DisplayBoardActivity : AppCompatActivity(), OnDisplayBoardItemClickListene
             reportDialog?.setOnDismissListener {
                 if (!reportDialog?.reportDTO?.reason.isNullOrEmpty()) {
                     firebaseViewModel.sendReport(reportDialog?.reportDTO!!) {
-                        if (!dbHandler?.getBlock(reportDialog?.reportDTO?.contentDocName.toString())) {
-                            dbHandler?.updateBlock(reportDialog?.reportDTO?.contentDocName.toString(), 1)
+                        if (!dbHandler.getBlock(reportDialog?.reportDTO?.contentDocName.toString())) {
+                            dbHandler.updateBlock(reportDialog?.reportDTO?.contentDocName.toString(), 1)
                         } else {
-                            dbHandler?.updateBlock(reportDialog?.reportDTO?.contentDocName.toString(), 0)
+                            dbHandler.updateBlock(reportDialog?.reportDTO?.contentDocName.toString(), 0)
                         }
 
                         item.isBlocked = true

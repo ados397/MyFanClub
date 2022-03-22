@@ -22,7 +22,6 @@ import com.ados.myfanclub.model.GemQuestionDTO
 import com.ados.myfanclub.model.LogDTO
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.bumptech.glide.Glide
-import kotlinx.android.synthetic.main.gem_question_dialog.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -54,6 +53,8 @@ class FragmentGamble : Fragment() {
 
     private lateinit var callback: OnBackPressedCallback
     private var toast : Toast? = null
+
+    private var gemQuestionDialog: GemQuestionDialog? = null
 
     private var mIsBusy = false
     private var mGambleType = GambleType.GAMBLE_10
@@ -228,18 +229,24 @@ class FragmentGamble : Fragment() {
                 }
 
                 val question = GemQuestionDTO("다이아를 소모하여 1~${maxDiamond} 다이아 뽑기를 하시겠습니까?", price)
-                val questionDialog = GemQuestionDialog(requireContext(), question)
-                questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                questionDialog.setCanceledOnTouchOutside(false)
-                questionDialog.show()
-                questionDialog.button_gem_question_cancel.setOnClickListener { // No
-                    questionDialog.dismiss()
+                if (gemQuestionDialog == null) {
+                    gemQuestionDialog = GemQuestionDialog(requireContext(), question)
+                    gemQuestionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    gemQuestionDialog?.setCanceledOnTouchOutside(false)
+                } else {
+                    gemQuestionDialog?.question = question
                 }
-                questionDialog.button_gem_question_ok.setOnClickListener { // Ok
-                    questionDialog.dismiss()
+                gemQuestionDialog?.mainActivity = (activity as MainActivity?)
+                gemQuestionDialog?.show()
+                gemQuestionDialog?.setInfo()
+                gemQuestionDialog?.binding?.buttonGemQuestionCancel?.setOnClickListener { // No
+                    gemQuestionDialog?.dismiss()
+                }
+                gemQuestionDialog?.binding?.buttonGemQuestionOk?.setOnClickListener { // Ok
+                    gemQuestionDialog?.dismiss()
 
                     var user = (activity as MainActivity?)?.getUser()!!
-                    if ((user.paidGem!! + user.freeGem!!) < price!!) {
+                    if ((user.paidGem!! + user.freeGem!!) < price) {
                         callToast("다이아가 부족합니다.")
                     } else {
                         /*(activity as MainActivity?)?.loading()
@@ -436,7 +443,7 @@ class FragmentGamble : Fragment() {
         }
 
         val resultValue = getValue(setPercent)
-        var percent = ((resultValue.toDouble()!! / setPercent.size!!) * 100).toInt()
+        var percent = ((resultValue.toDouble() / setPercent.size) * 100).toInt()
         binding.textCelebrate.visibility = View.GONE
         when (percent) {
             in 0..20 -> {
@@ -498,22 +505,22 @@ class FragmentGamble : Fragment() {
         var user = (activity as MainActivity?)?.getUser()!!
         val oldPaidGemCount = user.paidGem!!
         val oldFreeGemCount = user.freeGem!!
-        firebaseViewModel.useUserGem(user.uid.toString(), price!!) { userDTO ->
+        firebaseViewModel.useUserGem(user.uid.toString(), price) { userDTO ->
             if (userDTO != null) {
-                var log = LogDTO("[다이아 차감] ${maxDiamond}다이아 뽑기로 ${price} 다이아 사용 (paidGem : $oldPaidGemCount -> ${userDTO?.paidGem}, freeGem : $oldFreeGemCount -> ${userDTO?.freeGem})", Date())
-                firebaseViewModel.writeUserLog(user?.uid.toString(), log) { }
+                var log = LogDTO("[다이아 차감] ${maxDiamond}다이아 뽑기로 ${price} 다이아 사용 (paidGem : $oldPaidGemCount -> ${userDTO.paidGem}, freeGem : $oldFreeGemCount -> ${userDTO.freeGem})", Date())
+                firebaseViewModel.writeUserLog(user.uid.toString(), log) { }
 
-                firebaseViewModel.addUserGem(user?.uid.toString(), 0, resultValue) { userDTO2->
+                firebaseViewModel.addUserGem(user.uid.toString(), 0, resultValue) { userDTO2->
                     if (userDTO2 != null) {
                         println("뽑기 $userDTO2")
-                        firebaseViewModel.updateTodayCompleteGambleCount(user?.uid.toString()) { count->
+                        firebaseViewModel.updateTodayCompleteGambleCount(user.uid.toString()) { count->
                             if (count != null) {
                                 mGambleCompleteCount = count
                                 showGambleCount { }
                             }
                         }
-                        var log = LogDTO("[다이아 추가] ${maxDiamond}다이아 뽑기로 ${resultValue} 다이아 추가 (paidGem : ${userDTO?.paidGem} -> ${userDTO2?.paidGem}, freeGem : ${userDTO?.freeGem} -> ${userDTO2?.freeGem})", Date())
-                        firebaseViewModel.writeUserLog(user?.uid.toString(), log) { }
+                        var log2 = LogDTO("[다이아 추가] ${maxDiamond}다이아 뽑기로 ${resultValue} 다이아 추가 (paidGem : ${userDTO.paidGem} -> ${userDTO2.paidGem}, freeGem : ${userDTO.freeGem} -> ${userDTO2.freeGem})", Date())
+                        firebaseViewModel.writeUserLog(user.uid.toString(), log2) { }
                     }
                 }
             }

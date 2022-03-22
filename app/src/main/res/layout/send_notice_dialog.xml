@@ -117,6 +117,7 @@
 
             <EditText
                 android:id="@+id/edit_notice_content"
+                android:gravity="top"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/text_title"

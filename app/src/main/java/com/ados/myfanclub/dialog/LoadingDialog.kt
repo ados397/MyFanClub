@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.LoadingDialogBinding
 import com.bumptech.glide.Glide
-import kotlinx.android.synthetic.main.loading_dialog.*
 
 class LoadingDialog(context: Context) : Dialog(context) {
 
@@ -25,6 +24,6 @@ class LoadingDialog(context: Context) : Dialog(context) {
         window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-        Glide.with(context).load(R.raw.loading).into(img_loading)
+        Glide.with(context).load(R.raw.loading).into(binding.imgLoading)
     }
 }

@@ -29,15 +29,19 @@ class MailDialog(context: Context) : Dialog(context), View.OnClickListener {
         //window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
+        setInfo()
+    }
+
+    fun setInfo() {
         binding.textTitle.text = mailDTO?.title
-        binding.textFrom.text = "보낸이 : ${mailDTO?.from}"
+        binding.textFrom.text = "발신 : ${mailDTO?.from}"
         binding.textContent.text = mailDTO?.content
 
         val interval = ((mailDTO?.expireTime?.time!!.toLong()) - System.currentTimeMillis()) / 1000
         val day = interval / 86400
         val hour = (interval % 86400) / 3600
         val min = ((interval % 86400) % 3600) / 60
-        val sec = interval % 60
+        //val sec = interval % 60
 
         println("남은 시간 $day, $hour, $min")
 
@@ -59,9 +63,8 @@ class MailDialog(context: Context) : Dialog(context), View.OnClickListener {
                 binding.imgItem.setImageResource(R.drawable.diamond)
                 binding.textItemCount.text = "${decimalFormat.format(mailDTO?.itemCount)}"
             }
+            else -> binding.layoutItem.visibility = View.GONE
         }
-
-
     }
 
     private fun init() {

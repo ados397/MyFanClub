@@ -196,15 +196,15 @@ class LevelUpActionUserDialog(context: Context) : Dialog(context), View.OnClickL
         val gemExpString = decimalFormat.format(gemExp)
         val ssb1 = SpannableStringBuilder("1 다이아 당 ${gemExpString}의 경험치 획득!")
         ssb1.apply {
-            setSpan(ForegroundColorSpan(ContextCompat.getColor(context!!, R.color.text_red)), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-            setSpan(ForegroundColorSpan(ContextCompat.getColor(context!!, R.color.text_red)), 8, 8 + gemExpString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.text_red)), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.text_red)), 8, 8 + gemExpString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
         binding.textUseGem.text = ssb1
         binding.textUpExpCount.text = "오늘 사용 가능한 다이아 : ${decimalFormat.format(availableExpGem)}"
 
         val ssb2 = SpannableStringBuilder("광고를 시청하고 무료 경험치 ${gemExpString}을 받으세요!")
         ssb2.apply {
-            setSpan(ForegroundColorSpan(ContextCompat.getColor(context!!, R.color.text_red)), 16, 16 + gemExpString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.text_red)), 16, 16 + gemExpString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
         binding.textGetExp.text = ssb2
         binding.textGetExpCount.text = "오늘 받을 수 있는 횟수 : ${decimalFormat.format(rewardExpCount)}"
@@ -212,7 +212,7 @@ class LevelUpActionUserDialog(context: Context) : Dialog(context), View.OnClickL
         val rewardGemString = decimalFormat.format(rewardGem)
         val ssb3 = SpannableStringBuilder("광고를 시청하고 무료 다이아 ${rewardGemString}개를 받으세요!")
         ssb3.apply {
-            setSpan(ForegroundColorSpan(ContextCompat.getColor(context!!, R.color.text_red)), 16, 16 + rewardGemString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.text_red)), 16, 16 + rewardGemString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
         binding.textGetGem.text = ssb3
         binding.textGetGemCount.text = "오늘 받을 수 있는 횟수 : ${decimalFormat.format(rewardGemCount)}"
@@ -228,20 +228,20 @@ class LevelUpActionUserDialog(context: Context) : Dialog(context), View.OnClickL
         binding.textExpTotal.text = "/${decimalFormat.format(nextLevelExp)}"
 
         if (oldUserDTO?.exp!! < newUserDTO?.exp!!) {
-            binding.textExp.setTextColor(ContextCompat.getColor(context!!, R.color.text_red))
+            binding.textExp.setTextColor(ContextCompat.getColor(context, R.color.text_red))
             //binding.progressPercent.progressDrawable.setColorFilter(ContextCompat.getColor(context!!, R.color.progress_0), PorterDuff.Mode.SRC_IN)
             //binding.progressPercent.progressBackgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.progress_background_0))
             binding.progressPercent.progressTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.progress_background_0))
             binding.buttonUpExpUser.isEnabled = true
             binding.buttonUpExpUser.background = AppCompatResources.getDrawable(context, R.drawable.btn_round8)
-            binding.buttonUpExpUser.setTextColor(ContextCompat.getColor(context!!, R.color.text_gold))
+            binding.buttonUpExpUser.setTextColor(ContextCompat.getColor(context, R.color.text_gold))
         } else {
-            binding.textExp.setTextColor(ContextCompat.getColor(context!!, R.color.text))
+            binding.textExp.setTextColor(ContextCompat.getColor(context, R.color.text))
             //binding.progressPercent.progressDrawable.colorFilter = null
             binding.progressPercent.progressTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.progress_70))
             binding.buttonUpExpUser.isEnabled = false
             binding.buttonUpExpUser.background = AppCompatResources.getDrawable(context, R.drawable.btn_round2)
-            binding.buttonUpExpUser.setTextColor(ContextCompat.getColor(context!!, R.color.text_disable))
+            binding.buttonUpExpUser.setTextColor(ContextCompat.getColor(context, R.color.text_disable))
         }
     }
 
@@ -375,7 +375,6 @@ class LevelUpActionUserDialog(context: Context) : Dialog(context), View.OnClickL
                             .transparentTarget(true)
                             .tintTarget(true)).listener(object : TapTargetSequence.Listener {
                         override fun onSequenceFinish() {
-                            isTutorial = true
                             plusExp(Int.MAX_VALUE)
                             mainActivity?.addTutorialStep()
                         }
@@ -403,8 +402,6 @@ class LevelUpActionUserDialog(context: Context) : Dialog(context), View.OnClickL
                         // The listener can listen for regular clicks, long clicks or cancels
                         override fun onTargetClick(view: TapTargetView) {
                             super.onTargetClick(view) // This call is optional
-
-                            isTutorial = true
                             if (newUserDTO?.level!! >= 3) { // 이미 레벨 2 이상이라면 레벨업 적용 안함
                                 binding.buttonLevelUpActionUserCancel.performClick()
                                 mainActivity?.addTutorialStep(3) // Step 18로 바로 이동 ( 15 + 3 = 18)

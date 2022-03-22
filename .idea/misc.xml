@@ -132,30 +132,56 @@
         <entry key="..\:/Snid/project/10_Privite/Android/MyFanClub/app/src/main/res/layout/tutorial_dialog.xml" value="0.22916666666666666" />
         <entry key="..\:/Snid/project/10_Privite/Android/MyFanClub/app/src/main/res/layout/tutorialview.xml" value="0.19583333333333333" />
         <entry key="..\:/Snid/project/10_Privite/Android/MyFanClub/app/src/main/res/layout/user_info_dialog.xml" value="0.5" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/drawable/btn_round.xml" value="0.1105" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/drawable/btn_round2.xml" value="0.1105" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/drawable/btn_round3.xml" value="0.1105" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/drawable/btn_round5.xml" value="0.1105" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/drawable/btn_round6.xml" value="0.1105" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/drawable/btn_round7.xml" value="0.1105" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/drawable/btn_round8.xml" value="0.1105" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/drawable/btn_round9.xml" value="0.1105" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/drawable/btn_round_disable.xml" value="0.1105" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/drawable/btn_round_pay.xml" value="0.1105" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/drawable/btn_round_premium.xml" value="0.1105" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/drawable/circle_progressbar.xml" value="0.1105" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/activity_join.xml" value="0.24947916666666667" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/activity_login_email_verify.xml" value="0.264" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/activity_mail.xml" value="0.14322916666666666" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/activity_main.xml" value="0.4" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/activity_notice.xml" value="0.14322916666666666" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/document_dialog.xml" value="0.24947916666666667" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/edit_text_modify_dialog.xml" value="0.196875" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_account_delete_account.xml" value="0.2994791666666667" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_account_delete_account_done.xml" value="0.2994791666666667" />
-        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_account_info.xml" value="1.6" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_account_f_a_q.xml" value="0.24947916666666667" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_account_faq.xml" value="0.14895833333333333" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_account_info.xml" value="0.264" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_account_profile_settings.xml" value="0.1515625" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_account_qn_a.xml" value="0.24947916666666667" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_account_qna.xml" value="0.14895833333333333" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_account_qna_write.xml" value="0.14895833333333333" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_account_settings.xml" value="0.27607361963190186" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_chat.xml" value="0.15572916666666667" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_dashboard_mission.xml" value="0.1515625" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_fan_club_info.xml" value="0.196875" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_fan_club_management.xml" value="0.1359375" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_gamble.xml" value="0.3015544041450777" />
-        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_schedule_add.xml" value="0.2994791666666667" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_schedule_add.xml" value="0.3530534351145038" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/image_view_dialog.xml" value="0.20104166666666667" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/list_item_fan_club_sign_up.xml" value="0.2994791666666667" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/list_item_faq.xml" value="0.24947916666666667" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/list_item_mail.xml" value="0.14322916666666666" />
-        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/list_item_notice.xml" value="0.4" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/list_item_notice.xml" value="0.3726851851851852" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/list_item_qna.xml" value="0.3726851851851852" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/maintenance_dialog.xml" value="0.4" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/mission_dialog.xml" value="0.16574074074074074" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/notice_dialog.xml" value="0.4" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/password_modify_dialog.xml" value="0.1171875" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/question_dialog.xml" value="0.4" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/report_dialog.xml" value="0.1515625" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/send_notice_dialog.xml" value="0.15572916666666667" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/terms_of_use_dialog.xml" value="0.24947916666666667" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/user_info_dialog.xml" value="0.196875" />
       </map>
     </option>
   </component>

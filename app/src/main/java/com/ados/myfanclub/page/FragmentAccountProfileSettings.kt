@@ -29,10 +29,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.android.synthetic.main.edit_text_modify_dialog.*
-import kotlinx.android.synthetic.main.gem_question_dialog.*
-import kotlinx.android.synthetic.main.password_modify_dialog.*
-import kotlinx.android.synthetic.main.question_dialog.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -63,8 +59,12 @@ class FragmentAccountProfileSettings : Fragment() {
 
     private var fanClubDTO: FanClubDTO? = null
     private var currentMember: MemberDTO? = null
-
     private var currentUserEx: UserExDTO? = null
+
+    private var questionDialog: QuestionDialog? = null
+    private var gemQuestionDialog: GemQuestionDialog? = null
+    private var editTextModifyDialog: EditTextModifyDialog? = null
+    private var passwordModifyDialog: PasswordModifyDialog? = null
 
     private val resultLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
@@ -98,7 +98,7 @@ class FragmentAccountProfileSettings : Fragment() {
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
-        googleSignInClient = GoogleSignIn.getClient(context,gso)
+        googleSignInClient = GoogleSignIn.getClient(requireActivity(),gso)
 
         currentUserEx = (activity as MainActivity?)?.getUserEx()
 
@@ -132,7 +132,7 @@ class FragmentAccountProfileSettings : Fragment() {
             callBackPressed()
         }
 
-        binding.editAboutMe.setOnTouchListener { view, motionEvent ->
+        binding.editAboutMe.setOnTouchListener { _, _ ->
             binding.scrollView.requestDisallowInterceptTouchEvent(true)
             false
         }
@@ -143,50 +143,66 @@ class FragmentAccountProfileSettings : Fragment() {
                 val question = QuestionDTO(
                     QuestionDTO.Stat.WARNING,
                     "닉네임 변경",
-                    "아직 닉네임을 변경할 수 없습니다. 닉네임은 3일마다 변경 가능합니다.\n\n최종변경일 [${SimpleDateFormat("yyyy.MM.dd HH:mm").format(currentUserEx?.userDTO?.nicknameChangeDate)}]",
+                    "아직 닉네임을 변경할 수 없습니다. 닉네임은 3일마다 변경 가능합니다.\n\n최종변경일 [${SimpleDateFormat("yyyy.MM.dd HH:mm").format(currentUserEx?.userDTO?.nicknameChangeDate!!)}]",
                 )
-                val questionDialog = QuestionDialog(requireContext(), question)
-                questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                questionDialog.setCanceledOnTouchOutside(false)
-                questionDialog.show()
-                questionDialog.showButtonOk(false)
-                questionDialog.setButtonCancel("확인")
-                questionDialog.button_question_cancel.setOnClickListener { // No
-                    questionDialog.dismiss()
+                if (questionDialog == null) {
+                    questionDialog = QuestionDialog(requireContext(), question)
+                    questionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    questionDialog?.setCanceledOnTouchOutside(false)
+                } else {
+                    questionDialog?.question = question
+                }
+                questionDialog?.show()
+                questionDialog?.setInfo()
+                questionDialog?.showButtonOk(false)
+                questionDialog?.setButtonCancel("확인")
+                questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
+                    questionDialog?.dismiss()
                 }
             } else {
                 val item = EditTextDTO("닉네임 변경", currentUserEx?.userDTO?.nickname, 15, "^[가-힣ㄱ-ㅎa-zA-Z0-9.~!@#\$%^&*\\[\\](){}|_-]{1,15}\$", "사용할 수 없는 문자열이 포함되어 있습니다.")
-                val dialog = EditTextModifyDialog(requireContext(), item)
-                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                dialog.setCanceledOnTouchOutside(false)
-                dialog.show()
-                dialog.showImgOk(true)
-                dialog.button_modify_cancel.setOnClickListener { // No
-                    dialog.dismiss()
+                if (editTextModifyDialog == null) {
+                    editTextModifyDialog = EditTextModifyDialog(requireContext(), item)
+                    editTextModifyDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    editTextModifyDialog?.setCanceledOnTouchOutside(false)
+                } else {
+                    editTextModifyDialog?.item = item
                 }
-                dialog.button_modify_ok.setOnClickListener { // Ok
-                    val preferencesDTO = (activity as MainActivity?)?.getPreferences()
+                editTextModifyDialog?.show()
+                editTextModifyDialog?.setInfo()
+                editTextModifyDialog?.showImgOk(true)
+                editTextModifyDialog?.binding?.buttonModifyCancel?.setOnClickListener { // No
+                    editTextModifyDialog?.dismiss()
+                }
+                editTextModifyDialog?.binding?.buttonModifyOk?.setOnClickListener { // Ok
 
-                    val question = GemQuestionDTO("다이아를 사용해 닉네임을 변경합니다.\n(3일마다 1회 변경 가능)", preferencesDTO?.priceNickname)
-                    val questionDialog = GemQuestionDialog(requireContext(), question)
-                    questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                    questionDialog.setCanceledOnTouchOutside(false)
-                    questionDialog.show()
-                    questionDialog.button_gem_question_cancel.setOnClickListener { // No
-                        questionDialog.dismiss()
+                    val preferencesDTO = (activity as MainActivity?)?.getPreferences()!!
+
+                    val question = GemQuestionDTO("다이아를 사용해 닉네임을 변경합니다.\n(3일마다 1회 변경 가능)", preferencesDTO.priceNickname)
+                    if (gemQuestionDialog == null) {
+                        gemQuestionDialog = GemQuestionDialog(requireContext(), question)
+                        gemQuestionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                        gemQuestionDialog?.setCanceledOnTouchOutside(false)
+                    } else {
+                        gemQuestionDialog?.question = question
                     }
-                    questionDialog.button_gem_question_ok.setOnClickListener { // Ok
-                        questionDialog.dismiss()
+                    gemQuestionDialog?.show()
+                    gemQuestionDialog?.setInfo()
+                    gemQuestionDialog?.binding?.buttonGemQuestionCancel?.setOnClickListener { // No
+                        gemQuestionDialog?.dismiss()
+                    }
+                    gemQuestionDialog?.binding?.buttonGemQuestionOk?.setOnClickListener { // Ok
+                        gemQuestionDialog?.dismiss()
 
-                        if ((currentUserEx?.userDTO?.paidGem!! + currentUserEx?.userDTO?.freeGem!!) < preferencesDTO?.priceNickname!!) {
+                        if ((currentUserEx?.userDTO?.paidGem!! + currentUserEx?.userDTO?.freeGem!!) < preferencesDTO.priceNickname!!) {
                             Toast.makeText(activity, "다이아가 부족합니다.", Toast.LENGTH_SHORT).show()
                         } else {
-                            val nickname = dialog.edit_content.text.toString().trim()
+                            val nickname = editTextModifyDialog?.binding?.editContent?.text.toString().trim()
                             firebaseViewModel.isUsedUserNickname(nickname) { isUsed ->
                                 if (isUsed) {
                                     Toast.makeText(activity, "닉네임이 이미 존재합니다.", Toast.LENGTH_SHORT).show()
                                 } else {
-                                    dialog.dismiss()
+                                    editTextModifyDialog?.dismiss()
                                     val oldNickname = currentUserEx?.userDTO?.nickname
                                     if (currentUserEx?.userDTO?.nickname != nickname) {
                                         // 닉네임이 포함된 모든 firebase 수정 (uid 값이 키)
@@ -204,11 +220,11 @@ class FragmentAccountProfileSettings : Fragment() {
                                         val oldFreeGemCount = currentUserEx?.userDTO?.freeGem!!
                                         currentUserEx?.userDTO?.nickname = nickname
                                         currentUserEx?.userDTO?.nicknameChangeDate = date
-                                        firebaseViewModel.updateUserNickname(currentUserEx?.userDTO!!, preferencesDTO?.priceNickname!!) { userDTO ->
+                                        firebaseViewModel.updateUserNickname(currentUserEx?.userDTO!!, preferencesDTO.priceNickname) { userDTO ->
                                             if (userDTO != null) {
                                                 currentUserEx?.userDTO = userDTO
 
-                                                var log = LogDTO("[다이아 차감] 닉네임 변경으로 ${preferencesDTO?.priceNickname} 다이아 사용 ($oldNickname -> $nickname), (paidGem : $oldPaidGemCount -> ${currentUserEx?.userDTO?.paidGem}, freeGem : $oldFreeGemCount -> ${currentUserEx?.userDTO?.freeGem})", Date())
+                                                var log = LogDTO("[다이아 차감] 닉네임 변경으로 ${preferencesDTO.priceNickname} 다이아 사용 ($oldNickname -> $nickname), (paidGem : $oldPaidGemCount -> ${currentUserEx?.userDTO?.paidGem}, freeGem : $oldFreeGemCount -> ${currentUserEx?.userDTO?.freeGem})", Date())
                                                 firebaseViewModel.writeUserLog(currentUserEx?.userDTO?.uid.toString(), log) { }
 
                                                 // 가입한 팬클럽이 있을 경우
@@ -246,17 +262,22 @@ class FragmentAccountProfileSettings : Fragment() {
         binding.buttonModifyAboutMe.setOnClickListener {
             currentUserEx = (activity as MainActivity?)?.getUserEx()
             val item = EditTextDTO("내 소개 변경", currentUserEx?.userDTO?.aboutMe, 50)
-            val dialog = EditTextModifyDialog(requireContext(), item)
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.show()
-            dialog.button_modify_cancel.setOnClickListener { // No
-                dialog.dismiss()
+            if (editTextModifyDialog == null) {
+                editTextModifyDialog = EditTextModifyDialog(requireContext(), item)
+                editTextModifyDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                editTextModifyDialog?.setCanceledOnTouchOutside(false)
+            } else {
+                editTextModifyDialog?.item = item
             }
-            dialog.button_modify_ok.setOnClickListener {
-                dialog.dismiss()
+            editTextModifyDialog?.show()
+            editTextModifyDialog?.setInfo()
+            editTextModifyDialog?.binding?.buttonModifyCancel?.setOnClickListener { // No
+                editTextModifyDialog?.dismiss()
+            }
+            editTextModifyDialog?.binding?.buttonModifyOk?.setOnClickListener { // Ok
+                editTextModifyDialog?.dismiss()
 
-                val aboutMe = dialog.edit_content.text.toString().trim()
+                val aboutMe = editTextModifyDialog?.binding?.editContent?.text.toString().trim()
                 val oldAboutMe = currentUserEx?.userDTO?.aboutMe
                 if (currentUserEx?.userDTO?.aboutMe != aboutMe) {
                     val question = QuestionDTO(
@@ -264,15 +285,20 @@ class FragmentAccountProfileSettings : Fragment() {
                         "내 소개 변경",
                         "내 소개를 변경하면 되돌릴 수 없습니다.\n정말 변경 하시겠습니까?",
                     )
-                    val questionDialog = QuestionDialog(requireContext(), question)
-                    questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                    questionDialog.setCanceledOnTouchOutside(false)
-                    questionDialog.show()
-                    questionDialog.button_question_cancel.setOnClickListener { // No
-                        questionDialog.dismiss()
+                    if (questionDialog == null) {
+                        questionDialog = QuestionDialog(requireContext(), question)
+                        questionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                        questionDialog?.setCanceledOnTouchOutside(false)
+                    } else {
+                        questionDialog?.question = question
                     }
-                    questionDialog.button_question_ok.setOnClickListener {
-                        questionDialog.dismiss()
+                    questionDialog?.show()
+                    questionDialog?.setInfo()
+                    questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
+                        questionDialog?.dismiss()
+                    }
+                    questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
+                        questionDialog?.dismiss()
 
                         // 내 소개가 포함된 모든 firebase 수정 (uid 값이 키)
                         // 1. user.aboutMe
@@ -305,46 +331,53 @@ class FragmentAccountProfileSettings : Fragment() {
             if (currentUserEx?.userDTO?.loginType != UserDTO.LoginType.EMAIL) {
                 Toast.makeText(activity, "소셜 로그인된 상태에서는 비밀번호를 변경할 수 없습니다.", Toast.LENGTH_SHORT).show()
             } else {
-                val dialog = PasswordModifyDialog(requireContext())
-                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                dialog.setCanceledOnTouchOutside(false)
-                dialog.show()
-                dialog.button_password_modify_cancel.setOnClickListener { // No
-                    dialog.dismiss()
+                if (passwordModifyDialog == null) {
+                    passwordModifyDialog = PasswordModifyDialog(requireContext())
+                    passwordModifyDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    passwordModifyDialog?.setCanceledOnTouchOutside(false)
+                }
+                passwordModifyDialog?.show()
+                passwordModifyDialog?.setInfo()
+                passwordModifyDialog?.binding?.buttonPasswordModifyCancel?.setOnClickListener { // No
+                    passwordModifyDialog?.dismiss()
                 }
 
-                dialog.button_password_modify_ok.setOnClickListener { // Ok
-                    val oldPassword = dialog.binding.editPasswordOld.text.toString()
-                    val newPassword = dialog.binding.editPasswordNew.text.toString()
+                passwordModifyDialog?.binding?.buttonPasswordModifyOk?.setOnClickListener { // Ok
+                    val oldPassword = passwordModifyDialog?.binding?.editPasswordOld?.text.toString()
+                    val newPassword = passwordModifyDialog?.binding?.editPasswordNew?.text.toString()
 
                     if (oldPassword == newPassword) {
                         Toast.makeText(activity, "새로운 비밀번호가 기존 비밀번호와 동일 합니다.", Toast.LENGTH_SHORT).show()
                     } else {
                         println("현재 계정 비밀 번호 ${currentUserEx?.userDTO?.userId}, $oldPassword")
                         val credential = EmailAuthProvider.getCredential(currentUserEx?.userDTO?.userId.toString(), oldPassword)
-                        firebaseAuth?.currentUser!!.reauthenticateAndRetrieveData(credential)?.addOnCompleteListener { task ->
+                        firebaseAuth?.currentUser!!.reauthenticateAndRetrieveData(credential).addOnCompleteListener { task ->
                             //firebaseAuth?.currentUser!!.linkWithCredential(credential).addOnCompleteListener(requireActivity()) { task ->
                             if (!task.isSuccessful) {
                                 Toast.makeText(activity, "현재 비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show()
                             } else {
-                                dialog.dismiss()
+                                passwordModifyDialog?.dismiss()
                                 val question = QuestionDTO(
                                     QuestionDTO.Stat.WARNING,
                                     "비밀번호 변경",
                                     "비밀번호를 변경하면 되돌릴 수 없습니다.\n정말 변경 하시겠습니까?",
                                 )
-                                val questionDialog = QuestionDialog(requireContext(), question)
-                                questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                                questionDialog.setCanceledOnTouchOutside(false)
-                                questionDialog.show()
-                                questionDialog.button_question_cancel.setOnClickListener { // No
-                                    questionDialog.dismiss()
+                                if (questionDialog == null) {
+                                    questionDialog = QuestionDialog(requireContext(), question)
+                                    questionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                                    questionDialog?.setCanceledOnTouchOutside(false)
+                                } else {
+                                    questionDialog?.question = question
                                 }
+                                questionDialog?.show()
+                                questionDialog?.setInfo()
+                                questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
+                                    questionDialog?.dismiss()
+                                }
+                                questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
+                                    questionDialog?.dismiss()
 
-                                questionDialog.button_question_ok.setOnClickListener {
-                                    questionDialog.dismiss()
-
-                                    firebaseAuth?.currentUser!!.updatePassword(newPassword)?.addOnCompleteListener {
+                                    firebaseAuth?.currentUser!!.updatePassword(newPassword).addOnCompleteListener {
                                         Toast.makeText(activity, "비밀번호가 변경되었습니다.", Toast.LENGTH_SHORT).show()
                                     }
                                 }
@@ -361,12 +394,20 @@ class FragmentAccountProfileSettings : Fragment() {
                 "로그아웃",
                 "정말 로그아웃 하시겠습니까?"
             )
-            val dialog = QuestionDialog(requireContext(), question)
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.show()
-            dialog.setButtonOk("로그아웃")
-            dialog.button_question_ok.setOnClickListener { // Yes
+            if (questionDialog == null) {
+                questionDialog = QuestionDialog(requireContext(), question)
+                questionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                questionDialog?.setCanceledOnTouchOutside(false)
+            } else {
+                questionDialog?.question = question
+            }
+            questionDialog?.show()
+            questionDialog?.setInfo()
+            questionDialog?.setButtonOk("로그아웃")
+            questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
+                questionDialog?.dismiss()
+            }
+            questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
                 firebaseAuth?.signOut()
                 //Auth.GoogleSignInApi.signOut()
                 googleSignInClient?.signOut()?.addOnCompleteListener { }
@@ -379,11 +420,7 @@ class FragmentAccountProfileSettings : Fragment() {
                     (activity as MainActivity?)?.finish()
                 }
 
-                dialog.dismiss()
-            }
-            dialog.button_question_cancel.setOnClickListener { // No
-                dialog.dismiss()
-
+                questionDialog?.dismiss()
             }
         }
 
@@ -440,7 +477,7 @@ class FragmentAccountProfileSettings : Fragment() {
         var isBlock = false
         if (currentUserEx?.userDTO?.nicknameChangeDate != null) {
             val calendar= Calendar.getInstance()
-            calendar.time = currentUserEx?.userDTO?.nicknameChangeDate
+            calendar.time = currentUserEx?.userDTO?.nicknameChangeDate!!
             calendar.add(Calendar.DATE, 3)
 
             if (Date() < calendar.time) {
@@ -481,15 +518,20 @@ class FragmentAccountProfileSettings : Fragment() {
                 question.content = "프로필을 삭제하면 되돌릴 수 없습니다.\n정말 변경 하시겠습니까?"
             }
 
-            val questionDialog = QuestionDialog(requireContext(), question)
-            questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            questionDialog.setCanceledOnTouchOutside(false)
-            questionDialog.show()
-            questionDialog.button_question_cancel.setOnClickListener { // No
-                questionDialog.dismiss()
+            if (questionDialog == null) {
+                questionDialog = QuestionDialog(requireContext(), question)
+                questionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                questionDialog?.setCanceledOnTouchOutside(false)
+            } else {
+                questionDialog?.question = question
             }
-            questionDialog.button_question_ok.setOnClickListener { // Ok
-                questionDialog.dismiss()
+            questionDialog?.show()
+            questionDialog?.setInfo()
+            questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
+                questionDialog?.dismiss()
+            }
+            questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
+                questionDialog?.dismiss()
 
                 (activity as MainActivity?)?.loading()
                 if (uri != null) { // 프로필 업로드
@@ -498,7 +540,7 @@ class FragmentAccountProfileSettings : Fragment() {
                         Toast.makeText(activity, "이미지 업로드 실패 ", Toast.LENGTH_SHORT).show()
                         (activity as MainActivity?)?.loadingEnd()
                     } else {
-                        firebaseStorageViewModel.setUserProfile(currentUserEx?.userDTO?.uid.toString(), bitmap!!) {
+                        firebaseStorageViewModel.setUserProfileImage(currentUserEx?.userDTO?.uid.toString(), bitmap) {
                             if (!it) {
                                 Toast.makeText(activity, "이미지 업로드 실패 ", Toast.LENGTH_SHORT).show()
                                 (activity as MainActivity?)?.loadingEnd()
@@ -515,7 +557,7 @@ class FragmentAccountProfileSettings : Fragment() {
                 } else { // 프로필 삭제
                     currentUserEx?.userDTO?.imgProfile = null
                     firebaseViewModel.updateUserProfile(currentUserEx?.userDTO!!) {
-                        firebaseStorageViewModel.deleteUserProfile(currentUserEx?.userDTO?.uid.toString()) {
+                        firebaseStorageViewModel.deleteUserProfileImage(currentUserEx?.userDTO?.uid.toString()) {
                             Toast.makeText(activity, "프로필 삭제 완료!", Toast.LENGTH_SHORT).show()
                             binding.imgProfile.setImageResource(R.drawable.profile)
                             (activity as MainActivity?)?.loadingEnd()

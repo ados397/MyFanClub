@@ -3,6 +3,7 @@ package com.ados.myfanclub
 import android.graphics.Paint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Looper
 import android.view.View
 import android.view.Window
 import android.widget.Toast
@@ -20,7 +21,6 @@ import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.SkuDetails
-import kotlinx.android.synthetic.main.get_item_dialog.*
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -177,11 +177,11 @@ class PremiumPackageActivity : AppCompatActivity() {
     private fun applyPremiumPack(packageType: String) {
         var log = LogDTO("$packageType 결제 완료", Date())
         firebaseViewModel.writeUserLog(currentUser?.uid.toString(), log) {
-            val oldExpireTime = SimpleDateFormat("yyyy.MM.dd HH:mm").format(currentUser?.premiumExpireTime)
+            val oldExpireTime = SimpleDateFormat("yyyy.MM.dd HH:mm").format(currentUser?.premiumExpireTime!!)
             firebaseViewModel.applyPremiumPackage(currentUser?.uid.toString()) { userDTO ->
                 if (userDTO != null) {
-                    var log = LogDTO("[프리미엄 패키지 구매] 프리미엄 패키지 구매 완료. 만료일 : ($oldExpireTime -> ${SimpleDateFormat("yyyy.MM.dd HH:mm").format(userDTO?.premiumExpireTime)})", Date())
-                    firebaseViewModel.writeUserLog(currentUser?.uid.toString(), log) { }
+                    var log2 = LogDTO("[프리미엄 패키지 구매] 프리미엄 패키지 구매 완료. 만료일 : ($oldExpireTime -> ${SimpleDateFormat("yyyy.MM.dd HH:mm").format(userDTO.premiumExpireTime!!)})", Date())
+                    firebaseViewModel.writeUserLog(currentUser?.uid.toString(), log2) { }
 
                     Toast.makeText(this, "프리미엄 패키지 구매 완료!", Toast.LENGTH_SHORT).show()
 
@@ -252,7 +252,7 @@ class PremiumPackageActivity : AppCompatActivity() {
                 getItemDialog?.show()
                 getItemDialog?.setInfo()
 
-                getItemDialog?.button_get_item_ok?.setOnClickListener {
+                getItemDialog?.binding?.buttonGetItemOk?.setOnClickListener {
                     getItemDialog?.dismiss()
                 }
             }
@@ -290,7 +290,7 @@ class PremiumPackageActivity : AppCompatActivity() {
             getDialog.mailDTO = MailDTO("", "", "", "", MailDTO.Item.PAID_GEM, gemCount)
             getDialog.show()
 
-            getDialog.button_get_item_ok.setOnClickListener {
+            getDialog.binding.buttonGetItemOk.setOnClickListener {
                 getDialog.dismiss()
             }
         }?.addOnFailureListener { e ->
@@ -298,7 +298,7 @@ class PremiumPackageActivity : AppCompatActivity() {
         }*/
     }
 
-    fun loading() {
+    private fun loading() {
         if (loadingDialog == null) {
             loadingDialog = LoadingDialog(this)
             loadingDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -307,8 +307,8 @@ class PremiumPackageActivity : AppCompatActivity() {
         loadingDialog?.show()
     }
 
-    fun loadingEnd() {
-        android.os.Handler().postDelayed({
+    private fun loadingEnd() {
+        android.os.Handler(Looper.getMainLooper()).postDelayed({
             if (loadingDialog != null) {
                 loadingDialog?.dismiss()
             }

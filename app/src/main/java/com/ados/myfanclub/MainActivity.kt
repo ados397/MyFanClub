@@ -7,6 +7,7 @@ import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.Window
@@ -38,12 +39,6 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.android.synthetic.main.fan_club_question_dialog.*
-import kotlinx.android.synthetic.main.gem_question_dialog.*
-import kotlinx.android.synthetic.main.maintenance_dialog.*
-import kotlinx.android.synthetic.main.notice_dialog.*
-import kotlinx.android.synthetic.main.question_dialog.*
-import kotlinx.android.synthetic.main.tutorial_dialog.*
 import java.io.FileDescriptor
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -71,6 +66,7 @@ class MainActivity : AppCompatActivity() {
     private var firebaseAuth : FirebaseAuth? = null
     private var googleSignInClient : GoogleSignInClient? = null
     private var loadingDialog : LoadingDialog? = null
+    private var questionDialog: QuestionDialog? = null
 
     private var oldUserDTO: UserDTO? = null
     private var currentUserExDTO = UserExDTO()
@@ -409,7 +405,7 @@ class MainActivity : AppCompatActivity() {
         tutorialDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         tutorialDialog.setCanceledOnTouchOutside(false)
         tutorialDialog.show()
-        tutorialDialog.button_tutorial_cancel.setOnClickListener { // No
+        tutorialDialog.binding.buttonTutorialCancel.setOnClickListener { // No
             if (cancelCount >= 1) {
                 tutorialDialog.dismiss()
                 finishTutorialStep(false) // 튜토리얼 취소
@@ -419,7 +415,7 @@ class MainActivity : AppCompatActivity() {
                 cancelCount++
             }
         }
-        tutorialDialog.button_tutorial_ok.setOnClickListener { // Ok
+        tutorialDialog.binding.buttonTutorialOk.setOnClickListener { // Ok
             tutorialDialog.dismiss()
             binding.viewpager.currentItem = 0 // 메인 탭 이동
             tutorialStep.value = 1
@@ -432,7 +428,7 @@ class MainActivity : AppCompatActivity() {
         maintenanceDialog.setCanceledOnTouchOutside(false)
         maintenanceDialog.updateDTO = firebaseViewModel.updateDTO.value
         maintenanceDialog.show()
-        maintenanceDialog.button_maintenance_ok.setOnClickListener {
+        maintenanceDialog.binding.buttonMaintenanceOk.setOnClickListener {
             maintenanceDialog.dismiss()
             finish() //액티비티 종료
         }
@@ -445,7 +441,7 @@ class MainActivity : AppCompatActivity() {
         maintenanceDialog.updateDTO = firebaseViewModel.updateDTO.value
         maintenanceDialog.currentVersion = version
         maintenanceDialog.show()
-        maintenanceDialog.button_maintenance_ok.setOnClickListener {
+        maintenanceDialog.binding.buttonMaintenanceOk.setOnClickListener {
             maintenanceDialog.dismiss()
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 data = Uri.parse(firebaseViewModel.updateDTO.value?.updateUri)
@@ -454,7 +450,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
             finish() //액티비티 종료
         }
-        maintenanceDialog.button_maintenance_cancel.setOnClickListener {
+        maintenanceDialog.binding.buttonMaintenanceCancel.setOnClickListener {
             maintenanceDialog.dismiss()
             Toast.makeText(this, "업데이트가 취소되었습니다.", Toast.LENGTH_SHORT).show()
         }
@@ -466,40 +462,47 @@ class MainActivity : AppCompatActivity() {
         noticeDialog.setCanceledOnTouchOutside(false)
         noticeDialog.noticeDTO = firebaseViewModel.noticeDTOs.value!![0]
         noticeDialog.show()
-        noticeDialog.button_notice_ok.setOnClickListener {
+        noticeDialog.binding.buttonNoticeOk.setOnClickListener {
             noticeDialog.dismiss()
         }
-        noticeDialog.button_notice_link.setOnClickListener {
+        noticeDialog.binding.buttonNoticeLink.setOnClickListener {
             noticeDialog.dismiss()
             startActivity(Intent(this, NoticeActivity::class.java))
         }
     }
 
+    private fun onAppExit(question: QuestionDTO) {
+        if (questionDialog == null) {
+            questionDialog = QuestionDialog(this, question)
+            questionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            questionDialog?.setCanceledOnTouchOutside(false)
+        } else {
+            questionDialog?.question = question
+        }
+        questionDialog?.show()
+        questionDialog?.setInfo()
+        questionDialog?.showButtonOk(false)
+        questionDialog?.setButtonCancel("확인")
+        questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
+            questionDialog?.dismiss()
+            appExit()
+        }
+    }
+
     private fun autoTimeCheck() : Boolean {
         val result = android.provider.Settings.Global.getInt(contentResolver, android.provider.Settings.Global.AUTO_TIME, 0)
-        if (result == 1) {
+        return if (result == 1) {
             println("DateTime Sync: On")
-            return true
+            true
         } else {
             val question = QuestionDTO(
                 QuestionDTO.Stat.ERROR,
                 "[날짜 및 시간 자동설정]을 사용하지 않으면 마이팬클럽을 이용할 수 없습니다.",
                 "설정에서 [날짜 및 시간 자동설정]을 사용함으로 변경 후 마이팬클럽을 이용해 주세요.\n\n마이팬클럽을 종료합니다."
             )
-
-            val dialog = QuestionDialog(this, question)
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.show()
-            dialog.showButtonOk(false)
-            dialog.setButtonCancel("확인")
-            dialog.button_question_cancel.setOnClickListener { // No
-                dialog.dismiss()
-                appExit()
-            }
-            return false
+            onAppExit(question)
+            false
         }
-        return false
     }
 
     private fun addLoadingCount() {
@@ -514,16 +517,7 @@ class MainActivity : AppCompatActivity() {
             "데이터 로딩 실패",
             "데이터 로딩에 실패하였습니다.\n마이팬클럽 종료 후 다시 실행해 주세요."
         )
-        val dialog = QuestionDialog(this, question)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setCanceledOnTouchOutside(false)
-        dialog.show()
-        dialog.showButtonOk(false)
-        dialog.setButtonCancel("확인")
-        dialog.button_question_cancel.setOnClickListener { // No
-            dialog.dismiss()
-            appExit()
-        }
+        onAppExit(question)
     }
 
     private fun loginCheck() {
@@ -534,16 +528,7 @@ class MainActivity : AppCompatActivity() {
                 "사용자 확인 실패",
                 "로그인 정보가 올바르지 않습니다.\n마이팬클럽을 종료합니다."
             )
-            val dialog = QuestionDialog(this, question)
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.show()
-            dialog.showButtonOk(false)
-            dialog.setButtonCancel("확인")
-            dialog.button_question_cancel.setOnClickListener { // No
-                dialog.dismiss()
-                appExit()
-            }
+            onAppExit(question)
         }
 
         if (oldUserDTO?.fanClubId.isNullOrEmpty()) {
@@ -564,7 +549,7 @@ class MainActivity : AppCompatActivity() {
         anim.repeatCount = Animation.INFINITE
         binding.displayBoard.textDisplayBoard.startAnimation(anim)
         binding.displayBoard.textDisplayBoard.requestFocus()
-        binding.displayBoard.textDisplayBoard.setOnFocusChangeListener { view, b ->
+        binding.displayBoard.textDisplayBoard.setOnFocusChangeListener { _, b ->
             if (!b) {
                 binding.displayBoard.textDisplayBoard.requestFocus()
             }
@@ -578,14 +563,14 @@ class MainActivity : AppCompatActivity() {
     // 실시간 사용자 정보 모니터링
     private fun observeUser() {
         firebaseViewModel.userDTO.observe(this) {
-            if (firebaseViewModel.userDTO?.value != null) {
-                println("로딩 사용자 ${firebaseViewModel.userDTO?.value}")
-                currentUserExDTO?.userDTO = it
-                if (currentUserExDTO?.userDTO?.imgProfile == null) {
-                    currentUserExDTO?.imgProfileUri = null
+            if (firebaseViewModel.userDTO.value != null) {
+                println("로딩 사용자 ${firebaseViewModel.userDTO.value}")
+                currentUserExDTO.userDTO = it
+                if (currentUserExDTO.userDTO?.imgProfile == null) {
+                    currentUserExDTO.imgProfileUri = null
                 } else {
-                    firebaseStorageViewModel.getUserProfile(it?.uid.toString()) { uri ->
-                        currentUserExDTO?.imgProfileUri = uri
+                    firebaseStorageViewModel.getUserProfileImage(it?.uid.toString()) { uri ->
+                        currentUserExDTO.imgProfileUri = uri
                     }
                 }
 
@@ -619,10 +604,10 @@ class MainActivity : AppCompatActivity() {
     // 실시간 팬클럽 정보 모니터링
     private fun observeFanClub() {
         firebaseViewModel.fanClubDTO.observe(this) { fanClubDTO ->
-            currentFanClubExDTO?.fanClubDTO = fanClubDTO
-            if (currentFanClubExDTO?.fanClubDTO?.imgSymbolCustom != null) {
-                firebaseStorageViewModel.getFanClubSymbol(fanClubDTO?.docName.toString()) { uri ->
-                    currentFanClubExDTO?.imgSymbolCustomUri = uri
+            currentFanClubExDTO.fanClubDTO = fanClubDTO
+            if (currentFanClubExDTO.fanClubDTO?.imgSymbolCustom != null) {
+                firebaseStorageViewModel.getFanClubSymbolImage(fanClubDTO?.docName.toString()) { uri ->
+                    currentFanClubExDTO.imgSymbolCustomUri = uri
                 }
             }
 
@@ -680,7 +665,7 @@ class MainActivity : AppCompatActivity() {
                 if (!firebaseViewModel.displayBoardDTO.value?.displayText.isNullOrEmpty()) {
                     // 차단된 전광판
                     var displayBoard = firebaseViewModel.displayBoardDTO.value!!
-                    if (dbHandler?.getBlock(firebaseViewModel.displayBoardDTO.value!!.docName.toString())) {
+                    if (dbHandler.getBlock(firebaseViewModel.displayBoardDTO.value!!.docName.toString())) {
                         displayBoard.displayText = "내가 신고한 글입니다."
                         displayBoard.color = ContextCompat.getColor(this, R.color.text_disable)
                     }
@@ -704,12 +689,12 @@ class MainActivity : AppCompatActivity() {
     // 실시간 메일 모니터링
     private fun observeMail() {
         firebaseViewModel.mailDTOs.observe(this) {
-            println("메일 참조 오류 ${firebaseViewModel.mailDTOs?.value}, ${firebaseViewModel.mailDTOs}")
-            if (firebaseViewModel.mailDTOs?.value != null) {
+            println("메일 참조 오류 ${firebaseViewModel.mailDTOs.value}, ${firebaseViewModel.mailDTOs}")
+            if (firebaseViewModel.mailDTOs.value != null) {
                 var count = 0
-                if (firebaseViewModel.mailDTOs?.value!!.size > 0) {
+                if (firebaseViewModel.mailDTOs.value!!.size > 0) {
                     // 읽지 않은 메일이 있으면 새로운 메일 알림 표시
-                    for (mail in firebaseViewModel.mailDTOs?.value!!) {
+                    for (mail in firebaseViewModel.mailDTOs.value!!) {
                         if (mail.read == false) {
                             count++
                             break
@@ -809,7 +794,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun loadingEnd() {
-        android.os.Handler().postDelayed({
+        android.os.Handler(Looper.getMainLooper()).postDelayed({
             if (loadingDialog != null) {
                 loadingDialog?.dismiss()
             }
@@ -827,9 +812,9 @@ class MainActivity : AppCompatActivity() {
         dateFormat.parse("2022.1.31 23:59")
 
         for (i in 1..1) {
-        val docName = "master${System.currentTimeMillis()}"
+        //val docName = "master${System.currentTimeMillis()}"
 
-            var mail = MailDTO(docName,"마이팬클럽 오픈 기념", "감사한 마음으로 다이아 10개를 모든 유저에게 드립니다.", "운영자", MailDTO.Item.FREE_GEM, 10, Date(), dateFormat.parse("2022.1.31 23:59"))
+            //var mail = MailDTO(docName,"마이팬클럽 오픈 기념", "감사한 마음으로 다이아 10개를 모든 유저에게 드립니다.", "운영자", MailDTO.Item.FREE_GEM, 10, Date(), dateFormat.parse("2022.1.31 23:59"))
             //var mail = MailDTO(docName,"안녕하세요.", "반갑습니다.", "운영자", MailDTO.ITEM.NONE, 0, Date(), dateFormat.parse("2022-1-31 23:59"))
             //firebaseViewModel.sendUserMail(firebaseViewModel.userDTO.value?.uid.toString(), mail) { }
         }
@@ -841,21 +826,12 @@ class MainActivity : AppCompatActivity() {
             val question = QuestionDTO(
                 QuestionDTO.Stat.ERROR,
                 "회원님의 계정은 이용이 제한되었습니다.",
-                "제한 일시 : ${SimpleDateFormat("yyyy.MM.dd HH:mm").format(firebaseViewModel.userDTO.value?.blockStartTime)}\n" +
-                        "해제 일시 : ${SimpleDateFormat("yyyy.MM.dd HH:mm").format(firebaseViewModel.userDTO.value?.blockEndTime)}\n" +
+                "제한 일시 : ${SimpleDateFormat("yyyy.MM.dd HH:mm").format(firebaseViewModel.userDTO.value?.blockStartTime!!)}\n" +
+                        "해제 일시 : ${SimpleDateFormat("yyyy.MM.dd HH:mm").format(firebaseViewModel.userDTO.value?.blockEndTime!!)}\n" +
                         "제한 사유 : ${firebaseViewModel.userDTO.value?.blockReason}\n\n" +
                         "마이팬클럽을 종료합니다."
             )
-            val dialog = QuestionDialog(this, question)
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.show()
-            dialog.showButtonOk(false)
-            dialog.setButtonCancel("확인")
-            dialog.button_question_cancel.setOnClickListener { // No
-                dialog.dismiss()
-                appExit()
-            }
+            onAppExit(question)
         }
     }
 
@@ -866,18 +842,9 @@ class MainActivity : AppCompatActivity() {
                 QuestionDTO.Stat.ERROR,
                 "탈퇴처리된 사용자입니다.", "마이팬클럽을 종료합니다."
             )
-            val dialog = QuestionDialog(this, question)
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.show()
-            dialog.showButtonOk(false)
-            dialog.setButtonCancel("확인")
-            dialog.button_question_cancel.setOnClickListener { // No
-                dialog.dismiss()
-                firebaseAuth?.signOut()
-                googleSignInClient?.signOut()?.addOnCompleteListener { }
-                appExit()
-            }
+            firebaseAuth?.signOut()
+            googleSignInClient?.signOut()?.addOnCompleteListener { }
+            onAppExit(question)
         }
     }
 
@@ -894,16 +861,7 @@ class MainActivity : AppCompatActivity() {
                 "중복 로그인",
                 "다른 기기에서 해당 계정으로 접속하여 마이팬클럽을 종료합니다."
             )
-            val dialog = QuestionDialog(this, question)
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.show()
-            dialog.showButtonOk(false)
-            dialog.setButtonCancel("확인")
-            dialog.button_question_cancel.setOnClickListener { // No
-                dialog.dismiss()
-                appExit()
-            }
+            onAppExit(question)
         }
     }
 
@@ -942,7 +900,7 @@ class MainActivity : AppCompatActivity() {
             dialog.setCanceledOnTouchOutside(false)
             dialog.show()
 
-            dialog.button_fan_club_question_ok.setOnClickListener { // Ok
+            dialog.binding.buttonFanClubQuestionOk.setOnClickListener { // Ok
                 dialog.dismiss()
 
                 // 팬클럽 메인 화면 이동
@@ -959,14 +917,19 @@ class MainActivity : AppCompatActivity() {
                     "팬클럽 추방",
                     "가입하신 팬클럽에서 추방 되었습니다."
                 )
-                val dialog = QuestionDialog(this, question)
-                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                dialog.setCanceledOnTouchOutside(false)
-                dialog.show()
-                dialog.showButtonOk(false)
-                dialog.setButtonCancel("확인")
-                dialog.button_question_cancel.setOnClickListener { // No
-                    dialog.dismiss()
+                if (questionDialog == null) {
+                    questionDialog = QuestionDialog(this, question)
+                    questionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    questionDialog?.setCanceledOnTouchOutside(false)
+                } else {
+                    questionDialog?.question = question
+                }
+                questionDialog?.show()
+                questionDialog?.setInfo()
+                questionDialog?.showButtonOk(false)
+                questionDialog?.setButtonCancel("확인")
+                questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
+                    questionDialog?.dismiss()
 
                     // 팬클럽 정보를 초기화 시키고 ViewPager 다시 호출
                     setViewPager()
@@ -1072,14 +1035,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun rotatedBitmap(fd: FileDescriptor, bitmap: Bitmap?): Bitmap? {
         val matrix = Matrix()
-        var resultBitmap : Bitmap? = null
         when(getOrientationOfImage(fd)){
             0 -> matrix.setRotate(0F)
             90 -> matrix.setRotate(90F)
             180 -> matrix.setRotate(180F)
             270 -> matrix.setRotate(270F)
         }
-        resultBitmap = try{
+        var resultBitmap : Bitmap? = try{
             bitmap?.let { Bitmap.createBitmap(it, 0, 0, bitmap.width, bitmap.height, matrix, true) }
         }catch (e: Exception){
             e.printStackTrace()
@@ -1197,7 +1159,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeTutorial() {
-        getTutorialStep()?.observe(this) {
+        getTutorialStep().observe(this) {
             onTutorial(tutorialStep.value!!)
         }
     }
@@ -1247,7 +1209,7 @@ class MainActivity : AppCompatActivity() {
                             .icon(ContextCompat.getDrawable(this, R.drawable.ok))
                             .tintTarget(true),
                         TapTarget.forView(binding.layoutMain,
-                            "[ 마이팬클럽 ]으로 스마트한 덕질 라이프와 효율의 극대화를 즐겨보세요!",
+                            "[ 마이팬클럽 ]으로 스마트한 덕질 라이프와 효율의 극대화를 느껴보세요!",
                             "- OK 버튼을 눌러주세요.") // All options below are optional
                             .cancelable(false)
                             .dimColor(R.color.black)
@@ -1462,14 +1424,14 @@ class MainActivity : AppCompatActivity() {
         val appUpdateManager = AppUpdateManagerFactory.create(this)
 
         println("업데이트 시작")
-        appUpdateManager?.let {
+        appUpdateManager.let {
             it.appUpdateInfo.addOnSuccessListener { appUpdateInfo ->
                 println("업데이트 ? ${appUpdateInfo.updateAvailability()}")
                 if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
                     && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
 
                     // or AppUpdateType.FLEXIBLE
-                    appUpdateManager?.startUpdateFlowForResult(
+                    appUpdateManager.startUpdateFlowForResult(
                         appUpdateInfo,
                         AppUpdateType.FLEXIBLE, // or AppUpdateType.FLEXIBLE
                         this,
@@ -1481,10 +1443,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun getBlockDisplayBoard(docName: String) : Boolean {
-        return dbHandler?.getBlock(docName)
+        return dbHandler.getBlock(docName)
     }
 
     fun updateBlockDisplayBoard(docName: String, isBlock: Int) {
-        dbHandler?.updateBlock(docName, isBlock)
+        dbHandler.updateBlock(docName, isBlock)
     }
 }

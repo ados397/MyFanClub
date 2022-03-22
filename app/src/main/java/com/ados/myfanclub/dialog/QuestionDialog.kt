@@ -34,13 +34,12 @@ class QuestionDialog(context: Context, var question: QuestionDTO) : Dialog(conte
             QuestionDTO.Stat.INFO -> binding.imgStat.setImageResource(R.drawable.information)
             QuestionDTO.Stat.WARNING -> binding.imgStat.setImageResource(R.drawable.warning)
             QuestionDTO.Stat.ERROR -> binding.imgStat.setImageResource(R.drawable.error)
+            else -> binding.imgStat.setImageResource(R.drawable.information)
         }
 
         if (!question.image.isNullOrEmpty()) {
             var imageID = context.resources.getIdentifier(question.image, "drawable", context.packageName)
-            if (imageID != null) {
-                binding.imgStat.setImageResource(imageID)
-            }
+            binding.imgStat.setImageResource(imageID)
         }
     }
 

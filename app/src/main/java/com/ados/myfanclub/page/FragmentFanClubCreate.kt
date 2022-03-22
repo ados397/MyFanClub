@@ -18,14 +18,11 @@ import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentFanClubCreateBinding
 import com.ados.myfanclub.dialog.GemQuestionDialog
-import com.ados.myfanclub.dialog.LoadingDialog
 import com.ados.myfanclub.dialog.SelectFanClubSymbolDialog
 import com.ados.myfanclub.model.*
 import com.ados.myfanclub.util.Utility
-import com.ados.myfanclub.util.Utility.Companion.randomDocumentName
 import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
-import kotlinx.android.synthetic.main.gem_question_dialog.*
 import java.util.*
 
 // TODO: Rename parameter arguments, choose names that match
@@ -51,7 +48,8 @@ class FragmentFanClubCreate : Fragment() {
 
     private lateinit var callback: OnBackPressedCallback
 
-    private var loadingDialog : LoadingDialog? = null
+    private var gemQuestionDialog: GemQuestionDialog? = null
+    private var selectFanClubSymbolDialog: SelectFanClubSymbolDialog? = null
 
     private var fanClubDTO: FanClubDTO? = null
     private var currentMember: MemberDTO? = null
@@ -103,7 +101,7 @@ class FragmentFanClubCreate : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.editDescription.setOnTouchListener { view, motionEvent ->
+        binding.editDescription.setOnTouchListener { _, _ ->
             binding.scrollView.requestDisallowInterceptTouchEvent(true)
             false
         }
@@ -113,22 +111,23 @@ class FragmentFanClubCreate : Fragment() {
         }
 
         binding.imgSymbol.setOnClickListener{
-            val dialog = SelectFanClubSymbolDialog(requireContext())
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.show()
+            if (selectFanClubSymbolDialog == null) {
+                selectFanClubSymbolDialog = SelectFanClubSymbolDialog(requireContext())
+                selectFanClubSymbolDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                selectFanClubSymbolDialog?.setCanceledOnTouchOutside(false)
+            }
+            selectFanClubSymbolDialog?.show()
+            selectFanClubSymbolDialog?.setInfo()
 
-            dialog.setOnDismissListener {
-                if (dialog.isOK && !dialog.selectedSymbol.isNullOrEmpty()) {
-                    if (dialog.isAddImage) {
+            selectFanClubSymbolDialog?.setOnDismissListener {
+                if (selectFanClubSymbolDialog?.isOK!! && !selectFanClubSymbolDialog?.selectedSymbol.isNullOrEmpty()) {
+                    if (selectFanClubSymbolDialog?.isAddImage!!) {
                         resultLauncher.launch("image/*")
                     } else {
-                        symbolImage = dialog.selectedSymbol
+                        symbolImage = selectFanClubSymbolDialog?.selectedSymbol!!
                         symbolImageCustomBitmap = null
                         var imageID = requireContext().resources.getIdentifier(symbolImage, "drawable", requireContext().packageName)
-                        if (imageID != null) {
-                            binding.imgSymbol.setImageResource(imageID)
-                        }
+                        binding.imgSymbol.setImageResource(imageID)
                     }
                 }
             }
@@ -137,15 +136,22 @@ class FragmentFanClubCreate : Fragment() {
         binding.buttonOk.setOnClickListener {
             val preferencesDTO = (activity as MainActivity?)?.getPreferences()!!
             val question = GemQuestionDTO("다이아를 사용해 팬클럽을 창설 합니다.", preferencesDTO.priceFanClubCreate)
-            val questionDialog = GemQuestionDialog(requireContext(), question)
-            questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            questionDialog.setCanceledOnTouchOutside(false)
-            questionDialog.show()
-            questionDialog.button_gem_question_cancel.setOnClickListener { // No
-                questionDialog.dismiss()
+            if (gemQuestionDialog == null) {
+                gemQuestionDialog = GemQuestionDialog(requireContext(), question)
+                gemQuestionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                gemQuestionDialog?.setCanceledOnTouchOutside(false)
+            } else {
+                gemQuestionDialog?.question = question
             }
-            questionDialog.button_gem_question_ok.setOnClickListener { // Ok
-                questionDialog.dismiss()
+            gemQuestionDialog?.mainActivity = (activity as MainActivity?)
+            gemQuestionDialog?.show()
+            gemQuestionDialog?.setInfo()
+
+            gemQuestionDialog?.binding?.buttonGemQuestionCancel?.setOnClickListener { // No
+                gemQuestionDialog?.dismiss()
+            }
+            gemQuestionDialog?.binding?.buttonGemQuestionOk?.setOnClickListener { // Ok
+                gemQuestionDialog?.dismiss()
 
                 var user = (activity as MainActivity?)?.getUser()!!
 
@@ -163,14 +169,14 @@ class FragmentFanClubCreate : Fragment() {
                             val date = Date()
                             val docName = Utility.randomDocumentName()
                             // 팬클럽 창설 시 회원이 1명이기 때문에 count 는 1로 설정
-                            fanClubDTO = FanClubDTO(false, docName, name, null, description, "", symbolImage, null, 1, 0L, 0L, user.uid, user.nickname, 1, 0, date)
+                            fanClubDTO = FanClubDTO(false, docName, name, null, description, "", symbolImage, null, null, 1, 0L, 0L, user.uid, user.nickname, 1, 0, date)
                             if (symbolImageCustomBitmap != null) {
                                 fanClubDTO?.imgSymbolCustom = fanClubDTO?.getSymbolCustomImageName()
                             }
 
                             firebaseViewModel.updateFanClub(fanClubDTO!!) {
                                 if (symbolImageCustomBitmap != null) { // 사용자 직접 이미지 업로드
-                                    firebaseStorageViewModel.setFanClubSymbol(docName, symbolImageCustomBitmap!!) {
+                                    firebaseStorageViewModel.setFanClubSymbolImage(docName, symbolImageCustomBitmap!!) {
                                         if (!it) {
                                             Toast.makeText(activity, "팬클럽 창설에 실패했습니다. 잠시 후 다시 시도해 주세요.", Toast.LENGTH_SHORT).show()
                                         } else { // 이미지 업로드 성공
@@ -183,10 +189,10 @@ class FragmentFanClubCreate : Fragment() {
                                                     // 다이아 차감
                                                     val oldPaidGemCount = user.paidGem!!
                                                     val oldFreeGemCount = user.freeGem!!
-                                                    firebaseViewModel.useUserGem(user.uid.toString(), preferencesDTO.priceFanClubCreate!!) { userDTO->
+                                                    firebaseViewModel.useUserGem(user.uid.toString(), preferencesDTO.priceFanClubCreate) { userDTO->
                                                         if (userDTO != null) {
-                                                            var log = LogDTO("[다이아 차감] 팬클럽 창설로 ${preferencesDTO.priceFanClubCreate} 다이아 사용, 팬클럽 명 : $name($docName), (paidGem : $oldPaidGemCount -> ${userDTO?.paidGem}, freeGem : $oldFreeGemCount -> ${userDTO?.freeGem})", Date())
-                                                            firebaseViewModel.writeUserLog(user?.uid.toString(), log) { }
+                                                            var log = LogDTO("[다이아 차감] 팬클럽 창설로 ${preferencesDTO.priceFanClubCreate} 다이아 사용, 팬클럽 명 : $name($docName), (paidGem : $oldPaidGemCount -> ${userDTO.paidGem}, freeGem : $oldFreeGemCount -> ${userDTO.freeGem})", Date())
+                                                            firebaseViewModel.writeUserLog(user.uid.toString(), log) { }
 
                                                             (activity as MainActivity?)?.loadingEnd()
                                                             Toast.makeText(activity, "팬클럽 창설 완료!", Toast.LENGTH_SHORT).show()
@@ -208,10 +214,10 @@ class FragmentFanClubCreate : Fragment() {
                                             // 다이아 차감
                                             val oldPaidGemCount = user.paidGem!!
                                             val oldFreeGemCount = user.freeGem!!
-                                            firebaseViewModel.useUserGem(user.uid.toString(), preferencesDTO.priceFanClubCreate!!) { userDTO->
+                                            firebaseViewModel.useUserGem(user.uid.toString(), preferencesDTO.priceFanClubCreate) { userDTO->
                                                 if (userDTO != null) {
-                                                    var log = LogDTO("[다이아 차감] 팬클럽 창설로 ${preferencesDTO.priceFanClubCreate} 다이아 사용, 팬클럽 명 : $name($docName), (paidGem : $oldPaidGemCount -> ${userDTO?.paidGem}, freeGem : $oldFreeGemCount -> ${userDTO?.freeGem})", Date())
-                                                    firebaseViewModel.writeUserLog(user?.uid.toString(), log) { }
+                                                    var log = LogDTO("[다이아 차감] 팬클럽 창설로 ${preferencesDTO.priceFanClubCreate} 다이아 사용, 팬클럽 명 : $name($docName), (paidGem : $oldPaidGemCount -> ${userDTO.paidGem}, freeGem : $oldFreeGemCount -> ${userDTO.freeGem})", Date())
+                                                    firebaseViewModel.writeUserLog(user.uid.toString(), log) { }
 
                                                     (activity as MainActivity?)?.loadingEnd()
                                                     Toast.makeText(activity, "팬클럽 창설 완료!", Toast.LENGTH_SHORT).show()

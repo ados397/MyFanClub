@@ -62,7 +62,7 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
 
         //필요하면 이 토큰을 앱서버에 저장하는 과정을 거치면 된다.
         //sendToken(token)
-        sendRegistrationToServer(token)
+        //sendRegistrationToServer(token)
     }
 
     // 서버에서 직접 보냈을 때
@@ -83,7 +83,7 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
         val channelId = getString(R.string.default_notification_channel_id) // 채널 아이디
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) // 소리
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(android.R.drawable.star_big_off)
+            .setSmallIcon(R.drawable.app_icon)
             .setContentTitle(title)
             .setContentText(body)
             .setSound(defaultSoundUri)
@@ -145,7 +145,7 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
             .setContentTitle(title) // 제목
             .setContentText(body) // 내용
             .setStyle(messageStyle)
-            .setSmallIcon(android.R.drawable.star_big_off)
+            .setSmallIcon(R.drawable.app_icon)
             .setAutoCancel(true)
             .setSound(defaultSoundUri)
             .setGroup(fcmGroup)
@@ -181,7 +181,5 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
     }
 
     // 받은 토큰을 서버로 전송
-    private fun sendRegistrationToServer(token: String){
-
-    }
+    //private fun sendRegistrationToServer(token: String){ }
 }

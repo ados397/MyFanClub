@@ -34,9 +34,6 @@ import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetSequence
 import com.getkeepsafe.taptargetview.TapTargetView
-import kotlinx.android.synthetic.main.edit_text_modify_dialog.*
-import kotlinx.android.synthetic.main.mission_dialog.*
-import kotlinx.android.synthetic.main.question_dialog.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -97,10 +94,10 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
         _binding = FragmentDashboardMissionBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
 
-        recyclerViewFanClub = rootView.findViewById(R.id.rv_mission_fan_club!!)as RecyclerView
+        recyclerViewFanClub = rootView.findViewById(R.id.rv_mission_fan_club)as RecyclerView
         recyclerViewFanClub.layoutManager = LinearLayoutManager(requireContext())
 
-        recyclerViewPersonal = rootView.findViewById(R.id.rv_mission_personal!!)as RecyclerView
+        recyclerViewPersonal = rootView.findViewById(R.id.rv_mission_personal)as RecyclerView
         recyclerViewPersonal.layoutManager = LinearLayoutManager(requireContext())
 
         selectedCycle = when (param2) {
@@ -176,8 +173,8 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
         }
 
         binding.textTitle.setOnClickListener {
-            val user = (activity as MainActivity?)?.getUser()
-            val item = EditTextDTO("제목 변경", user?.mainTitle, 30)
+            val userDTO = (activity as MainActivity?)?.getUser()!!
+            val item = EditTextDTO("제목 변경", userDTO.mainTitle, 30)
             if (editTextModifyDialog == null) {
                 editTextModifyDialog = EditTextModifyDialog(requireContext(), item)
                 editTextModifyDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -188,10 +185,10 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
             editTextModifyDialog?.show()
             editTextModifyDialog?.setInfo()
 
-            editTextModifyDialog?.button_modify_cancel?.setOnClickListener { // No
+            editTextModifyDialog?.binding?.buttonModifyCancel?.setOnClickListener { // No
                 editTextModifyDialog?.dismiss()
             }
-            editTextModifyDialog?.button_modify_ok?.setOnClickListener {
+            editTextModifyDialog?.binding?.buttonModifyOk?.setOnClickListener {
                 editTextModifyDialog?.dismiss()
 
                 val question = QuestionDTO(
@@ -203,16 +200,16 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                 questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
                 questionDialog.setCanceledOnTouchOutside(false)
                 questionDialog.show()
-                questionDialog.button_question_cancel.setOnClickListener { // No
+                questionDialog.binding.buttonQuestionCancel.setOnClickListener { // No
                     questionDialog.dismiss()
                 }
-                questionDialog.button_question_ok.setOnClickListener {
+                questionDialog.binding.buttonQuestionOk.setOnClickListener {
                     questionDialog.dismiss()
 
-                    user?.mainTitle = editTextModifyDialog?.edit_content?.text.toString()
+                    userDTO.mainTitle = editTextModifyDialog?.binding?.editContent?.text.toString()
                     firebaseViewModel.updateUserMainTitle(user!!) {
                         Toast.makeText(activity, "제목 변경 완료!", Toast.LENGTH_SHORT).show()
-                        binding.textTitle.text = editTextModifyDialog?.edit_content?.text
+                        binding.textTitle.text = editTextModifyDialog?.binding?.editContent?.text
                     }
                 }
             }
@@ -324,7 +321,7 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
         }
 
         binding.textEmptyPersonal.setOnClickListener {
-            if (firebaseViewModel.personalDashboardMissionDTOs?.value!!.size == 0) {
+            if (firebaseViewModel.personalDashboardMissionDTOs.value!!.size == 0) {
                 (activity as MainActivity?)?.moveScheduleTab()
             }
         }
@@ -400,12 +397,12 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
     }
 
     private fun setAdapterPersonal() {
-        if (firebaseViewModel.personalDashboardMissionDTOs?.value!!.size > 0) {
+        if (firebaseViewModel.personalDashboardMissionDTOs.value!!.size > 0) {
             binding.textEmptyPersonal.visibility = View.GONE
         } else {
             binding.textEmptyPersonal.visibility = View.VISIBLE
         }
-        recyclerViewPersonalAdapter = RecyclerViewAdapterMission(firebaseViewModel.personalDashboardMissionDTOs?.value!!, this)
+        recyclerViewPersonalAdapter = RecyclerViewAdapterMission(firebaseViewModel.personalDashboardMissionDTOs.value!!, this)
         recyclerViewPersonal.adapter = recyclerViewPersonalAdapter
         recyclerViewPersonal.visibility = View.VISIBLE
     }
@@ -415,12 +412,12 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
             val fanClubMissions: ArrayList<DashboardMissionDTO> = arrayListOf()
             RecyclerViewAdapterMission(fanClubMissions, this)
         } else {
-            if (firebaseViewModel.fanClubDashboardMissionDTOs?.value!!.size > 0) {
+            if (firebaseViewModel.fanClubDashboardMissionDTOs.value!!.size > 0) {
                 binding.textEmptyFanClub.visibility = View.GONE
             } else {
                 binding.textEmptyFanClub.visibility = View.VISIBLE
             }
-            RecyclerViewAdapterMission(firebaseViewModel.fanClubDashboardMissionDTOs?.value!!, this)
+            RecyclerViewAdapterMission(firebaseViewModel.fanClubDashboardMissionDTOs.value!!, this)
         }
         recyclerViewFanClub.adapter = recyclerViewFanClubAdapter
         recyclerViewFanClub.visibility = View.VISIBLE
@@ -448,6 +445,10 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
             ScheduleDTO.Cycle.MONTH -> {
                 fieldName = SimpleDateFormat("yyyy").format(Date())
                 valueName = SimpleDateFormat("MM").format(date)
+            }
+            else -> {
+                fieldName = SimpleDateFormat("yyyyMM").format(date)
+                valueName = SimpleDateFormat("dd").format(date)
             }
         }
         return Pair(fieldName, valueName)
@@ -532,11 +533,11 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
         missionDialog?.show()
         missionDialog?.setInfo()
 
-        missionDialog?.button_mission_cancel?.setOnClickListener { // No
+        missionDialog?.binding?.buttonMissionCancel?.setOnClickListener { // No
             missionDialog?.dismiss()
         }
 
-        missionDialog?.button_mission_ok?.setOnClickListener { // Ok
+        missionDialog?.binding?.buttonMissionOk?.setOnClickListener { // Ok
             val docName = when (item.scheduleDTO?.cycle) {
                 ScheduleDTO.Cycle.DAY -> "day"
                 ScheduleDTO.Cycle.WEEK -> "week"
@@ -593,25 +594,25 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                         if (item.scheduleDTO?.cycle != ScheduleDTO.Cycle.PERIOD) { // 일일, 주간, 월간 통계만 냄
                             // 스케줄들의 모든 진행률을 통계로 계산
                             var totalPercent = 0
-                            for (mission in firebaseViewModel.fanClubDashboardMissionDTOs?.value!!) {
+                            for (mission in firebaseViewModel.fanClubDashboardMissionDTOs.value!!) {
                                 if (mission.scheduleDTO?.cycle == item.scheduleDTO?.cycle) {
                                     var percent = ((mission.scheduleProgressDTO?.count?.toDouble()!! / mission.scheduleProgressDTO?.countMax!!) * 100).toInt()
                                     totalPercent = totalPercent.plus(percent)
                                 }
                             }
 
-                            val averagePercent = totalPercent / firebaseViewModel.fanClubDashboardMissionDTOs?.value!!.size
+                            val averagePercent = totalPercent / firebaseViewModel.fanClubDashboardMissionDTOs.value!!.size
                             firebaseViewModel.updateFanClubScheduleStatistics(fanClubDTO?.docName.toString(), currentMember?.userUid.toString(), docName, fieldValue, averagePercent) {
 
                             }
                         }
 
                         // 일일 퀘스트 - 팬클럽 일일 스케줄 완료 시 적용
-                        val user = (activity as MainActivity?)?.getUser()
-                        if (!QuestDTO("팬클럽 일일 스케줄", "팬클럽 일일 스케줄을 1회 이상 완료 하세요.", 1, user?.questSuccessTimes?.get("2"), user?.questGemGetTimes?.get("2")).isQuestSuccess()) { // 퀘스트 완료 안했을 때 적용
+                        val userDTO = (activity as MainActivity?)?.getUser()!!
+                        if (!QuestDTO("팬클럽 일일 스케줄", "팬클럽 일일 스케줄을 1회 이상 완료 하세요.", 1, userDTO.questSuccessTimes.get("2"), userDTO.questGemGetTimes.get("2")).isQuestSuccess()) { // 퀘스트 완료 안했을 때 적용
                             if (item.scheduleDTO?.cycle == ScheduleDTO.Cycle.DAY && item.scheduleDTO?.count == item.scheduleProgressDTO?.count) { // 일일 미션이고 미션 완료
-                                user?.questSuccessTimes?.set("2", Date())
-                                firebaseViewModel.updateUserQuestSuccessTimes(user!!) {
+                                userDTO.questSuccessTimes.set("2", Date())
+                                firebaseViewModel.updateUserQuestSuccessTimes(userDTO) {
                                     Toast.makeText(activity, "일일 과제 달성! 보상을 획득하세요!", Toast.LENGTH_SHORT).show()
                                 }
                             } else {
@@ -712,9 +713,9 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                         override fun onTargetClick(view: TapTargetView) {
                             super.onTargetClick(view) // This call is optional
 
-                            for (i in 0 until firebaseViewModel.personalDashboardMissionDTOs?.value!!.size) {
-                                if (isSampleData(firebaseViewModel.personalDashboardMissionDTOs?.value!![i].scheduleDTO!!)) {
-                                    onMission(firebaseViewModel.personalDashboardMissionDTOs?.value!![i], i)
+                            for (i in 0 until firebaseViewModel.personalDashboardMissionDTOs.value!!.size) {
+                                if (isSampleData(firebaseViewModel.personalDashboardMissionDTOs.value!![i].scheduleDTO!!)) {
+                                    onMission(firebaseViewModel.personalDashboardMissionDTOs.value!![i], i)
                                     break
                                 }
                             }

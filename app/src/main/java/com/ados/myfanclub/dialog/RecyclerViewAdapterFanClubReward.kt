@@ -27,7 +27,7 @@ class RecyclerViewAdapterFanClubReward(private val items: ArrayList<FanClubRewar
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.initalize(items[position],clickListener)
+        holder.initialize(items[position],clickListener)
 
         items[position].let { item ->
             with(holder) {
@@ -90,7 +90,7 @@ class RecyclerViewAdapterFanClubReward(private val items: ArrayList<FanClubRewar
         var progressText = viewBinding.textProgress
         var layoutItem = viewBinding.layoutItem
 
-        fun initalize(item: FanClubRewardDTO, action:OnFanClubRewardItemClickListener) {
+        fun initialize(item: FanClubRewardDTO, action:OnFanClubRewardItemClickListener) {
             /*itemView.setOnClickListener {
                 action.onItemClick(item, adapterPosition)
                 itemView.img_favorite.setImageResource(R.drawable.star_icon_fill)

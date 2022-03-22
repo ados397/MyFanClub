@@ -81,12 +81,12 @@ class SuccessCalendarWeek(date: Date) {
         val calStart = Calendar.getInstance()
         val calEnd = Calendar.getInstance()
         for (week in weekList) {
-            calStart.time = week.startDate
+            calStart.time = week.startDate!!
             calStart.set(Calendar.HOUR, 0)
             calStart.set(Calendar.MINUTE, 0)
             calStart.set(Calendar.SECOND, 0)
 
-            calEnd.time = week.endDate
+            calEnd.time = week.endDate!!
             calEnd.set(Calendar.HOUR_OF_DAY, 23)
             calEnd.set(Calendar.MINUTE, 59)
             calEnd.set(Calendar.SECOND, 59)

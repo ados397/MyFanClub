@@ -14,7 +14,6 @@ import com.ados.myfanclub.databinding.FanClubRewardDialogBinding
 import com.ados.myfanclub.model.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import kotlinx.android.synthetic.main.get_item_dialog.*
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -48,13 +47,41 @@ class FanClubRewardDialog(context: Context) : Dialog(context), OnFanClubRewardIt
         layoutManager.stackFromEnd = true
         binding.rvFanClubReward.layoutManager = layoutManager
 
+        setInfo()
+
+        binding.buttonGetAll.setOnClickListener {
+            // 받을 보상수와 받을 다이아수 획득
+            var rewardCount = 0
+            var gemCount = 0
+            var rewards = arrayListOf<FanClubRewardDTO>()
+            for (reward in fanClubRewards) {
+                if (fanClubCheckoutCount!! >= reward.checkoutCount!!) {
+                    rewardCount++
+                    if (!reward.isRewardGemGet()) {
+                        gemCount = gemCount.plus(reward.gemCount!!)
+                        reward.rewardGemGetTime = Date()
+                        rewards.add(reward)
+                    }
+                }
+            }
+
+            if (gemCount > 0) { // 받을 아이템이 있다면 작업
+                mainActivity?.loading()
+                addGem(gemCount, rewards, true)
+            } else {
+                Toast.makeText(context, "받을 보상이 없습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    fun setInfo() {
         binding.textGemCount.text = "${fanClubDTO?.getCheckoutGemCount()}개"
 
         firestore?.collection("fanClub")?.document(fanClubDTO?.docName.toString())?.collection("member")?.document(currentMember?.userUid.toString())?.collection("reward")?.orderBy("checkoutCount", Query.Direction.DESCENDING)?.get()?.addOnCompleteListener { task ->
             fanClubRewards.clear()
             if(task.isSuccessful) {
                 for (document in task.result) {
-                    var reward = document.toObject(FanClubRewardDTO::class.java)!!
+                    var reward = document.toObject(FanClubRewardDTO::class.java)
                     fanClubRewards.add(reward)
                 }
 
@@ -80,30 +107,6 @@ class FanClubRewardDialog(context: Context) : Dialog(context), OnFanClubRewardIt
                 }
                 setAdapter()
                 //binding.rvFanClubReward.scrollToPosition(0)
-            }
-        }
-
-        binding.buttonGetAll.setOnClickListener {
-            // 받을 보상수와 받을 다이아수 획득
-            var rewardCount = 0
-            var gemCount = 0
-            var rewards = arrayListOf<FanClubRewardDTO>()
-            for (reward in fanClubRewards) {
-                if (fanClubCheckoutCount!! >= reward.checkoutCount!!) {
-                    rewardCount++
-                    if (!reward.isRewardGemGet()) {
-                        gemCount = gemCount.plus(reward.gemCount!!)
-                        reward.rewardGemGetTime = Date()
-                        rewards.add(reward)
-                    }
-                }
-            }
-
-            if (gemCount > 0) { // 받을 아이템이 있다면 작업
-                mainActivity?.loading()
-                addGem(gemCount, rewards, true)
-            } else {
-                Toast.makeText(context, "받을 보상이 없습니다.", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -133,12 +136,12 @@ class FanClubRewardDialog(context: Context) : Dialog(context), OnFanClubRewardIt
             val user = transaction.get(tsDoc!!).toObject(UserDTO::class.java)
             oldFreeGemCount = user?.freeGem!!
 
-            user?.freeGem = user?.freeGem?.plus(gemCount)
+            user.freeGem = user.freeGem?.plus(gemCount)
 
             userDTO = user
 
-            transaction.set(tsDoc, user!!)
-        }?.addOnSuccessListener { result ->
+            transaction.set(tsDoc, user)
+        }?.addOnSuccessListener {
             var log = LogDTO("[팬클럽 출석체크 보상] 다이아 $gemCount 획득 (freeGem : $oldFreeGemCount -> ${userDTO?.freeGem})", Date())
             firestore?.collection("user")?.document(userDTO?.uid.toString())?.collection("log")?.document()?.set(log)
 
@@ -161,10 +164,10 @@ class FanClubRewardDialog(context: Context) : Dialog(context), OnFanClubRewardIt
             getItemDialog?.show()
             getItemDialog?.setInfo()
 
-            getItemDialog?.button_get_item_ok?.setOnClickListener {
+            getItemDialog?.binding?.buttonGetItemOk?.setOnClickListener {
                 getItemDialog?.dismiss()
             }
-        }?.addOnFailureListener { e ->
+        }?.addOnFailureListener {
 
         }
     }

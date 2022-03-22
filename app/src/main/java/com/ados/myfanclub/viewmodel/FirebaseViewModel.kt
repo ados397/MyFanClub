@@ -23,6 +23,8 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
     val displayBoardDTOs = repository.displayBoardDTOs
     val fanClubChatDTOs = repository.fanClubChatDTOs
     val noticeDTOs = repository.noticeDTOs
+    val faqDTOs = repository.faqDTOs
+    val qnaDTOs = repository.qnaDTOs
     val userDTOs = repository.userDTOs
     val fanClubDTOs = repository.fanClubDTOs
     val scheduleDTOs = repository.scheduleDTOs
@@ -164,6 +166,13 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    // 오픈소스 라이선스 불러오기
+    fun getOpenSourceLicense(myCallback: (String) -> Unit) {
+        repository.getOpenSourceLicense() {
+            myCallback(it)
+        }
+    }
+
     // 사용자 불러오기
     fun getUser(uid: String, myCallback: (UserDTO?) -> Unit) {
         repository.getUser(uid) {
@@ -188,6 +197,16 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
     // 공지사항 리스트 획득(최신순)
     fun getNotices(isMain: Boolean) {
         repository.getNotices(isMain)
+    }
+
+    // 자주 묻는 질문 리스트 획득(우선순위순)
+    fun getFaq() {
+        repository.getFaq()
+    }
+
+    // 내가 문의한 리스트 획득(날짜순)
+    fun getQna(uid: String) {
+        repository.getQna(uid)
     }
 
     // 사용자 리스트 획득(레벨 순)
@@ -333,6 +352,13 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
 
 
     //<editor-fold desc="@ 업데이트 및 Set 함수">
+
+    // 1:1 문의하기
+    fun sendQna(qna: QnaDTO, myCallback: (Boolean) -> Unit) {
+        repository.sendQna(qna) {
+            myCallback(it)
+        }
+    }
 
     // 사용자 정보 전체 업데이트
     fun updateUser(user: UserDTO, myCallback: (Boolean) -> Unit) {

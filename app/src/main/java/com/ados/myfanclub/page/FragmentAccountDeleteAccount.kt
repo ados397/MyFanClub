@@ -25,7 +25,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.android.synthetic.main.question_dialog.*
 import java.text.DecimalFormat
 import java.util.*
 
@@ -57,6 +56,8 @@ class FragmentAccountDeleteAccount : Fragment() {
 
     private var currentUserEx: UserExDTO? = null
 
+    private var questionDialog: QuestionDialog? = null
+
     inner class CheckboxListener : CompoundButton.OnCheckedChangeListener {
         override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
             when (buttonView?.id) {
@@ -86,7 +87,7 @@ class FragmentAccountDeleteAccount : Fragment() {
             .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
-        googleSignInClient = GoogleSignIn.getClient(context,gso)
+        googleSignInClient = GoogleSignIn.getClient(requireActivity(),gso)
 
         currentUserEx = (activity as MainActivity?)?.getUserEx()
 
@@ -113,12 +114,20 @@ class FragmentAccountDeleteAccount : Fragment() {
                 "회원 탈퇴",
                 "회원 탈퇴 시 모든 정보가 삭제되며 복구가 불가능 합니다.\n\n정말 탈퇴 하시겠습니까?"
             )
-            val dialog = QuestionDialog(requireContext(), question)
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.show()
-            dialog.setButtonOk("탈퇴하기")
-            dialog.button_question_ok.setOnClickListener { // Yes
+            if (questionDialog == null) {
+                questionDialog = QuestionDialog(requireContext(), question)
+                questionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                questionDialog?.setCanceledOnTouchOutside(false)
+            } else {
+                questionDialog?.question = question
+            }
+            questionDialog?.show()
+            questionDialog?.setInfo()
+            questionDialog?.setButtonOk("탈퇴하기")
+            questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
+                questionDialog?.dismiss()
+            }
+            questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
                 currentUserEx?.userDTO?.deleteTime = Date()
                 firebaseViewModel.updateUserDeleteTime(currentUserEx?.userDTO!!) {
                     firebaseAuth?.signOut()
@@ -127,7 +136,7 @@ class FragmentAccountDeleteAccount : Fragment() {
 
                     Toast.makeText(activity, "탈퇴처리가 완료되었습니다.", Toast.LENGTH_SHORT).show()
 
-                    dialog.dismiss()
+                    questionDialog?.dismiss()
 
                     val fragment = FragmentAccountDeleteAccountDone()
                     parentFragmentManager.beginTransaction().apply{
@@ -137,10 +146,6 @@ class FragmentAccountDeleteAccount : Fragment() {
                         commit()
                     }
                 }
-            }
-            dialog.button_question_cancel.setOnClickListener { // No
-                dialog.dismiss()
-
             }
         }
 

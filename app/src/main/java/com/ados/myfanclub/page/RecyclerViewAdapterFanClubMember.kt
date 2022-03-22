@@ -48,6 +48,7 @@ class RecyclerViewAdapterFanClubMember(private val items: ArrayList<MemberDTO>, 
                     //MemberDTO.POSITION.MASTER -> layoutPosition.setBackgroundColor(Color.parseColor("#FFD500"))
                     //MemberDTO.POSITION.SUB_MASTER -> layoutPosition.setBackgroundColor(Color.parseColor("#FF8C00"))
                     //MemberDTO.POSITION.MEMBER -> layoutPosition.setBackgroundColor(Color.parseColor("#0099FF"))
+                    else -> layoutPosition.setBackgroundColor(ContextCompat.getColor(context!!, R.color.member))
                 }
 
                 if (item.isSelected) {

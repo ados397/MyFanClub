@@ -36,39 +36,37 @@ class RecyclerViewAdapterFanClubRank(private val itemsEx: ArrayList<FanClubExDTO
 
         itemsEx[position].let { item ->
             with(holder) {
-                if (imgRank != null) {
-                    when (position) {
-                        0 -> {
-                            Glide.with(imgRank.context).asBitmap().load(R.drawable.award_01).fitCenter().into(holder.imgRank)
-                            imgRank.visibility = View.VISIBLE
-                            rank.visibility = View.GONE
-                            cardView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.rank1))
-                            //imgRank.setImageResource(R.drawable.award_01)
-                            //cardView.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFFFA2"))
-                        }
-                        1 -> {
-                            Glide.with(imgRank.context).asBitmap().load(R.drawable.award_02).fitCenter().into(holder.imgRank)
-                            imgRank.visibility = View.VISIBLE
-                            rank.visibility = View.GONE
-                            cardView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.rank2))
-                            //imgRank.setImageResource(R.drawable.award_02)
-                            //cardView.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#C4EDFF"))
-                        }
-                        2 -> {
-                            Glide.with(imgRank.context).asBitmap().load(R.drawable.award_03).fitCenter().into(holder.imgRank)
-                            imgRank.visibility = View.VISIBLE
-                            rank.visibility = View.GONE
-                            cardView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.rank3))
-                            //imgRank.setImageResource(R.drawable.award_03)
-                            //cardView.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFE0EC"))
-                        }
-                        else -> {
-                            imgRank.visibility = View.GONE
-                            rank.visibility = View.VISIBLE
-                            rank.text = "${position+1}"
-                            cardView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.white))
-                            //cardView.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
-                        }
+                when (position) {
+                    0 -> {
+                        Glide.with(imgRank.context).asBitmap().load(R.drawable.award_01).fitCenter().into(holder.imgRank)
+                        imgRank.visibility = View.VISIBLE
+                        rank.visibility = View.GONE
+                        cardView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.rank1))
+                        //imgRank.setImageResource(R.drawable.award_01)
+                        //cardView.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFFFA2"))
+                    }
+                    1 -> {
+                        Glide.with(imgRank.context).asBitmap().load(R.drawable.award_02).fitCenter().into(holder.imgRank)
+                        imgRank.visibility = View.VISIBLE
+                        rank.visibility = View.GONE
+                        cardView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.rank2))
+                        //imgRank.setImageResource(R.drawable.award_02)
+                        //cardView.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#C4EDFF"))
+                    }
+                    2 -> {
+                        Glide.with(imgRank.context).asBitmap().load(R.drawable.award_03).fitCenter().into(holder.imgRank)
+                        imgRank.visibility = View.VISIBLE
+                        rank.visibility = View.GONE
+                        cardView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.rank3))
+                        //imgRank.setImageResource(R.drawable.award_03)
+                        //cardView.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFE0EC"))
+                    }
+                    else -> {
+                        imgRank.visibility = View.GONE
+                        rank.visibility = View.VISIBLE
+                        rank.text = "${position+1}"
+                        cardView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.white))
+                        //cardView.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
                     }
                 }
 
@@ -76,7 +74,7 @@ class RecyclerViewAdapterFanClubRank(private val itemsEx: ArrayList<FanClubExDTO
                     Glide.with(imgSymbol.context).load(item.imgSymbolCustomUri).fitCenter().into(holder.imgSymbol)
                 } else {
                     var imageID = itemView.context.resources.getIdentifier(item.fanClubDTO?.imgSymbol, "drawable", itemView.context.packageName)
-                    if (imgSymbol != null && imageID > 0) {
+                    if (imageID > 0) {
                         //iconImage?.setImageResource(item)
                         Glide.with(imgSymbol.context)
                             .asBitmap()

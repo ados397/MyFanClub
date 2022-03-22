@@ -40,9 +40,9 @@ class RecyclerViewAdapterSuccessCalendarWeek(private val percents: MutableMap<St
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        holder?.bind(weekList[position], position)
+        holder.bind(weekList[position], position)
         if (itemClick != null) {
-            holder?.itemView?.setOnClickListener { v ->
+            holder.itemView.setOnClickListener { v ->
                 itemClick?.onClick(v, position)
 
             }
@@ -58,7 +58,7 @@ class RecyclerViewAdapterSuccessCalendarWeek(private val percents: MutableMap<St
 
         fun bind(data: WeekDTO, position: Int) {
             weekNum.text = "${data.week}주차"
-            range.text = "(${SimpleDateFormat("MM.dd").format(data.startDate)}~${SimpleDateFormat("MM.dd").format(data.endDate)})"
+            range.text = "(${SimpleDateFormat("MM.dd").format(data.startDate!!)}~${SimpleDateFormat("MM.dd").format(data.endDate!!)})"
             progress.visibility = View.VISIBLE
 
             val weekString = String.format("%02d", data.week)
@@ -93,7 +93,7 @@ class RecyclerViewAdapterSuccessCalendarWeek(private val percents: MutableMap<St
 
             // 현재 날짜 표시
             val currentRange = SimpleDateFormat("yyyyMMdd").format(currentDate).toInt()
-            val startRange = SimpleDateFormat("yyyyMMdd").format(data.startDate).toInt()
+            val startRange = SimpleDateFormat("yyyyMMdd").format(data.startDate!!).toInt()
             val endRange = (SimpleDateFormat("yyyyMMdd").format(data.endDate)).toInt()
 
             if (currentRange in startRange..endRange) {

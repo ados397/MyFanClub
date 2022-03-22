@@ -29,7 +29,7 @@ class SelectFanClubSymbolDialog(context: Context) : Dialog(context), OnFanClubSy
     private val layout = R.layout.select_fan_club_symbol_dialog
     var recyclerViewAdapter: RecyclerViewAdapterFanClubSymbol? = null
     var selectedSymbol: String = "reward_icon_01"
-    var isOK: Boolean = false
+    var isOK = false
     var isAddImage = false
     var mainActivity: MainActivity? = null
     //private lateinit var resultLauncher: ActivityResultLauncher<String>
@@ -64,6 +64,17 @@ class SelectFanClubSymbolDialog(context: Context) : Dialog(context), OnFanClubSy
         binding.rvAppList.layoutManager = GridLayoutManager(context, 3)
 
         //var imageID = itemView.context.resources.getIdentifier(item.image, "drawable", itemView.context.packageName)
+        setInfo()
+
+        binding.buttonSymbolCancel.setOnClickListener {
+            isOK = false
+            dismiss()
+        }
+    }
+
+    fun setInfo() {
+        isOK = false
+        isAddImage = false
 
         val symbols : ArrayList<Int> = arrayListOf(R.drawable.add_image
             , R.drawable.reward_icon_01, R.drawable.reward_icon_02, R.drawable.reward_icon_03, R.drawable.reward_icon_04, R.drawable.reward_icon_05
@@ -75,11 +86,6 @@ class SelectFanClubSymbolDialog(context: Context) : Dialog(context), OnFanClubSy
 
         recyclerViewAdapter = RecyclerViewAdapterFanClubSymbol(symbols, this)
         binding.rvAppList.adapter = recyclerViewAdapter
-
-        binding.buttonSymbolCancel.setOnClickListener {
-            isOK = false
-            dismiss()
-        }
     }
 
     override fun onItemClick(item: Int, position: Int) {
@@ -102,7 +108,6 @@ class SelectFanClubSymbolDialog(context: Context) : Dialog(context), OnFanClubSy
 
         //앱이 갤러리에 접근햐는 것을 허용했을 경우
         if (ContextCompat.checkSelfPermission(context.applicationContext, android.Manifest.permission.READ_EXTERNAL_STORAGE)== PackageManager.PERMISSION_GRANTED) {
-            var pickImageFromAlbum = 0
 
             var intent = Intent(Intent.ACTION_PICK)
             intent.data = MediaStore.Images.Media.EXTERNAL_CONTENT_URI

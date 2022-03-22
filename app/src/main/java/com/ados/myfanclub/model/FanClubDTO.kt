@@ -3,7 +3,7 @@ package com.ados.myfanclub.model
 import android.net.Uri
 import android.os.Parcelable
 import com.ados.myfanclub.R
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -17,6 +17,7 @@ data class FanClubDTO(
     var notice: String? = null,
     var imgSymbol: String? = null,
     var imgSymbolCustom: String? = null,
+    var imgSymbolUpdateTime: Date? = null,
     var level: Int? = 0,
     var exp: Long? = 0L,
     var expTotal: Long? = 0L,
@@ -45,10 +46,10 @@ data class FanClubDTO(
     fun getTotalExp() : Long {
         var totalExp = 0L
         for (i in 1..(level?.minus(1)!!)) {
-            totalExp += i.minus(1)?.times(50000)?.plus(50000)?.toLong()!!
+            totalExp += i.minus(1).times(50000).plus(50000).toLong()
         }
         totalExp += exp!!
-        return totalExp!!
+        return totalExp
     }
 
     /* 팬클럽 레벨 별 가입 가능 멤버 수
@@ -65,7 +66,7 @@ data class FanClubDTO(
     * 공식 = 총 멤버수 / 10
     */
     fun getMaxSubMasterCount() : Int {
-        return getMaxMemberCount().div(10)!!
+        return getMaxMemberCount().div(10)
     }
 
     /* 팬클럽 레벨 별 스케줄 수
@@ -84,7 +85,7 @@ data class FanClubDTO(
     * 공식 = (멤버수 / 150) + 1 (소수점 이하 버림)
     */
     fun getCheckoutRewardCount() : Int {
-        return getMaxMemberCount()?.div(150)?.plus(1)!!
+        return getMaxMemberCount().div(150).plus(1)
     }
 
     /* 팬클럽 출석체크로 획득 가능한 총 다이아 수
@@ -92,11 +93,11 @@ data class FanClubDTO(
     * 600명 마다 출석체크 보상이 다이아 2개이기 때문 (600명, 1200명, 1800명, 2400명... 15000명)
     */
     fun getCheckoutGemCount() : Int {
-        return getCheckoutRewardCount()?.plus(getMaxMemberCount()?.div(600)!!)
+        return getCheckoutRewardCount().plus(getMaxMemberCount().div(600))
     }
 
     fun getRewardMemberCount() : Int {
-        return getMaxMemberCount()?.div(150)?.plus(1)!!
+        return getMaxMemberCount().div(150).plus(1)
     }
 
     fun addExp(expCount: Long) : Int {
@@ -138,21 +139,21 @@ data class MemberDTO(
     }
 
     fun getPositionString(): String {
-        var positionString = ""
-        when (position) {
-            Position.MASTER -> positionString = "클럽장"
-            Position.SUB_MASTER -> positionString = "부클럽장"
-            Position.MEMBER -> positionString = "클럽원"
+        var positionString = when (position) {
+            Position.MASTER -> "클럽장"
+            Position.SUB_MASTER -> "부클럽장"
+            Position.MEMBER -> "클럽원"
+            else -> "확인불가"
         }
         return positionString
     }
 
     fun getPositionImage(): Int {
-        var positionImage = 0
-        when (position) {
-            Position.MASTER -> positionImage = R.drawable.medal_icon_09
-            Position.SUB_MASTER -> positionImage =  R.drawable.medal_icon_48
-            Position.MEMBER -> positionImage =  R.drawable.medal_icon_39
+        var positionImage = when (position) {
+            Position.MASTER -> R.drawable.medal_icon_09
+            Position.SUB_MASTER -> R.drawable.medal_icon_48
+            Position.MEMBER -> R.drawable.medal_icon_39
+            else -> R.drawable.medal_icon_39
         }
         return positionImage
     }
@@ -167,7 +168,7 @@ data class MemberDTO(
     fun isCheckout() : Boolean {
         var isCheckout = false
         if (checkoutTime != null) {
-            var lastCheckoutTime = SimpleDateFormat("yyyy.MM.dd").format(checkoutTime)
+            var lastCheckoutTime = SimpleDateFormat("yyyy.MM.dd").format(checkoutTime!!)
             var currentTime = SimpleDateFormat("yyyy.MM.dd").format(Date())
 
             if (lastCheckoutTime == currentTime) {
@@ -195,7 +196,7 @@ data class FanClubRewardDTO(
     fun isRewardGemGet() : Boolean {
         var isGemGet = false
         if (rewardGemGetTime != null) {
-            var lastGemGetTime = SimpleDateFormat("yyyy.MM.dd").format(rewardGemGetTime)
+            var lastGemGetTime = SimpleDateFormat("yyyy.MM.dd").format(rewardGemGetTime!!)
             var currentTime = SimpleDateFormat("yyyy.MM.dd").format(Date())
 
             if (lastGemGetTime == currentTime) {

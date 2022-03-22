@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentAccountRankBinding
+import com.ados.myfanclub.dialog.ImageViewDialog
 import com.ados.myfanclub.model.UserDTO
 import com.ados.myfanclub.model.UserExDTO
 import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
@@ -54,6 +56,8 @@ class FragmentAccountRank : Fragment(), OnUserRankItemClickListener {
     lateinit var recyclerView : RecyclerView
     lateinit var recyclerViewAdapter : RecyclerViewAdapterUserRank
 
+    private var imageViewDialog: ImageViewDialog? = null
+
     private var selectedUser: UserDTO? = null
     private var selectedPosition: Int? = 0
 
@@ -73,7 +77,7 @@ class FragmentAccountRank : Fragment(), OnUserRankItemClickListener {
         _binding = FragmentAccountRankBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
 
-        recyclerView = rootView.findViewById(R.id.rv_user_rank!!)as RecyclerView
+        recyclerView = rootView.findViewById(R.id.rv_user_rank)as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // 메뉴는 기본 숨김
@@ -93,7 +97,7 @@ class FragmentAccountRank : Fragment(), OnUserRankItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.editAboutMe.setOnTouchListener { view, motionEvent ->
+        binding.editAboutMe.setOnTouchListener { _, _ ->
             binding.scrollView.requestDisallowInterceptTouchEvent(true)
             false
         }
@@ -167,7 +171,7 @@ class FragmentAccountRank : Fragment(), OnUserRankItemClickListener {
 
         var uriCheckIndex = 0
         for (uid in uidSet) {
-            firebaseStorageViewModel.getUserProfile(uid) { uri ->
+            firebaseStorageViewModel.getUserProfileImage(uid) { uri ->
                 if (uri != null) {
                     for (item in itemsEx) {
                         if (item.userDTO?.uid == uid) {
@@ -217,7 +221,7 @@ class FragmentAccountRank : Fragment(), OnUserRankItemClickListener {
             if (!selectedUser?.fanClubId.isNullOrEmpty()) {
                 firebaseViewModel.getFanClub(selectedUser?.fanClubId.toString()) { fanClubDTO ->
                     if (fanClubDTO != null) {
-                        binding.textFanClub.text = fanClubDTO?.name
+                        binding.textFanClub.text = fanClubDTO.name
                         binding.imgFanClub.visibility = View.VISIBLE
                     }
                 }
@@ -262,6 +266,22 @@ class FragmentAccountRank : Fragment(), OnUserRankItemClickListener {
             binding.textName.text = selectedUser?.nickname
             binding.textLevel.text = "Lv. ${selectedUser?.level}"
             binding.editAboutMe.setText(selectedUser?.aboutMe)
+
+            binding.imgProfile.setOnClickListener {
+                if (imageViewDialog == null) {
+                    imageViewDialog = ImageViewDialog(requireContext())
+                    imageViewDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    imageViewDialog?.setCanceledOnTouchOutside(false)
+                }
+                imageViewDialog?.imageUri = item.imgProfileUri
+                imageViewDialog?.imageID = R.drawable.profile
+                imageViewDialog?.show()
+                imageViewDialog?.setInfo()
+                imageViewDialog?.binding?.buttonCancel?.setOnClickListener { // No
+                    imageViewDialog?.dismiss()
+                    imageViewDialog = null
+                }
+            }
         }
     }
 
@@ -284,7 +304,7 @@ class FragmentAccountRank : Fragment(), OnUserRankItemClickListener {
     }
 
     private fun selectRecyclerView() {
-        if (recyclerViewAdapter?.selectItem(selectedPosition!!)) { // 선택 일 경우 메뉴 표시 및 레이아웃 어둡게
+        if (recyclerViewAdapter.selectItem(selectedPosition!!)) { // 선택 일 경우 메뉴 표시 및 레이아웃 어둡게
             openLayout()
         } else { // 해제 일 경우 메뉴 숨김 및 레이아웃 밝게
             closeLayout()

@@ -24,12 +24,6 @@ import com.bumptech.glide.Glide
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetSequence
 import com.getkeepsafe.taptargetview.TapTargetView
-import kotlinx.android.synthetic.main.exp_up_user_dialog.*
-import kotlinx.android.synthetic.main.gem_question_dialog.*
-import kotlinx.android.synthetic.main.get_item_dialog.*
-import kotlinx.android.synthetic.main.level_up_action_user_dialog.*
-import kotlinx.android.synthetic.main.level_up_user_dialog.*
-import kotlinx.android.synthetic.main.question_dialog.*
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -72,6 +66,7 @@ class FragmentAccountInfo : Fragment() {
     private var gemQuestionDialog: GemQuestionDialog? = null
     private var expUpUserDialog: ExpUpUserDialog? = null
     private var levelUpUserDialog: LevelUpUserDialog? = null
+    private var imageViewDialog: ImageViewDialog? = null
 
     private val sharedPreferences: MySharedPreferences by lazy {
         MySharedPreferences(requireContext())
@@ -97,9 +92,9 @@ class FragmentAccountInfo : Fragment() {
         _binding = FragmentAccountInfoBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
 
-        val adPolicyDTO = (activity as MainActivity?)?.getAdPolicy()
-        adsRewardManagerExp = AdsRewardManager(requireActivity(), adPolicyDTO!!, AdsRewardManager.RewardType.REWARD_USER_EXP)
-        adsRewardManagerGem = AdsRewardManager(requireActivity(), adPolicyDTO!!, AdsRewardManager.RewardType.REWARD_USER_GEM)
+        val adPolicyDTO = (activity as MainActivity?)?.getAdPolicy()!!
+        adsRewardManagerExp = AdsRewardManager(requireActivity(), adPolicyDTO, AdsRewardManager.RewardType.REWARD_USER_EXP)
+        adsRewardManagerGem = AdsRewardManager(requireActivity(), adPolicyDTO, AdsRewardManager.RewardType.REWARD_USER_GEM)
 
         return rootView
     }
@@ -126,7 +121,7 @@ class FragmentAccountInfo : Fragment() {
             (activity as MainActivity?)?.loadingEnd()
         }
 
-        binding.editAboutMe.setOnTouchListener { view, motionEvent ->
+        binding.editAboutMe.setOnTouchListener { _, _ ->
             binding.scrollView.requestDisallowInterceptTouchEvent(true)
             false
         }
@@ -189,10 +184,10 @@ class FragmentAccountInfo : Fragment() {
                 }
                 questionDialog?.show()
                 questionDialog?.setInfo()
-                questionDialog?.button_question_cancel?.setOnClickListener { // No
+                questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                     questionDialog?.dismiss()
                 }
-                questionDialog?.button_question_ok?.setOnClickListener { // Ok
+                questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
                     questionDialog?.dismiss()
                     (activity as MainActivity?)?.loading()
                     val preferencesDTO = (activity as MainActivity?)?.getPreferences()
@@ -225,11 +220,27 @@ class FragmentAccountInfo : Fragment() {
         }
 
         binding.buttonLevelUp.setOnClickListener {
-            onLevelUp()
+            onLevelUp(false)
+        }
+
+        binding.imgProfile.setOnClickListener {
+            if (imageViewDialog == null) {
+                imageViewDialog = ImageViewDialog(requireContext())
+                imageViewDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                imageViewDialog?.setCanceledOnTouchOutside(false)
+            }
+            imageViewDialog?.imageUri = currentUserEx?.imgProfileUri
+            imageViewDialog?.imageID = R.drawable.profile
+            imageViewDialog?.show()
+            imageViewDialog?.setInfo()
+            imageViewDialog?.binding?.buttonCancel?.setOnClickListener { // No
+                imageViewDialog?.dismiss()
+                imageViewDialog = null
+            }
         }
     }
 
-    private fun onLevelUp() {
+    private fun onLevelUp(isTutorial: Boolean) {
         // 디이아 소모 작업 전에는 사용자 최신 정보로 갱신
         // 갱신 안하면 우편에서 받은 다이아 적용이 안됨
         currentUserEx = (activity as MainActivity?)?.getUserEx()
@@ -244,15 +255,16 @@ class FragmentAccountInfo : Fragment() {
         levelUpActionUserDialog?.preferencesDTO = preferencesDTO
         levelUpActionUserDialog?.oldUserDTO = currentUserEx?.userDTO?.copy()
         levelUpActionUserDialog?.newUserDTO = currentUserEx?.userDTO?.copy()
+        levelUpActionUserDialog?.isTutorial = isTutorial
         levelUpActionUserDialog?.show()
         levelUpActionUserDialog?.setInfo()
 
-        levelUpActionUserDialog?.button_level_up_action_user_cancel?.setOnClickListener {
+        levelUpActionUserDialog?.binding?.buttonLevelUpActionUserCancel?.setOnClickListener {
             levelUpActionUserDialog?.dismiss()
         }
 
-        levelUpActionUserDialog?.button_up_exp_user?.setOnClickListener {
-            val question = if (levelUpActionUserDialog?.isTutorial!!) { // 튜토리얼 진행 시 다이아 소모가 없음
+        levelUpActionUserDialog?.binding?.buttonUpExpUser?.setOnClickListener {
+            val question = if (isTutorial) { // 튜토리얼 진행 시 다이아 소모가 없음
                 levelUpActionUserDialog?.useGemCount = 0
                 GemQuestionDTO("튜토리얼 진행 시 다이아 소모가 없습니다.", levelUpActionUserDialog?.useGemCount)
             } else {
@@ -270,10 +282,10 @@ class FragmentAccountInfo : Fragment() {
             gemQuestionDialog?.show()
             gemQuestionDialog?.setInfo()
 
-            gemQuestionDialog?.button_gem_question_cancel?.setOnClickListener { // No
+            gemQuestionDialog?.binding?.buttonGemQuestionCancel?.setOnClickListener { // No
                 gemQuestionDialog?.dismiss()
             }
-            gemQuestionDialog?.button_gem_question_ok?.setOnClickListener { // Ok
+            gemQuestionDialog?.binding?.buttonGemQuestionOk?.setOnClickListener { // Ok
                 gemQuestionDialog?.dismiss()
                 levelUpActionUserDialog?.dismiss()
 
@@ -284,7 +296,7 @@ class FragmentAccountInfo : Fragment() {
             }
         }
 
-        levelUpActionUserDialog?.button_get_user_exp_ad?.setOnClickListener {
+        levelUpActionUserDialog?.binding?.buttonGetUserExpAd?.setOnClickListener {
             val rewardExpCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_EXP_COUNT, preferencesDTO?.rewardUserExpCount!!)
             when {
                 rewardExpCount <= 0 -> {
@@ -308,7 +320,7 @@ class FragmentAccountInfo : Fragment() {
             }
         }
 
-        levelUpActionUserDialog?.button_get_user_gem_ad?.setOnClickListener {
+        levelUpActionUserDialog?.binding?.buttonGetUserGemAd?.setOnClickListener {
             val rewardGemCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_GEM_COUNT, preferencesDTO?.rewardUserGemCount!!)
             when {
                 rewardGemCount <= 0 -> {
@@ -338,14 +350,14 @@ class FragmentAccountInfo : Fragment() {
         //Toast.makeText(activity, "보상 $rewardAmount, $rewardType", Toast.LENGTH_SHORT).show()
 
         //val rewardExpCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_EXP_COUNT, preferencesDTO?.rewardUserExpCount!!)
-        val preferencesDTO = (activity as MainActivity?)?.getPreferences()
-        val rewardExpCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_EXP_COUNT, preferencesDTO?.rewardUserExpCount!!)
+        val preferencesDTO = (activity as MainActivity?)?.getPreferences()!!
+        val rewardExpCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_EXP_COUNT, preferencesDTO.rewardUserExpCount!!)
         sharedPreferences.putAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_EXP_COUNT, rewardExpCount.minus(1))
 
         sharedPreferences.putLong(MySharedPreferences.PREF_KEY_REWARD_USER_EXP_TIME, System.currentTimeMillis())
 
         //var exp = preferencesDTO?.rewardUserExp!!
-        var exp = preferencesDTO?.rewardUserExp!!
+        var exp = preferencesDTO.rewardUserExp!!
         if (currentUserEx?.userDTO?.isPremium()!!) { // 프리미엄 패키지 사용중이라면 경험치 두배
             exp = exp.times(2)
         }
@@ -363,14 +375,14 @@ class FragmentAccountInfo : Fragment() {
 
     private fun rewardGem(dialog: LevelUpActionUserDialog) {
         //val rewardGemCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_GEM_COUNT, preferencesDTO?.rewardUserGemCount!!)
-        val preferencesDTO = (activity as MainActivity?)?.getPreferences()
-        val rewardGemCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_GEM_COUNT, preferencesDTO?.rewardUserGemCount!!)
+        val preferencesDTO = (activity as MainActivity?)?.getPreferences()!!
+        val rewardGemCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_GEM_COUNT, preferencesDTO.rewardUserGemCount!!)
         sharedPreferences.putAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_GEM_COUNT, rewardGemCount.minus(1))
 
         sharedPreferences.putLong(MySharedPreferences.PREF_KEY_REWARD_USER_GEM_TIME, System.currentTimeMillis())
 
         //addGem(preferencesDTO?.rewardUserGem!!, dialog)
-        addGem(preferencesDTO?.rewardUserGem!!, dialog)
+        addGem(preferencesDTO.rewardUserGem!!, dialog)
         Toast.makeText(activity, "보상 획득 완료!", Toast.LENGTH_SHORT).show()
 
         // 일일 퀘스트 - 개인 무료 다이아 광고 시청 시 적용
@@ -385,11 +397,13 @@ class FragmentAccountInfo : Fragment() {
     private fun setUserInfo() {
         if (currentUserEx?.imgProfileUri != null) {
             Glide.with(requireContext()).load(currentUserEx?.imgProfileUri).fitCenter().into(binding.imgProfile)
+        } else {
+            binding.imgProfile.setImageResource(R.drawable.profile)
         }
 
         binding.textNickname.text = currentUserEx?.userDTO?.nickname
         binding.textUserId.text = "(${currentUserEx?.userDTO?.userId})"
-        binding.textCreateTime.text = "가입 ${SimpleDateFormat("yyyy.MM.dd").format(currentUserEx?.userDTO?.createTime)}"
+        binding.textCreateTime.text = "가입 ${SimpleDateFormat("yyyy.MM.dd").format(currentUserEx?.userDTO?.createTime!!)}"
         binding.textLevel.text = "Lv. ${currentUserEx?.userDTO?.level}"
         binding.textExp.text = "${decimalFormat.format(currentUserEx?.userDTO?.exp)}/${decimalFormat.format(currentUserEx?.userDTO?.getNextLevelExp())}"
         binding.editAboutMe.setText(currentUserEx?.userDTO?.aboutMe)
@@ -418,11 +432,11 @@ class FragmentAccountInfo : Fragment() {
                         }
                     }
                 }
-                var log = LogDTO("[경험치 증가] 경험치 [$exp] 증가 (exp : ${oldUser?.exp} -> ${currentUserEx?.userDTO?.exp}), (level : ${oldUser?.level} -> ${currentUserEx?.userDTO?.level})", date)
+                var log = LogDTO("[경험치 증가] 경험치 [$exp] 증가 (exp : ${oldUser.exp} -> ${currentUserEx?.userDTO?.exp}), (level : ${oldUser.level} -> ${currentUserEx?.userDTO?.level})", date)
                 firebaseViewModel.writeUserLog(currentUserEx?.userDTO?.uid.toString(), log) { }
 
                 if (gemCount > 0) {
-                    log.log = "[다이아 차감] ($gemCount)다이아로 ($exp)경험치 구매 (paidGem : ${oldUser?.paidGem} -> ${currentUserEx?.userDTO?.paidGem}, freeGem : ${oldUser?.freeGem} -> ${currentUserEx?.userDTO?.freeGem})"
+                    log.log = "[다이아 차감] ($gemCount)다이아로 ($exp)경험치 구매 (paidGem : ${oldUser.paidGem} -> ${currentUserEx?.userDTO?.paidGem}, freeGem : ${oldUser.freeGem} -> ${currentUserEx?.userDTO?.freeGem})"
                     firebaseViewModel.writeUserLog(currentUserEx?.userDTO?.uid.toString(), log) { }
                 }
 
@@ -444,7 +458,7 @@ class FragmentAccountInfo : Fragment() {
 
                     activity?.runOnUiThread {
                         setUserInfo()
-                        if (currentUserEx?.userDTO?.level!! > oldUser?.level!!) { // 레벨업 했다면 레벨업 대화상자 호출
+                        if (currentUserEx?.userDTO?.level!! > oldUser.level!!) { // 레벨업 했다면 레벨업 대화상자 호출
                             expUpUserDialog?.dismiss()
 
                             if (levelUpUserDialog == null) {
@@ -465,11 +479,11 @@ class FragmentAccountInfo : Fragment() {
                             calendar.add(Calendar.DATE, 7)
                             var mail = MailDTO(docName,"레벨업 보상", "${currentUserEx?.userDTO?.level} 레벨 달성 보상 다이아가 지급되었습니다.", "시스템", MailDTO.Item.FREE_GEM, levelUpGemCount, date, calendar.time)
                             firebaseViewModel.sendUserMail(currentUserEx?.userDTO?.uid.toString(), mail) {
-                                var log = LogDTO("[레벨업 보상] 레벨 ${currentUserEx?.userDTO?.level} 달성 보상 다이아 $levelUpGemCount 개 우편 발송, 유효기간 : ${SimpleDateFormat("yyyy.MM.dd HH:mm").format(calendar.time)}까지", date)
-                                firebaseViewModel.writeUserLog(currentUserEx?.userDTO?.uid.toString(), log) { }
+                                var log2 = LogDTO("[레벨업 보상] 레벨 ${currentUserEx?.userDTO?.level} 달성 보상 다이아 $levelUpGemCount 개 우편 발송, 유효기간 : ${SimpleDateFormat("yyyy.MM.dd HH:mm").format(calendar.time)}까지", date)
+                                firebaseViewModel.writeUserLog(currentUserEx?.userDTO?.uid.toString(), log2) { }
                             }
 
-                            levelUpUserDialog?.button_level_up_user_ok?.setOnClickListener {
+                            levelUpUserDialog?.binding?.buttonLevelUpUserOk?.setOnClickListener {
                                 levelUpUserDialog?.dismiss()
 
                                 if (dialog != null) {
@@ -479,12 +493,12 @@ class FragmentAccountInfo : Fragment() {
                                 }
                             }
                         } else {
-                            expUpUserDialog?.button_exp_up_user_ok?.visibility = View.VISIBLE
+                            expUpUserDialog?.binding?.buttonExpUpUserOk?.visibility = View.VISIBLE
                         }
                     }
                 }
 
-                expUpUserDialog?.button_exp_up_user_ok?.setOnClickListener {
+                expUpUserDialog?.binding?.buttonExpUpUserOk?.setOnClickListener {
                     expUpUserDialog?.dismiss()
 
                     if (dialog != null) {
@@ -514,7 +528,7 @@ class FragmentAccountInfo : Fragment() {
                 getDialog.mailDTO = MailDTO("", "", "", "", MailDTO.Item.FREE_GEM, gemCount)
                 getDialog.show()
 
-                getDialog.button_get_item_ok.setOnClickListener {
+                getDialog.binding.buttonGetItemOk.setOnClickListener {
                     getDialog.dismiss()
 
                     if (dialog != null) {
@@ -571,7 +585,7 @@ class FragmentAccountInfo : Fragment() {
                             .targetRadius(100)
                             .tintTarget(true)).listener(object : TapTargetSequence.Listener {
                         override fun onSequenceFinish() {
-                            onLevelUp()
+                            onLevelUp(true)
                             (activity as MainActivity?)?.addTutorialStep()
                         }
                         override fun onSequenceStep(tutorialStep: TapTarget, targetClicked: Boolean) {

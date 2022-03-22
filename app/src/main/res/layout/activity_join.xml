@@ -102,43 +102,6 @@
             android:textSize="16dp" />
 
         <TextView
-            android:id="@+id/text_email_confirm"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:fontFamily="@font/font"
-            android:text="이메일 확인"
-            android:textColor="@color/text"
-            android:textSize="20dp" />
-
-        <EditText
-            android:id="@+id/edit_email_confirm"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:background="@drawable/edit_rectangle"
-            android:fontFamily="@font/font"
-            android:hint="이메일 주소 한번 더 입력"
-            android:inputType="textEmailAddress"
-            android:maxLines="1"
-            android:nextFocusDown="@id/edit_password"
-            android:textColor="@color/text"
-            android:textCursorDrawable="@drawable/edit_cursor"
-            android:textSize="18dp" />
-
-        <TextView
-            android:id="@+id/text_email_confirm_error"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginBottom="5dp"
-            android:fontFamily="@font/font"
-            android:text=""
-            android:textColor="@color/text_red"
-            android:textSize="16dp" />
-
-        <TextView
             android:id="@+id/text_password"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -221,6 +184,15 @@
             android:text="닉네임"
             android:textColor="@color/text"
             android:textSize="20dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:fontFamily="@font/font"
+            android:text="운영자를 사칭하는 닉네임은 경고없이 삭제 또는 변경 될 수 있습니다."
+            android:textColor="@color/text_red"
+            android:textSize="14dp" />
 
         <EditText
             android:id="@+id/edit_nickname"

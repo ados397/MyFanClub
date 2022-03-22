@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentFanClubRankBinding
+import com.ados.myfanclub.dialog.ImageViewDialog
 import com.ados.myfanclub.model.FanClubDTO
 import com.ados.myfanclub.model.FanClubExDTO
 import com.ados.myfanclub.model.MemberDTO
@@ -53,6 +55,8 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
     private var fanClubDTO: FanClubDTO? = null
     private var currentMember: MemberDTO? = null
 
+    private var imageViewDialog: ImageViewDialog? = null
+
     private var selectedFanClub: FanClubDTO? = null
     private var selectedPosition: Int? = 0
 
@@ -75,7 +79,7 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
         _binding = FragmentFanClubRankBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
 
-        recyclerView = rootView.findViewById(R.id.rv_fan_club_rank!!)as RecyclerView
+        recyclerView = rootView.findViewById(R.id.rv_fan_club_rank)as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // 메뉴는 기본 숨김
@@ -95,7 +99,7 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.editDescription.setOnTouchListener { view, motionEvent ->
+        binding.editDescription.setOnTouchListener { _, _ ->
             binding.scrollView.requestDisallowInterceptTouchEvent(true)
             false
         }
@@ -144,7 +148,7 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
 
         var uriCheckIndex = 0
         for (uid in uidSet) {
-            firebaseStorageViewModel.getFanClubSymbol(uid) { uri ->
+            firebaseStorageViewModel.getFanClubSymbolImage(uid) { uri ->
                 if (uri != null) {
                     for (item in itemsEx) {
                         if (item.fanClubDTO?.docName == uid) {
@@ -226,6 +230,22 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
             binding.textMaster.text = selectedFanClub?.masterNickname
             binding.textCount.text = "${selectedFanClub?.memberCount}/${selectedFanClub?.getMaxMemberCount()}"
             binding.editDescription.setText(selectedFanClub?.description)
+
+            binding.imgSymbol.setOnClickListener {
+                if (imageViewDialog == null) {
+                    imageViewDialog = ImageViewDialog(requireContext())
+                    imageViewDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    imageViewDialog?.setCanceledOnTouchOutside(false)
+                }
+                imageViewDialog?.imageUri = item.imgSymbolCustomUri
+                imageViewDialog?.imageID = requireContext().resources.getIdentifier(selectedFanClub?.imgSymbol, "drawable", requireContext().packageName)
+                imageViewDialog?.show()
+                imageViewDialog?.setInfo()
+                imageViewDialog?.binding?.buttonCancel?.setOnClickListener { // No
+                    imageViewDialog?.dismiss()
+                    imageViewDialog = null
+                }
+            }
         }
     }
 
@@ -248,7 +268,7 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
     }
 
     private fun selectRecyclerView() {
-        if (recyclerViewAdapter?.selectItem(selectedPosition!!)) { // 선택 일 경우 메뉴 표시 및 레이아웃 어둡게
+        if (recyclerViewAdapter.selectItem(selectedPosition!!)) { // 선택 일 경우 메뉴 표시 및 레이아웃 어둡게
             openLayout()
         } else { // 해제 일 경우 메뉴 숨김 및 레이아웃 밝게
             closeLayout()

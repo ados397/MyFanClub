@@ -22,7 +22,7 @@ class RecyclerViewAdapterMail(private val items: ArrayList<MailDTO>, var clickLi
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.initalize(items.get(position),clickListener)
+        holder.initialize(items.get(position),clickListener)
 
         items[position].let { item ->
             with(holder) {
@@ -33,7 +33,7 @@ class RecyclerViewAdapterMail(private val items: ArrayList<MailDTO>, var clickLi
                 val day = interval / 86400
                 val hour = (interval % 86400) / 3600
                 val min = ((interval % 86400) % 3600) / 60
-                val sec = interval % 60
+                //val sec = interval % 60
 
                 when {
                     day > 10 -> date.text = "${day}일 남음"
@@ -51,6 +51,7 @@ class RecyclerViewAdapterMail(private val items: ArrayList<MailDTO>, var clickLi
                         imgItem.setImageResource(R.drawable.diamond)
                         itemCount.text = "${decimalFormat.format(item.itemCount)}"
                     }
+                    else -> layoutItem.visibility = View.GONE
                 }
 
                 if (item.read!!) {
@@ -100,7 +101,7 @@ class RecyclerViewAdapterMail(private val items: ArrayList<MailDTO>, var clickLi
         var itemCount = viewBinding.textItemCount
         var layoutItem = viewBinding.layoutItem
 
-        fun initalize(item: MailDTO, action:OnMailItemClickListener) {
+        fun initialize(item: MailDTO, action:OnMailItemClickListener) {
             /*itemView.setOnClickListener {
                 action.onItemClick(item, adapterPosition)
                 itemView.img_favorite.setImageResource(R.drawable.star_icon_fill)

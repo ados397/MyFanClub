@@ -3,7 +3,7 @@ package com.ados.myfanclub.model
 import android.net.Uri
 import android.os.Parcelable
 import com.ados.myfanclub.R
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -31,6 +31,7 @@ data class UserDTO(
     var fanClubDeportationDate: Date? = null,
     var mainTitle: String? = null,
     var imgProfile: String? = null,
+    var imgProfileUpdateTime: Date? = null,
     var aboutMe: String? = null,
     var checkoutTime: Date? = null,
     var createTime: Date? = null,
@@ -114,7 +115,7 @@ data class UserDTO(
     fun isCheckout() : Boolean {
         var isCheckout = false
         if (checkoutTime != null) {
-            var lastCheckoutTime = SimpleDateFormat("yyyy.MM.dd").format(checkoutTime)
+            var lastCheckoutTime = SimpleDateFormat("yyyy.MM.dd").format(checkoutTime!!)
             var currentTime = SimpleDateFormat("yyyy.MM.dd").format(Date())
 
             if (lastCheckoutTime == currentTime) {
@@ -148,7 +149,7 @@ data class UserDTO(
     fun isPremiumGemGet() : Boolean {
         var isGet = false
         if (premiumGemGetTime != null) {
-            var lastGetTime = SimpleDateFormat("yyyy.MM.dd").format(premiumGemGetTime)
+            var lastGetTime = SimpleDateFormat("yyyy.MM.dd").format(premiumGemGetTime!!)
             var currentTime = SimpleDateFormat("yyyy.MM.dd").format(Date())
 
             if (lastGetTime == currentTime) {
@@ -218,7 +219,7 @@ data class QuestDTO(
     fun isQuestSuccess() : Boolean {
         var isSuccess = false
         if (questSuccessTime != null) {
-            var lastQuestTime = SimpleDateFormat("yyyy.MM.dd").format(questSuccessTime)
+            var lastQuestTime = SimpleDateFormat("yyyy.MM.dd").format(questSuccessTime!!)
             var currentTime = SimpleDateFormat("yyyy.MM.dd").format(Date())
 
             if (lastQuestTime == currentTime) {
@@ -231,7 +232,7 @@ data class QuestDTO(
     fun isQuestGemGet() : Boolean {
         var isGemGet = false
         if (questGemGetTime != null) {
-            var lastGemGetTime = SimpleDateFormat("yyyy.MM.dd").format(questGemGetTime)
+            var lastGemGetTime = SimpleDateFormat("yyyy.MM.dd").format(questGemGetTime!!)
             var currentTime = SimpleDateFormat("yyyy.MM.dd").format(Date())
 
             if (lastGemGetTime == currentTime) {

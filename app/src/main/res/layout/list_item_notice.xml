@@ -88,7 +88,7 @@
             android:autoLink="web"
             android:linksClickable="true"
             android:textColor="@color/report_text_content"
-            android:text="공지사항 제목"
+            android:text="공지사항 내용"
             android:textSize="16dp" />
     </LinearLayout>
 

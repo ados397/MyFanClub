@@ -42,9 +42,9 @@ class RecyclerViewAdapterSuccessCalendarDay(private val calendarLayout: LinearLa
         val h = calendarLayout.height / 6
         holder.itemView.layoutParams.height = h
 
-        holder?.bind(dataList[position], position)
+        holder.bind(dataList[position], position)
         if (itemClick != null) {
-            holder?.itemView?.setOnClickListener { v ->
+            holder.itemView.setOnClickListener { v ->
                 itemClick?.onClick(v, position)
 
             }

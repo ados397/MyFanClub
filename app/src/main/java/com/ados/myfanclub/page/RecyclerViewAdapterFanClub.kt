@@ -30,7 +30,7 @@ class RecyclerViewAdapterFanClub(private val itemsEx: ArrayList<FanClubExDTO>, v
                     Glide.with(image.context).load(item.imgSymbolCustomUri).fitCenter().into(holder.image)
                 } else {
                     var imageID = itemView.context.resources.getIdentifier(item.fanClubDTO?.imgSymbol, "drawable", itemView.context.packageName)
-                    if (image != null && imageID > 0) {
+                    if (imageID > 0) {
                         //iconImage?.setImageResource(item)
                         Glide.with(image.context)
                             .asBitmap()

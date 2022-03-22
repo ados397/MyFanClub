@@ -21,7 +21,7 @@ class RecyclerViewAdapterAppList(private val items: ArrayList<AppDTO>, var click
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.initalize(items.get(position),clickListener)
+        holder.initialize(items.get(position),clickListener)
 
         items[position].let { item ->
             with(holder) {
@@ -60,7 +60,7 @@ class RecyclerViewAdapterAppList(private val items: ArrayList<AppDTO>, var click
         var iconImage = viewBinding.imgIcon
         val appName = viewBinding.textAppName
 
-        fun initalize(item: AppDTO, action:OnAppListClickListener) {
+        fun initialize(item: AppDTO, action:OnAppListClickListener) {
             /*itemView.setOnClickListener {
                 action.onItemClick(item, adapterPosition)
                 itemView.img_favorite.setImageResource(R.drawable.star_icon_fill)

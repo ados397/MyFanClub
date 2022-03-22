@@ -36,33 +36,31 @@ class RecyclerViewAdapterUserRank(private val itemsEx: ArrayList<UserExDTO>, var
 
         itemsEx[position].let { item ->
             with(holder) {
-                if (imgRank != null) {
-                    when (position) {
-                        0 -> {
-                            Glide.with(imgRank.context).asBitmap().load(R.drawable.award_01).fitCenter().into(holder.imgRank)
-                            imgRank.visibility = View.VISIBLE
-                            rank.visibility = View.GONE
-                            cardView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.rank1))
-                        }
-                        1 -> {
-                            Glide.with(imgRank.context).asBitmap().load(R.drawable.award_02).fitCenter().into(holder.imgRank)
-                            imgRank.visibility = View.VISIBLE
-                            rank.visibility = View.GONE
-                            cardView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.rank2))
-                        }
-                        2 -> {
-                            Glide.with(imgRank.context).asBitmap().load(R.drawable.award_03).fitCenter().into(holder.imgRank)
-                            imgRank.visibility = View.VISIBLE
-                            rank.visibility = View.GONE
-                            cardView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.rank3))
-                        }
-                        else -> {
-                            imgRank.visibility = View.GONE
-                            rank.visibility = View.VISIBLE
-                            rank.text = "${position+1}"
-                            cardView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.white))
-                            //cardView.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
-                        }
+                when (position) {
+                    0 -> {
+                        Glide.with(imgRank.context).asBitmap().load(R.drawable.award_01).fitCenter().into(holder.imgRank)
+                        imgRank.visibility = View.VISIBLE
+                        rank.visibility = View.GONE
+                        cardView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.rank1))
+                    }
+                    1 -> {
+                        Glide.with(imgRank.context).asBitmap().load(R.drawable.award_02).fitCenter().into(holder.imgRank)
+                        imgRank.visibility = View.VISIBLE
+                        rank.visibility = View.GONE
+                        cardView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.rank2))
+                    }
+                    2 -> {
+                        Glide.with(imgRank.context).asBitmap().load(R.drawable.award_03).fitCenter().into(holder.imgRank)
+                        imgRank.visibility = View.VISIBLE
+                        rank.visibility = View.GONE
+                        cardView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.rank3))
+                    }
+                    else -> {
+                        imgRank.visibility = View.GONE
+                        rank.visibility = View.VISIBLE
+                        rank.text = "${position+1}"
+                        cardView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.white))
+                        //cardView.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
                     }
                 }
 

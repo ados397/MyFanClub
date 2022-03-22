@@ -1,7 +1,7 @@
 package com.ados.myfanclub.model
 
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import java.util.*
 
 data class QuestionDTO(var stat: Stat? = Stat.INFO,
@@ -145,6 +145,24 @@ data class NoticeDTO(
     var imageUrl: String? = null,
     var time: Date? = null,
     var displayMain: Boolean? = null // 메인 공지에 표시 여부
+) {}
+
+data class FaqDTO(
+    var question: String? = null, // 질문
+    var answer: String? = null, // 답변
+    var imageUrl: String? = null,
+    var order: Int? = 0
+) {}
+
+data class QnaDTO(
+    var userUid: String? = null,
+    var userNickname: String? = null,
+    var title: String? = null,
+    var content: String? = null,
+    var imageUrl: String? = null,
+    var answer: String? = null, // 답변
+    var createTime: Date? = null,
+    var answerTime: Date? = null
 ) {}
 
 data class NotificationBody(

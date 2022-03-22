@@ -24,7 +24,6 @@ class JoinActivity : AppCompatActivity() {
     private val firebaseViewModel : FirebaseViewModel by viewModels()
 
     private var emailOK: Boolean = false
-    private var emailConfirmOK: Boolean = false
     private var passwordOK: Boolean = false
     private var passwordConfirmOK: Boolean = false
     private var nicknameOK: Boolean = false
@@ -62,39 +61,49 @@ class JoinActivity : AppCompatActivity() {
             var nickname = binding.editNickname.text.toString().trim()
             var password = binding.editPassword.text.toString().trim()
 
-            firebaseViewModel.findUserFromEmail(email) { userDTO ->
-                if (userDTO != null) {
-                    Toast.makeText(this, "이미 가입된 이메일 입니다.", Toast.LENGTH_SHORT).show()
-                } else {
-                    firebaseViewModel.isUsedUserNickname(nickname) { isUsed ->
-                        if (isUsed) {
-                            Toast.makeText(this, "닉네임이 이미 존재합니다.", Toast.LENGTH_SHORT).show()
-                        } else {
-                            var addUser = UserDTO()
-                            addUser.userId = email
-                            addUser.nickname = nickname
-                            addUser.level = 1
-                            addUser.exp = 0L
-                            addUser.paidGem = 0
-                            addUser.freeGem = 0
-                            addUser.mainTitle = ""
-                            addUser.aboutMe = ""
-                            addUser.premiumExpireTime = Date()
-                            addUser.createTime = Date()
-
-                            if (currentUser != null) { // null 이 아니라면 소셜 로그인, 이미 로그인 처리는 되어 있음, firestore 데이터 기록 후 메인페이지 이동
-                                addUser.uid = firebaseAuth?.currentUser?.uid
-                                addUser.loginType = currentUser?.loginType
-                                writeFirestoreAndFinish(addUser)
+            if (!verifyNickname(nickname)) {
+                Toast.makeText(this, "사용할 수 없는 닉네임 입니다.", Toast.LENGTH_SHORT).show()
+            } else {
+                firebaseViewModel.findUserFromEmail(email) { userDTO ->
+                    if (userDTO != null) {
+                        Toast.makeText(this, "이미 가입된 이메일 입니다.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        firebaseViewModel.isUsedUserNickname(nickname) { isUsed ->
+                            if (isUsed) {
+                                Toast.makeText(this, "닉네임이 이미 존재합니다.", Toast.LENGTH_SHORT).show()
                             } else {
-                                firebaseAuth?.createUserWithEmailAndPassword(email, password)?.addOnCompleteListener { task ->
-                                    if (task.isSuccessful) {
-                                        addUser.uid = firebaseAuth?.currentUser?.uid
-                                        addUser.loginType = UserDTO.LoginType.EMAIL
-                                        writeFirestoreAndFinish(addUser)
-                                    } else if (!task.exception?.message.isNullOrEmpty()) {
-                                        Toast.makeText(this, "회원가입에 실패하였습니다. 잠시 후 다시 시도해 보세요.", Toast.LENGTH_SHORT).show()
-                                        //Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
+                                var addUser = UserDTO()
+                                addUser.userId = email
+                                addUser.nickname = nickname
+                                addUser.level = 1
+                                addUser.exp = 0L
+                                addUser.paidGem = 0
+                                addUser.freeGem = 0
+                                addUser.mainTitle = ""
+                                addUser.aboutMe = ""
+                                addUser.premiumExpireTime = Date()
+                                addUser.createTime = Date()
+
+                                if (currentUser != null) { // null 이 아니라면 소셜 로그인, 이미 로그인 처리는 되어 있음, firestore 데이터 기록 후 메인페이지 이동
+                                    addUser.uid = firebaseAuth?.currentUser?.uid
+                                    addUser.loginType = currentUser?.loginType
+                                    writeFirestoreAndFinish(addUser, false)
+                                } else {
+                                    firebaseAuth?.createUserWithEmailAndPassword(email, password)?.addOnCompleteListener { task ->
+                                        if (task.isSuccessful) {
+                                            firebaseAuth?.currentUser?.sendEmailVerification()?.addOnCompleteListener { verifyTask ->
+                                                    if (verifyTask.isSuccessful) {
+                                                        addUser.uid = firebaseAuth?.currentUser?.uid
+                                                        addUser.loginType = UserDTO.LoginType.EMAIL
+                                                        writeFirestoreAndFinish(addUser, true)
+                                                    } else {
+                                                        Toast.makeText(this, "인증메일 발송에 실패하였습니다. 잠시 후 다시 시도해 주세요.", Toast.LENGTH_SHORT).show()
+                                                    }
+                                                }
+                                        } else if (!task.exception?.message.isNullOrEmpty()) {
+                                            Toast.makeText(this, "회원가입에 실패하였습니다. 잠시 후 다시 시도해 보세요.", Toast.LENGTH_SHORT).show()
+                                            //Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
+                                        }
                                     }
                                 }
                             }
@@ -117,17 +126,6 @@ class JoinActivity : AppCompatActivity() {
 
             if (binding.editEmail.text.toString().isEmpty())
                 emailOK = false
-
-            isValidEmailConfirm()
-
-            visibleOkButton()
-        }
-
-        binding.editEmailConfirm.doAfterTextChanged {
-            isValidEmailConfirm()
-
-            if (binding.editEmailConfirm.text.toString().isEmpty())
-                emailConfirmOK = false
 
             visibleOkButton()
         }
@@ -180,7 +178,16 @@ class JoinActivity : AppCompatActivity() {
         }
     }
 
-    private fun writeFirestoreAndFinish(user: UserDTO) {
+    private fun verifyNickname(nickname: String) : Boolean {
+        return !(nickname == "마이팬클럽" ||
+                nickname == "관리자" ||
+                nickname == "운영자" ||
+                nickname == "운영진" ||
+                nickname.equals("admin", true) ||
+                nickname.equals("administrator", true))
+    }
+
+    private fun writeFirestoreAndFinish(user: UserDTO, isEmailAuth: Boolean) {
         firebaseViewModel.updateUser(user) {
             val gemCount = 5
             val calendar= Calendar.getInstance()
@@ -192,24 +199,16 @@ class JoinActivity : AppCompatActivity() {
                 firebaseViewModel.writeUserLog(user.uid.toString(), log) { }
             }
 
-            Toast.makeText(this, "회원가입이 완료 되었습니다.", Toast.LENGTH_SHORT).show()
-            var intent = Intent(this, MainActivity::class.java)
-            intent.putExtra("user", user)
-            startActivity(intent)
+            if (isEmailAuth) { // 이메일 회원가입 시 이메일 인증 후 로그인됨
+                Toast.makeText(this, "회원가입을 위한 인증메일을 보냈습니다. 인증 후 로그인 해주세요.", Toast.LENGTH_LONG).show()
+            } else { // 소셜 회원가입 시 바로 로그인됨
+                Toast.makeText(this, "회원가입이 완료 되었습니다.", Toast.LENGTH_SHORT).show()
+                var intent = Intent(this, MainActivity::class.java)
+                intent.putExtra("user", user)
+                startActivity(intent)
+            }
 
             finish()
-        }
-    }
-
-    private fun isValidEmailConfirm() {
-        if (binding.editEmailConfirm.text.toString() != binding.editEmail.text.toString()) {
-            binding.textEmailConfirmError.text = "이메일 주소가 일치하지 않습니다."
-            binding.editEmailConfirm.setBackgroundResource(R.drawable.edit_rectangle_red)
-            emailConfirmOK = false
-        } else {
-            binding.textEmailConfirmError.text = ""
-            binding.editEmailConfirm.setBackgroundResource(R.drawable.edit_rectangle)
-            emailConfirmOK = true
         }
     }
 
@@ -251,6 +250,6 @@ class JoinActivity : AppCompatActivity() {
     }
 
     private fun visibleOkButton() {
-        binding.buttonOk.isEnabled = emailOK && emailConfirmOK && passwordOK && passwordConfirmOK && nicknameOK
+        binding.buttonOk.isEnabled = emailOK && passwordOK && passwordConfirmOK && nicknameOK
     }
 }

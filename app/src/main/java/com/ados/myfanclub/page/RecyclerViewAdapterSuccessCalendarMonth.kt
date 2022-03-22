@@ -42,9 +42,9 @@ class RecyclerViewAdapterSuccessCalendarMonth(val date: Date, private val percen
         //val h = calendarLayout.height / 6
         //holder.itemView.layoutParams.height = h
 
-        holder?.bind(monthList[position], position)
+        holder.bind(monthList[position], position)
         if (itemClick != null) {
-            holder?.itemView?.setOnClickListener { v ->
+            holder.itemView.setOnClickListener { v ->
                 itemClick?.onClick(v, position)
 
             }

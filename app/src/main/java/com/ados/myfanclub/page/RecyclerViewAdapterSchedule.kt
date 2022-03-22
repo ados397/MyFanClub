@@ -33,7 +33,7 @@ class RecyclerViewAdapterSchedule(private val items: ArrayList<ScheduleDTO>, pri
             with(holder) {
                 no.text = "${position + 1}"
                 title.text = "${item.title}"
-                range.text = "${SimpleDateFormat("yyyy.MM.dd").format(item.startDate)} ~ ${SimpleDateFormat("yyyy.MM.dd").format(item.endDate)}"
+                range.text = "${SimpleDateFormat("yyyy.MM.dd").format(item.startDate!!)} ~ ${SimpleDateFormat("yyyy.MM.dd").format(item.endDate!!)}"
                 if (item.isExpired()) {
                     expired.visibility = View.VISIBLE
                 } else {
@@ -45,6 +45,7 @@ class RecyclerViewAdapterSchedule(private val items: ArrayList<ScheduleDTO>, pri
                     ScheduleDTO.Cycle.WEEK -> imgScheduleType.setImageResource(R.drawable.schedule_week)
                     ScheduleDTO.Cycle.MONTH -> imgScheduleType.setImageResource(R.drawable.schedule_month)
                     ScheduleDTO.Cycle.PERIOD -> imgScheduleType.setImageResource(R.drawable.schedule_period)
+                    else -> imgScheduleType.setImageResource(R.drawable.schedule_day)
                 }
 
                 if (showReorderIcon) {
@@ -102,7 +103,7 @@ class RecyclerViewAdapterSchedule(private val items: ArrayList<ScheduleDTO>, pri
             viewBinding.layoutItem.setOnClickListener {
                 clickListener.onItemClick(item, adapterPosition)
             }
-            viewBinding.imgReorder.setOnTouchListener { view, motionEvent ->
+            viewBinding.imgReorder.setOnTouchListener { _, motionEvent ->
                 if (motionEvent.action == MotionEvent.ACTION_DOWN) {
                     startDragListener.onStartDrag(holder)
                 }

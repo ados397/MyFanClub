@@ -24,7 +24,6 @@ import com.ados.myfanclub.model.*
 import com.ados.myfanclub.util.Utility
 import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
-import kotlinx.android.synthetic.main.report_dialog.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -99,7 +98,7 @@ class FragmentChat : Fragment(), OnChatItemClickListener {
             var uidSet = hashSetOf<String>()
             val itemsEx: ArrayList<DisplayBoardExDTO> = arrayListOf()
             for (chat in firebaseViewModel.fanClubChatDTOs.value!!) {
-                itemsEx.add(DisplayBoardExDTO(chat, dbHandler?.getBlock(chat.docName.toString())))
+                itemsEx.add(DisplayBoardExDTO(chat, dbHandler.getBlock(chat.docName.toString())))
                 if (!chat.userUid.isNullOrEmpty()) {
                     uidSet.add(chat.userUid.toString())
                 }
@@ -107,7 +106,7 @@ class FragmentChat : Fragment(), OnChatItemClickListener {
 
             var uriCheckIndex = 0
             for (uid in uidSet) {
-                firebaseStorageViewModel.getUserProfile(uid) { uri ->
+                firebaseStorageViewModel.getUserProfileImage(uid) { uri ->
                     if (uri != null) {
                         for (item in itemsEx) {
                             if (item.displayBoardDTO?.userUid == uid) {
@@ -251,10 +250,10 @@ class FragmentChat : Fragment(), OnChatItemClickListener {
         reportDialog?.setOnDismissListener {
             if (!reportDialog?.reportDTO?.reason.isNullOrEmpty()) {
                 firebaseViewModel.sendReport(reportDialog?.reportDTO!!) {
-                    if (!dbHandler?.getBlock(reportDialog?.reportDTO?.contentDocName.toString())) {
-                        dbHandler?.updateBlock(reportDialog?.reportDTO?.contentDocName.toString(), 1)
+                    if (!dbHandler.getBlock(reportDialog?.reportDTO?.contentDocName.toString())) {
+                        dbHandler.updateBlock(reportDialog?.reportDTO?.contentDocName.toString(), 1)
                     } else {
-                        dbHandler?.updateBlock(reportDialog?.reportDTO?.contentDocName.toString(), 0)
+                        dbHandler.updateBlock(reportDialog?.reportDTO?.contentDocName.toString(), 0)
                     }
 
                     item.isBlocked = true

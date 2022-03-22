@@ -26,7 +26,7 @@ class RecyclerViewAdapterFanClubSignUp(private val items: ArrayList<MemberDTO>, 
                 checkBox.isChecked = item.isSelected
                 name.text = item.userNickname
                 level.text = "Lv. ${item.userLevel}"
-                requestTime.text = SimpleDateFormat("yyyy.MM.dd HH:mm").format(item.requestTime)
+                requestTime.text = SimpleDateFormat("yyyy.MM.dd HH:mm").format(item.requestTime!!)
                 aboutMe.text = item.userAboutMe
             }
         }

@@ -60,12 +60,12 @@ class FragmentSuccessCalendarWeek : Fragment() {
         _binding = FragmentSuccessCalendarBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
 
-        recyclerView = rootView.findViewById(R.id.rv_success_calendar!!)as RecyclerView
+        recyclerView = rootView.findViewById(R.id.rv_success_calendar)as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         binding.calendarHeader.visibility = View.GONE
 
-        initView(rootView)
+        initView()
 
         return rootView
     }
@@ -80,7 +80,7 @@ class FragmentSuccessCalendarWeek : Fragment() {
 
     }
 
-    private fun initView(view: View) {
+    private fun initView() {
         pageIndex -= (Int.MAX_VALUE / 2)
 
         // 날짜 적용
@@ -108,8 +108,8 @@ class FragmentSuccessCalendarWeek : Fragment() {
             recyclerView.adapter = recyclerViewAdapterWeek
 
             var total = 0
-            for (it in firebaseViewModel.scheduleStatistics.value!!) {
-                total = total.plus(it.value)
+            for (schedule in firebaseViewModel.scheduleStatistics.value!!) {
+                total = total.plus(schedule.value)
             }
             val percent = total.toDouble() / successCalendarWeek.weekList.size.toDouble()
             binding.progressPercent.progress = percent.toInt()

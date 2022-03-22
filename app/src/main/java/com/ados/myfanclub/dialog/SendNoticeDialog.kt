@@ -26,7 +26,9 @@ class SendNoticeDialog(context: Context) : Dialog(context) {
         window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         //window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
-        binding.editNoticeContent.setOnTouchListener { view, motionEvent ->
+        setInfo()
+
+        binding.editNoticeContent.setOnTouchListener { _, _ ->
             binding.scrollView.requestDisallowInterceptTouchEvent(true)
             false
         }
@@ -54,6 +56,11 @@ class SendNoticeDialog(context: Context) : Dialog(context) {
 
             binding.textNoticeContentLen.text = "${binding.editNoticeContent.text.length}/100"
         }
+    }
+
+    fun setInfo() {
+        binding.editNoticeTitle.setText("")
+        binding.editNoticeContent.setText("")
     }
 
     private fun init() {

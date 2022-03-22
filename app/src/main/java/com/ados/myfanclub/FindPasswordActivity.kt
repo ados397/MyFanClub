@@ -39,7 +39,7 @@ class FindPasswordActivity : AppCompatActivity() {
                                 Toast.makeText(this, "비밀번호 재설정 메일이 발송되었습니다.", Toast.LENGTH_LONG).show()
                             }
                             finish()
-                        }?.addOnFailureListener { exception ->
+                        }?.addOnFailureListener {
                             Toast.makeText(this, "비밀번호 재설정 메일 발송에 실패하였습니다.", Toast.LENGTH_LONG).show()
                         }
                     } else {

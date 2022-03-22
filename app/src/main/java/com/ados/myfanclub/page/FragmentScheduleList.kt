@@ -30,7 +30,6 @@ import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetSequence
 import com.getkeepsafe.taptargetview.TapTargetView
-import kotlinx.android.synthetic.main.question_dialog.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -59,6 +58,8 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
     lateinit var recyclerViewAdapter : RecyclerViewAdapterSchedule
     lateinit var itemTouchHelper : ItemTouchHelper
 
+    private var questionDialog: QuestionDialog? = null
+
     private var schedulesBackup : ArrayList<ScheduleDTO> = arrayListOf()
     private var selectedSchedule: ScheduleDTO? = null
     private var selectedPosition: Int? = 0
@@ -84,7 +85,7 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
         _binding = FragmentScheduleListBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
 
-        recyclerView = rootView.findViewById(R.id.rv_schedule!!)as RecyclerView
+        recyclerView = rootView.findViewById(R.id.rv_schedule)as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // 메뉴는 기본 숨김
@@ -140,15 +141,20 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
                 "스케줄 삭제",
                 "스케줄을 삭제하면 되돌릴 수 없습니다.\n정말 삭제 하시겠습니까?",
             )
-            val questionDialog = QuestionDialog(requireContext(), question)
-            questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            questionDialog.setCanceledOnTouchOutside(false)
-            questionDialog.show()
-            questionDialog.button_question_cancel.setOnClickListener { // No
-                questionDialog.dismiss()
+            if (questionDialog == null) {
+                questionDialog = QuestionDialog(requireContext(), question)
+                questionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                questionDialog?.setCanceledOnTouchOutside(false)
+            } else {
+                questionDialog?.question = question
             }
-            questionDialog.button_question_ok.setOnClickListener { // Ok
-                questionDialog.dismiss()
+            questionDialog?.show()
+            questionDialog?.setInfo()
+            questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
+                questionDialog?.dismiss()
+            }
+            questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
+                questionDialog?.dismiss()
 
                 if (fanClubDTO == null) {
                     setPersonalScheduleDelete()
@@ -304,7 +310,7 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
         } else {
             val user = (activity as MainActivity?)?.getUser()!!
             // 튜토리얼 일때는 스케줄 제한 없이 추가
-            if (!isTutorial && firebaseViewModel.scheduleDTOs.value!!.size >= user.getScheduleCount()!!) {
+            if (!isTutorial && firebaseViewModel.scheduleDTOs.value!!.size >= user.getScheduleCount()) {
                 Toast.makeText(activity, "스케줄을 더 이상 추가할 수 없습니다.", Toast.LENGTH_SHORT).show()
             } else {
                 moveScheduleAdd()
@@ -340,7 +346,7 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
     }
 
     private fun selectRecyclerView() {
-        if (recyclerViewAdapter?.selectItem(selectedPosition!!)) { // 선택 일 경우 메뉴 표시 및 레이아웃 어둡게
+        if (recyclerViewAdapter.selectItem(selectedPosition!!)) { // 선택 일 경우 메뉴 표시 및 레이아웃 어둡게
             val translateUp = AnimationUtils.loadAnimation(context, R.anim.translate_up)
             binding.layoutMenu.visibility = View.VISIBLE
             binding.layoutMenuModify.visibility = View.VISIBLE
@@ -352,9 +358,11 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
     }
 
     override fun onItemClick(item: ScheduleDTO, position: Int) {
-        selectedSchedule = item
-        selectedPosition = position
-        selectRecyclerView()
+        if (!(parentFragment as FragmentPageSchedule?)?.isRemoveAdmin()!!) {
+            selectedSchedule = item
+            selectedPosition = position
+            selectRecyclerView()
+        }
     }
 
     fun RecyclerView.smoothSnapToPosition(position: Int, snapMode: Int = LinearSmoothScroller.SNAP_TO_START) {

@@ -7,10 +7,12 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.ListItemChatBinding
+import com.ados.myfanclub.dialog.ImageViewDialog
 import com.ados.myfanclub.model.DisplayBoardDTO
 import com.ados.myfanclub.model.DisplayBoardExDTO
 import com.ados.myfanclub.model.FanClubExDTO
@@ -40,40 +42,42 @@ class RecyclerViewAdapterChat(private val itemsEx: ArrayList<DisplayBoardExDTO>,
 
         itemsEx[position].let { item ->
             with(holder) {
-                if (item.displayBoardDTO?.userUid.isNullOrEmpty()) {
-                    layoutChatYou.visibility = View.GONE
-                    layoutChatMe.visibility = View.GONE
-                } else {
-                    if (memberDTO.userUid == item.displayBoardDTO?.userUid) { // 내가 입력한 채팅
+                if (item.displayBoardDTO != null) {
+                    if (item.displayBoardDTO.userUid.isNullOrEmpty()) {
                         layoutChatYou.visibility = View.GONE
-                        layoutChatMe.visibility = View.VISIBLE
-
-                        contentMe.text = item.displayBoardDTO?.displayText
-                        dateMe.text = SimpleDateFormat("M월 d일").format(item.displayBoardDTO?.createTime)
-                        timeMe.text = SimpleDateFormat("a h:mm").format(item.displayBoardDTO?.createTime)
-                    } else { // 다른 사람이 입력한 채팅
-                        layoutChatYou.visibility = View.VISIBLE
                         layoutChatMe.visibility = View.GONE
+                    } else {
+                        if (memberDTO.userUid == item.displayBoardDTO.userUid) { // 내가 입력한 채팅
+                            layoutChatYou.visibility = View.GONE
+                            layoutChatMe.visibility = View.VISIBLE
 
-                        if (item.imgProfileUri != null) {
-                            Glide.with(imgProfile.context).load(item.imgProfileUri).fitCenter().into(holder.imgProfile)
-                        } else {
-                            imgProfile.setImageResource(R.drawable.profile)
+                            contentMe.text = item.displayBoardDTO.displayText
+                            dateMe.text = SimpleDateFormat("M월 d일").format(item.displayBoardDTO.createTime!!)
+                            timeMe.text = SimpleDateFormat("a h:mm").format(item.displayBoardDTO.createTime!!)
+                        } else { // 다른 사람이 입력한 채팅
+                            layoutChatYou.visibility = View.VISIBLE
+                            layoutChatMe.visibility = View.GONE
+
+                            if (item.imgProfileUri != null) {
+                                Glide.with(imgProfile.context).load(item.imgProfileUri).fitCenter().into(holder.imgProfile)
+                            } else {
+                                imgProfile.setImageResource(R.drawable.profile)
+                            }
+
+                            nickname.text = item.displayBoardDTO.userNickname
+                            if (item.isBlocked) {
+                                contentYou.text = "내가 신고한 대화입니다."
+                                contentYou.setTextColor(ContextCompat.getColor(context!!, R.color.text_disable2))
+                                buttonReport.visibility = View.GONE
+                            } else {
+                                contentYou.text = item.displayBoardDTO.displayText
+                                contentYou.setTextColor(ContextCompat.getColor(context!!, R.color.text))
+                                buttonReport.visibility = View.VISIBLE
+                            }
+
+                            dateYou.text = SimpleDateFormat("M월 d일").format(item.displayBoardDTO.createTime!!)
+                            timeYou.text = SimpleDateFormat("a h:mm").format(item.displayBoardDTO.createTime!!)
                         }
-
-                        nickname.text = item.displayBoardDTO?.userNickname
-                        if (item.isBlocked) {
-                            contentYou.text = "내가 신고한 대화입니다."
-                            contentYou.setTextColor(ContextCompat.getColor(context!!, R.color.text_disable2))
-                            buttonReport.visibility = View.GONE
-                        } else {
-                            contentYou.text = item.displayBoardDTO?.displayText
-                            contentYou.setTextColor(ContextCompat.getColor(context!!, R.color.text))
-                            buttonReport.visibility = View.VISIBLE
-                        }
-
-                        dateYou.text = SimpleDateFormat("M월 d일").format(item.displayBoardDTO?.createTime)
-                        timeYou.text = SimpleDateFormat("a h:mm").format(item.displayBoardDTO?.createTime)
                     }
                 }
             }
@@ -98,6 +102,7 @@ class RecyclerViewAdapterChat(private val itemsEx: ArrayList<DisplayBoardExDTO>,
         var imgProfile = viewBinding.imgProfile
         var mainLayout = viewBinding.layoutMain
         var buttonReport = viewBinding.buttonReport
+        private var imageViewDialog: ImageViewDialog? = null
 
         fun initializes(item: DisplayBoardExDTO, action:OnChatItemClickListener) {
             viewBinding.layoutMain.setOnClickListener {
@@ -106,6 +111,22 @@ class RecyclerViewAdapterChat(private val itemsEx: ArrayList<DisplayBoardExDTO>,
 
             viewBinding.buttonReport.setOnClickListener {
                 action.onItemClickReport(item, adapterPosition)
+            }
+
+            viewBinding.imgProfile.setOnClickListener {
+                if (imageViewDialog == null) {
+                    imageViewDialog = ImageViewDialog(context!!)
+                    imageViewDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    imageViewDialog?.setCanceledOnTouchOutside(false)
+                }
+                imageViewDialog?.imageUri = item.imgProfileUri
+                imageViewDialog?.imageID = R.drawable.profile
+                imageViewDialog?.show()
+                imageViewDialog?.setInfo()
+                imageViewDialog?.binding?.buttonCancel?.setOnClickListener { // No
+                    imageViewDialog?.dismiss()
+                    imageViewDialog = null
+                }
             }
         }
     }

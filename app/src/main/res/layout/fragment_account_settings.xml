@@ -60,24 +60,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:layout_marginBottom="25dp"
+                android:layout_marginBottom="5dp"
                 android:fontFamily="@font/font"
-                android:textStyle="bold"
                 android:text="내 계정"
                 android:textColor="@color/text"
-                android:textSize="20dp" />
+                android:textSize="20dp"
+                android:textStyle="bold" />
 
             <RelativeLayout
                 android:id="@+id/layout_login_id"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp">
 
                 <TextView
                     android:id="@+id/text_login_id"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
                     android:fontFamily="@font/font"
                     android:text="이메일 아이디"
                     android:textColor="@color/text"
@@ -95,25 +96,25 @@
                     android:textSize="18dp" />
 
                 <View
-                    android:background="@color/report_text_categories"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
                     android:layout_below="@+id/text_login_id_input"
                     android:layout_marginTop="7dp"
-                    android:layout_marginBottom="20dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"/>
+                    android:background="@color/report_text_categories" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/layout_login_type"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp">
 
                 <TextView
                     android:id="@+id/text_login_type"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
                     android:fontFamily="@font/font"
                     android:text="로그인 종류"
                     android:textColor="@color/text"
@@ -131,25 +132,25 @@
                     android:textSize="18dp" />
 
                 <View
-                    android:background="@color/report_text_categories"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
                     android:layout_below="@+id/text_login_type_input"
                     android:layout_marginTop="7dp"
-                    android:layout_marginBottom="20dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"/>
+                    android:background="@color/report_text_categories" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/layout_password"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp">
 
                 <TextView
                     android:id="@+id/text_password"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
                     android:fontFamily="@font/font"
                     android:text="비밀번호"
                     android:textColor="@color/text"
@@ -182,126 +183,202 @@
                     android:textSize="16dp" />
 
                 <View
-                    android:background="@color/report_text_categories"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
                     android:layout_below="@+id/text_password_input"
                     android:layout_marginTop="7dp"
-                    android:layout_marginBottom="20dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"/>
+                    android:background="@color/report_text_categories" />
             </RelativeLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp"
-                android:layout_marginBottom="25dp"
+                android:layout_marginTop="50dp"
+                android:layout_marginBottom="5dp"
                 android:fontFamily="@font/font"
-                android:textStyle="bold"
                 android:text="정보"
                 android:textColor="@color/text"
-                android:textSize="20dp" />
+                android:textSize="20dp"
+                android:textStyle="bold" />
 
             <RelativeLayout
                 android:id="@+id/layout_terms_of_use"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp">
 
                 <TextView
                     android:id="@+id/text_terms_of_use"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
                     android:fontFamily="@font/font"
                     android:text="이용약관"
                     android:textColor="@color/text"
                     android:textSize="18dp" />
 
                 <ImageView
-                    android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
-                    android:layout_alignParentRight="true"
                     android:layout_width="24dp"
-                    android:layout_height="24dp"/>
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />
 
                 <View
-                    android:background="@color/report_text_categories"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
                     android:layout_below="@+id/text_terms_of_use"
                     android:layout_marginTop="15dp"
-                    android:layout_marginBottom="20dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"/>
+                    android:background="@color/report_text_categories" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/layout_privacy_policy"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp">
 
                 <TextView
                     android:id="@+id/text_privacy_policy"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
                     android:fontFamily="@font/font"
                     android:text="개인정보처리방침"
                     android:textColor="@color/text"
                     android:textSize="18dp" />
 
                 <ImageView
-                    android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
-                    android:layout_alignParentRight="true"
                     android:layout_width="24dp"
-                    android:layout_height="24dp"/>
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />
 
                 <View
-                    android:background="@color/report_text_categories"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
                     android:layout_below="@+id/text_privacy_policy"
                     android:layout_marginTop="15dp"
-                    android:layout_marginBottom="20dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"/>
+                    android:background="@color/report_text_categories" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/layout_open_source_license"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp">
 
                 <TextView
                     android:id="@+id/text_open_source_license"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
                     android:fontFamily="@font/font"
                     android:text="오픈소스 라이선스"
                     android:textColor="@color/text"
                     android:textSize="18dp" />
 
                 <ImageView
-                    android:src="@drawable/ic_baseline_keyboard_arrow_right_24"
-                    android:layout_alignParentRight="true"
                     android:layout_width="24dp"
-                    android:layout_height="24dp"/>
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_below="@+id/text_open_source_license"
                     android:layout_marginTop="15dp"
-                    android:layout_marginBottom="20dp"
                     android:background="@color/report_text_categories" />
             </RelativeLayout>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:layout_marginBottom="5dp"
+                android:fontFamily="@font/font"
+                android:text="고객센터"
+                android:textColor="@color/text"
+                android:textSize="20dp"
+                android:textStyle="bold" />
+
+            <RelativeLayout
+                android:id="@+id/layout_faq"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp">
+
+                <TextView
+                    android:id="@+id/text_faq"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="@font/font"
+                    android:text="자주 묻는 질문"
+                    android:textColor="@color/text"
+                    android:textSize="18dp" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/text_faq"
+                    android:layout_marginTop="15dp"
+                    android:background="@color/report_text_categories" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/layout_qna"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp">
+
+                <TextView
+                    android:id="@+id/text_qna"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="@font/font"
+                    android:text="1:1 문의"
+                    android:textColor="@color/text"
+                    android:textSize="18dp" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/text_qna"
+                    android:layout_marginTop="15dp"
+                    android:background="@color/report_text_categories" />
+            </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/layout_logout"
-                android:layout_marginTop="40dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="80dp"
+                android:layout_marginRight="10dp">
 
                 <TextView
                     android:id="@+id/text_logout"
@@ -313,26 +390,26 @@
                     android:textSize="18dp" />
 
                 <ImageView
-                    android:src="@drawable/logout"
-                    android:layout_alignParentRight="true"
                     android:layout_width="24dp"
-                    android:layout_height="24dp"/>
+                    android:layout_height="24dp"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/logout" />
 
                 <View
-                    android:background="@color/report_text_categories"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
                     android:layout_below="@+id/text_logout"
                     android:layout_marginTop="15dp"
                     android:layout_marginBottom="20dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"/>
+                    android:background="@color/report_text_categories" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/layout_delete_account"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp">
 
                 <TextView
                     android:id="@+id/text_delete_account"
@@ -344,21 +421,21 @@
                     android:textSize="18dp" />
 
                 <View
-                    android:background="@color/report_text_categories"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
                     android:layout_below="@+id/text_delete_account"
                     android:layout_marginTop="15dp"
                     android:layout_marginBottom="20dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"/>
+                    android:background="@color/report_text_categories" />
             </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/layout_version"
-                android:layout_marginTop="30dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginRight="10dp">
 
                 <TextView
                     android:id="@+id/text_version"

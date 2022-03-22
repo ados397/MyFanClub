@@ -50,7 +50,7 @@ class RecyclerViewAdapterDisplayBoard(private val itemsEx: ArrayList<DisplayBoar
                     }
 
                     val nicknameLen = item.displayBoardDTO?.userNickname.toString().length + 3
-                    val displayLen = item.displayBoardDTO?.displayText.toString().length
+                    //val displayLen = item.displayBoardDTO?.displayText.toString().length
 
                     val ssb = SpannableStringBuilder(title.text)
                     ssb.apply {

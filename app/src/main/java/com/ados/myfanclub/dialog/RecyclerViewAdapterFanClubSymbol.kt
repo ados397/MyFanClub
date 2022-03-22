@@ -17,22 +17,22 @@ class RecyclerViewAdapterFanClubSymbol(private val items: ArrayList<Int>, var cl
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.initalize(items.get(position),clickListener)
+        holder.initialize(items.get(position),clickListener)
 
         items[position].let { item ->
             with(holder) {
                 if (position > 0) {
                     number.text = "$position"
                 } else {
-                    number.text = "이미지 추가"
+                    number.text = "사진 불러오기"
                 }
 
                 //Glide.with(holder.itemView.context).load(item.iconImage).apply(
                     //RequestOptions().centerCrop()).into(iconImage)
 
                 //var imageID = itemView.context.resources.getIdentifier(item.iconImage, "drawable", itemView.context.packageName)
-                if (imgSymbol != null && item > 0) {
-                    imgSymbol?.setImageResource(item)
+                if (item > 0) {
+                    imgSymbol.setImageResource(item)
                     /*Glide.with(iconImage.context)
                         .asBitmap()
                         .load(item) ///feed in path of the image
@@ -70,7 +70,7 @@ class RecyclerViewAdapterFanClubSymbol(private val items: ArrayList<Int>, var cl
         var imgSymbol = viewBinding.imgSymbol
         val number = viewBinding.textNumber
 
-        fun initalize(item: Int, action:OnFanClubSymbolClickListener) {
+        fun initialize(item: Int, action:OnFanClubSymbolClickListener) {
             /*itemView.setOnClickListener {
                 action.onItemClick(item, adapterPosition)
                 itemView.img_favorite.setImageResource(R.drawable.star_icon_fill)

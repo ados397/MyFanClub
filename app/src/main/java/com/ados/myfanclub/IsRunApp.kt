@@ -1,12 +1,9 @@
 package com.ados.myfanclub
 
 import android.app.Application
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
-import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.*
 
-class IsRunApp : Application(), LifecycleObserver {
+class IsRunApp : Application(), LifecycleEventObserver {
 
     companion object{
         var isForeground =false
@@ -17,24 +14,29 @@ class IsRunApp : Application(), LifecycleObserver {
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    fun onAppBackgrounded() { isForeground = false }
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        when (event) {
+            Lifecycle.Event.ON_STOP -> {
+                isForeground = false
+            }
+            Lifecycle.Event.ON_START -> {
+                isForeground = true
+            }
+            Lifecycle.Event.ON_CREATE -> {
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    fun onAppForegrounded() { isForeground = true}
+            }
+            Lifecycle.Event.ON_RESUME -> {
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-    fun onAppCreated() {  }
+            }
+            Lifecycle.Event.ON_DESTROY -> {
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    fun onAppResumed() {}
+            }
+            Lifecycle.Event.ON_PAUSE -> {
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun onAppDestroyed() { }
+            }
+            Lifecycle.Event.ON_ANY -> {
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    fun onAppPaused() {  }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
-    fun onAppAny() {  }
+            }
+        }
+    }
 }

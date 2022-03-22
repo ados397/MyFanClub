@@ -260,8 +260,8 @@ class BuyGemActivity : AppCompatActivity() {
             val oldPaidGem = userDTO?.paidGem!!
             firebaseViewModel.addUserGem(userDTO?.uid.toString(), gemCount, 0, firstPack) {
                 if (it != null) {
-                    var log = LogDTO("[다이아 패키지 구매] 다이아 추가 (paidGem : $oldPaidGem -> ${it.paidGem}, freeGem : ${it.freeGem}, totalGem : ${it.paidGem!! + it.freeGem!!}))", Date())
-                    firebaseViewModel.writeUserLog(userDTO?.uid.toString(), log) {
+                    var log2 = LogDTO("[다이아 패키지 구매] 다이아 추가 (paidGem : $oldPaidGem -> ${it.paidGem}, freeGem : ${it.freeGem}, totalGem : ${it.paidGem!! + it.freeGem!!}))", Date())
+                    firebaseViewModel.writeUserLog(userDTO?.uid.toString(), log2) {
                         finish()
                     }
                 }

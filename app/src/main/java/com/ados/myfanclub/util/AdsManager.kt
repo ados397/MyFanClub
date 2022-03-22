@@ -69,7 +69,7 @@ class AdsInterstitialManager(val activity: Activity, private val adPolicyDTO: Ad
         InterstitialAd.load(activity, admobID, adRequest, object : InterstitialAdLoadCallback() {
             override fun onAdFailedToLoad(adError: LoadAdError) {
                 //Log.d(TAG, adError?.message)
-                println("광고 로드 실패 ${adError?.message}")
+                println("광고 로드 실패 ${adError.message}")
                 mInterstitialAd = null
                 myCallback(false)
             }
@@ -258,9 +258,9 @@ class AdsRewardManager(val activity: Activity, private val adPolicyDTO: AdPolicy
                     loadRewardedAdmob()
                 }
             }
-            mRewardedAdmob?.show(activity) { rewardItem ->
-                var rewardAmount = rewardItem.amount
-                var rewardType = rewardItem.type
+            mRewardedAdmob?.show(activity) { _ ->
+                //var rewardAmount = rewardItem.amount
+                //var rewardType = rewardItem.type
                 myCallback(true)
             }
         } else {

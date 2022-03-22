@@ -35,15 +35,14 @@ class DisplayBoardAddDialog(context: Context) : Dialog(context) {
         anim.startOffset = 20
         anim.repeatMode = Animation.REVERSE
         anim.repeatCount = Animation.INFINITE
-        binding.layoutDisplayBoardTest.textDisplayBoard.text = "전광판 테스트"
-        binding.layoutDisplayBoardTest.textDisplayBoard.setTextColor(ContextCompat.getColor(context, R.color.display_board_1))
+        setInfo()
 
         binding.editDisplayBoard.doAfterTextChanged {
             binding.layoutDisplayBoardTest.textDisplayBoard.text = binding.editDisplayBoard.text
             binding.textDisplayBoardLen.text = "${binding.editDisplayBoard.text.length}/40"
         }
 
-        binding.layoutDisplayBoardTest.textDisplayBoard.setOnFocusChangeListener { view, b ->
+        binding.layoutDisplayBoardTest.textDisplayBoard.setOnFocusChangeListener { _, b ->
             if (!b) {
                 binding.layoutDisplayBoardTest.textDisplayBoard.clearAnimation()
             }
@@ -53,17 +52,6 @@ class DisplayBoardAddDialog(context: Context) : Dialog(context) {
             binding.layoutDisplayBoardTest.textDisplayBoard.requestFocus()
             binding.layoutDisplayBoardTest.textDisplayBoard.startAnimation(anim)
         }
-
-        if (currentUser?.level!! >= 5) { binding.buttonColor1.setCompoundDrawables(null, null, null, null) }
-        if (currentUser?.level!! >= 15) { binding.buttonColor2.setCompoundDrawables(null, null, null, null) }
-        if (currentUser?.level!! >= 25) { binding.buttonColor3.setCompoundDrawables(null, null, null, null) }
-        if (currentUser?.level!! >= 35) { binding.buttonColor4.setCompoundDrawables(null, null, null, null) }
-        if (currentUser?.level!! >= 45) { binding.buttonColor5.setCompoundDrawables(null, null, null, null) }
-        if (currentUser?.level!! >= 55) { binding.buttonColor6.setCompoundDrawables(null, null, null, null) }
-        if (currentUser?.level!! >= 65) { binding.buttonColor7.setCompoundDrawables(null, null, null, null) }
-        if (currentUser?.level!! >= 75) { binding.buttonColor8.setCompoundDrawables(null, null, null, null) }
-        if (currentUser?.level!! >= 85) { binding.buttonColor9.setCompoundDrawables(null, null, null, null) }
-        if (currentUser?.level!! >= 95) { binding.buttonColor10.setCompoundDrawables(null, null, null, null) }
 
         binding.buttonColor1.setOnClickListener { clickColorButton(5, ContextCompat.getColor(context, R.color.display_board_1)) }
         binding.buttonColor2.setOnClickListener { clickColorButton(15, ContextCompat.getColor(context, R.color.display_board_2)) }
@@ -75,6 +63,22 @@ class DisplayBoardAddDialog(context: Context) : Dialog(context) {
         binding.buttonColor8.setOnClickListener { clickColorButton(75, ContextCompat.getColor(context, R.color.display_board_8)) }
         binding.buttonColor9.setOnClickListener { clickColorButton(85, ContextCompat.getColor(context, R.color.display_board_9)) }
         binding.buttonColor10.setOnClickListener { clickColorButton(95, ContextCompat.getColor(context, R.color.display_board_10)) }
+    }
+
+    fun setInfo() {
+        binding.layoutDisplayBoardTest.textDisplayBoard.text = "전광판 테스트"
+        binding.layoutDisplayBoardTest.textDisplayBoard.setTextColor(ContextCompat.getColor(context, R.color.display_board_1))
+
+        if (currentUser?.level!! >= 5) { binding.buttonColor1.setCompoundDrawables(null, null, null, null) }
+        if (currentUser?.level!! >= 15) { binding.buttonColor2.setCompoundDrawables(null, null, null, null) }
+        if (currentUser?.level!! >= 25) { binding.buttonColor3.setCompoundDrawables(null, null, null, null) }
+        if (currentUser?.level!! >= 35) { binding.buttonColor4.setCompoundDrawables(null, null, null, null) }
+        if (currentUser?.level!! >= 45) { binding.buttonColor5.setCompoundDrawables(null, null, null, null) }
+        if (currentUser?.level!! >= 55) { binding.buttonColor6.setCompoundDrawables(null, null, null, null) }
+        if (currentUser?.level!! >= 65) { binding.buttonColor7.setCompoundDrawables(null, null, null, null) }
+        if (currentUser?.level!! >= 75) { binding.buttonColor8.setCompoundDrawables(null, null, null, null) }
+        if (currentUser?.level!! >= 85) { binding.buttonColor9.setCompoundDrawables(null, null, null, null) }
+        if (currentUser?.level!! >= 95) { binding.buttonColor10.setCompoundDrawables(null, null, null, null) }
     }
 
     private fun clickColorButton(level: Int, color: Int) {

@@ -20,8 +20,6 @@ import com.ados.myfanclub.dialog.QuestionDialog
 import com.ados.myfanclub.model.*
 import com.ados.myfanclub.repository.FirebaseRepository
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
-import kotlinx.android.synthetic.main.edit_text_modify_dialog.*
-import kotlinx.android.synthetic.main.question_dialog.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -54,6 +52,9 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
     private var currentMember: MemberDTO? = null
     private var members : ArrayList<MemberDTO> = arrayListOf()
 
+    private var questionDialog: QuestionDialog? = null
+    private var editTextModifyDialog: EditTextModifyDialog? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -73,7 +74,7 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
         _binding = FragmentFanClubManagementBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
 
-        recyclerView = rootView.findViewById(R.id.rv_fan_club_sign_up!!)as RecyclerView
+        recyclerView = rootView.findViewById(R.id.rv_fan_club_sign_up)as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // 메뉴는 기본 숨김
@@ -132,7 +133,7 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
                         member.responseTime = date
 
                         // 이미 다른 클럽에 가입된 사용자가 아닌지 확인
-                        firebaseViewModel.getHaveFanClub(member?.userUid.toString()) { userDTO ->
+                        firebaseViewModel.getHaveFanClub(member.userUid.toString()) { userDTO ->
                             if (userDTO == null) {
                                 Toast.makeText(activity, "이미 다른 팬클럽에 가입된 사용자 입니다.", Toast.LENGTH_SHORT).show()
                                 successCount++
@@ -152,13 +153,13 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
                                             val calendar= Calendar.getInstance()
                                             calendar.add(Calendar.DATE, 7)
                                             var mail = MailDTO(docName,"팬클럽 가입 승인", "축하합니다! 팬클럽 [${fanClubDTO?.name}]에 가입 되었습니다! 멋진 팬클럽 멤버들과 함께 매너있고 즐거운 팬클럽 활동을 시작해보세요!", "시스템", MailDTO.Item.NONE, 0, date, calendar.time)
-                                            firebaseViewModel.sendUserMail(member?.userUid.toString(), mail) {
+                                            firebaseViewModel.sendUserMail(member.userUid.toString(), mail) {
                                                 var log = LogDTO("[팬클럽 가입 승인] 팬클럽 정보 - Name : ${fanClubDTO?.name}, docName : ${fanClubDTO?.docName} 우편 발송, 유효기간 : ${SimpleDateFormat("yyyy.MM.dd HH:mm").format(calendar.time)}까지", date)
-                                                firebaseViewModel.writeUserLog(member?.userUid.toString(), log) { }
+                                                firebaseViewModel.writeUserLog(member.userUid.toString(), log) { }
                                             }
 
                                             // 팬클럽 로그 기록
-                                            var log = LogDTO("[팬클럽 가입 승인] 사용자 정보 (uid : ${member?.userUid}, nickname : ${member?.userNickname}), 승인한 운영진 정보 (uid : ${currentUser?.uid}, nickname : ${currentUser?.nickname})", date)
+                                            var log = LogDTO("[팬클럽 가입 승인] 사용자 정보 (uid : ${member.userUid}, nickname : ${member.userNickname}), 승인한 운영진 정보 (uid : ${currentUser?.uid}, nickname : ${currentUser?.nickname})", date)
                                             firebaseViewModel.writeFanClubLog(fanClubDTO?.docName.toString(), log) { }
                                         }
                                     }
@@ -298,32 +299,42 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
 
     private fun modifyDescription() {
         val item = EditTextDTO("팬클럽 소개 변경", fanClubDTO?.description, 600)
-        val dialog = EditTextModifyDialog(requireContext(), item)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setCanceledOnTouchOutside(false)
-        dialog.show()
-        dialog.button_modify_cancel.setOnClickListener { // No
-            dialog.dismiss()
+        if (editTextModifyDialog == null) {
+            editTextModifyDialog = EditTextModifyDialog(requireContext(), item)
+            editTextModifyDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            editTextModifyDialog?.setCanceledOnTouchOutside(false)
+        } else {
+            editTextModifyDialog?.item = item
         }
-        dialog.button_modify_ok.setOnClickListener {
-            dialog.dismiss()
+        editTextModifyDialog?.show()
+        editTextModifyDialog?.setInfo()
+        editTextModifyDialog?.binding?.buttonModifyCancel?.setOnClickListener { // No
+            editTextModifyDialog?.dismiss()
+        }
+        editTextModifyDialog?.binding?.buttonModifyOk?.setOnClickListener { // Ok
+            editTextModifyDialog?.dismiss()
 
             val question = QuestionDTO(
                 QuestionDTO.Stat.WARNING,
                 "팬클럽 소개 변경",
                 "팬클럽 소개 변경하면 되돌릴 수 없습니다.\n정말 변경 하시겠습니까?",
             )
-            val questionDialog = QuestionDialog(requireContext(), question)
-            questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            questionDialog.setCanceledOnTouchOutside(false)
-            questionDialog.show()
-            questionDialog.button_question_cancel.setOnClickListener { // No
-                questionDialog.dismiss()
+            if (questionDialog == null) {
+                questionDialog = QuestionDialog(requireContext(), question)
+                questionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                questionDialog?.setCanceledOnTouchOutside(false)
+            } else {
+                questionDialog?.question = question
             }
-            questionDialog.button_question_ok.setOnClickListener {
-                questionDialog.dismiss()
+            questionDialog?.show()
+            questionDialog?.setInfo()
+            questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
+                questionDialog?.dismiss()
+            }
+            questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
+                questionDialog?.dismiss()
 
-                fanClubDTO?.description = dialog.edit_content.text.toString()
+                fanClubDTO?.description = editTextModifyDialog?.binding?.editContent?.text.toString()
                 firebaseViewModel.updateFanClubDescription(fanClubDTO!!) {
                     Toast.makeText(activity, "팬클럽 소개 변경 완료!", Toast.LENGTH_SHORT).show()
                     binding.editDescription.setText(fanClubDTO?.description)
@@ -340,14 +351,19 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
                 "팬클럽 탈퇴",
                 "클럽장은 팬클럽 탈퇴를 할 수 없습니다. 클럽장을 위임한 후 탈퇴가 가능합니다.",
             )
-            val questionDialog = QuestionDialog(requireContext(), question)
-            questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            questionDialog.setCanceledOnTouchOutside(false)
-            questionDialog.show()
-            questionDialog.setButtonCancel("확인")
-            questionDialog.showButtonOk(false)
-            questionDialog.button_question_cancel.setOnClickListener { // No
-                questionDialog.dismiss()
+            if (questionDialog == null) {
+                questionDialog = QuestionDialog(requireContext(), question)
+                questionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                questionDialog?.setCanceledOnTouchOutside(false)
+            } else {
+                questionDialog?.question = question
+            }
+            questionDialog?.show()
+            questionDialog?.setInfo()
+            questionDialog?.setButtonCancel("확인")
+            questionDialog?.showButtonOk(false)
+            questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
+                questionDialog?.dismiss()
             }
         } else {
             val question = QuestionDTO(
@@ -355,37 +371,43 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
                 "팬클럽 탈퇴",
                 "팬클럽 탈퇴 시 24시간 동안 팬클럽 가입이 제한되며 기여도 및 모든 정보가 초기화 됩니다. 정말 탈퇴 하시겠습니까?",
             )
-            val questionDialog = QuestionDialog(requireContext(), question)
-            questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            questionDialog.setCanceledOnTouchOutside(false)
-            questionDialog.show()
-            questionDialog.button_question_cancel.setOnClickListener { // No
-                questionDialog.dismiss()
+            if (questionDialog == null) {
+                questionDialog = QuestionDialog(requireContext(), question)
+                questionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                questionDialog?.setCanceledOnTouchOutside(false)
+            } else {
+                questionDialog?.question = question
             }
-            questionDialog.button_question_ok.setOnClickListener {
-                questionDialog.dismiss()
+            questionDialog?.show()
+            questionDialog?.setInfo()
+            questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
+                questionDialog?.dismiss()
+            }
+            questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
+                questionDialog?.dismiss()
 
                 (activity as MainActivity?)?.loading()
 
                 // 팬클럽 멤버에서 삭제
                 firebaseViewModel.deleteMember(fanClubDTO?.docName.toString(), currentMember!!) { fanClub ->
-                    // 사용자 정보에서 팬클럽 정보 삭제
-                    val user = (activity as MainActivity?)?.getUser()!!
-                    firebaseViewModel.deleteUserFanClubId(user.uid.toString()) { }
+                    if (fanClub != null) {
+                        // 사용자 정보에서 팬클럽 정보 삭제
+                        val user = (activity as MainActivity?)?.getUser()!!
+                        firebaseViewModel.deleteUserFanClubId(user.uid.toString()) { }
 
-                    if (fanClub?.memberCount!! <= 0) { // 팬클럽 멤버가 남아있지 않다면 팬클럽 삭제
-                        firebaseViewModel.deleteFanClub(fanClub?.docName.toString()) {
-                            var log = LogDTO("[팬클럽 삭제] 팬클럽 명 : ${fanClubDTO?.name}(${fanClubDTO?.docName.toString()}), 마지막 클럽장 : ${currentMember?.userNickname}(${currentMember?.userUid.toString()})", Date())
-                            firebaseViewModel.writeAdminLog(log) { }
+                        if (fanClub.memberCount!! <= 0) { // 팬클럽 멤버가 남아있지 않다면 팬클럽 삭제
+                            firebaseViewModel.deleteFanClub(fanClub.docName.toString()) {
+                                var log = LogDTO("[팬클럽 삭제] 팬클럽 명 : ${fanClubDTO?.name}(${fanClubDTO?.docName.toString()}), 마지막 클럽장 : ${currentMember?.userNickname}(${currentMember?.userUid.toString()})", Date())
+                                firebaseViewModel.writeAdminLog(log) { }
+                            }
+                        } else {
+                            var log = LogDTO("[클럽원 탈퇴] ${currentMember?.userNickname}(${currentMember?.userUid.toString()})", Date())
+                            firebaseViewModel.writeFanClubLog(fanClub.docName.toString(), log) { }
                         }
-                    } else {
-                        var log = LogDTO("[클럽원 탈퇴] ${currentMember?.userNickname}(${currentMember?.userUid.toString()})", Date())
-                        firebaseViewModel.writeFanClubLog(fanClub?.docName.toString(), log) { }
+
+                        var log = LogDTO("[팬클럽 탈퇴] 팬클럽 명 : ${fanClubDTO?.name}(${fanClubDTO?.docName.toString()})", Date())
+                        firebaseViewModel.writeUserLog(currentMember?.userUid.toString(), log) { }
                     }
-
-                    var log = LogDTO("[팬클럽 탈퇴] 팬클럽 명 : ${fanClubDTO?.name}(${fanClubDTO?.docName.toString()})", Date())
-                    firebaseViewModel.writeUserLog(currentMember?.userUid.toString(), log) { }
-
                     (activity as MainActivity?)?.loadingEnd()
                 }
             }

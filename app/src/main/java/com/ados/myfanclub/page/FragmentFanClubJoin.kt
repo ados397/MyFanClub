@@ -25,7 +25,6 @@ import com.ados.myfanclub.model.*
 import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.bumptech.glide.Glide
-import kotlinx.android.synthetic.main.question_dialog.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -59,6 +58,8 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
     lateinit var recyclerView : RecyclerView
     lateinit var recyclerViewAdapter : RecyclerViewAdapterFanClub
 
+    private var questionDialog: QuestionDialog? = null
+
     private var selectedFanClub: FanClubDTO? = null
     private var selectedPosition: Int? = 0
 
@@ -78,7 +79,7 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
         _binding = FragmentFanClubJoinBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
 
-        recyclerView = rootView.findViewById(R.id.rv_fan_club!!)as RecyclerView
+        recyclerView = rootView.findViewById(R.id.rv_fan_club)as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // 메뉴는 기본 숨김
@@ -125,16 +126,21 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
                 val question = QuestionDTO(
                     QuestionDTO.Stat.WARNING,
                     "팬클럽 가입",
-                    "팬클럽 탈퇴 혹은 추방 시, 24시간이 지나야 팬클럽에 가입 요청할 수 있습니다.\n\n탈퇴일 [${SimpleDateFormat("yyyy.MM.dd HH:mm").format(user?.fanClubQuitDate)}]",
+                    "팬클럽 탈퇴 혹은 추방 시, 24시간이 지나야 팬클럽에 가입 요청할 수 있습니다.\n\n탈퇴일 [${SimpleDateFormat("yyyy.MM.dd HH:mm").format(user.fanClubQuitDate!!)}]",
                 )
-                val questionDialog = QuestionDialog(requireContext(), question)
-                questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                questionDialog.setCanceledOnTouchOutside(false)
-                questionDialog.show()
-                questionDialog.showButtonOk(false)
-                questionDialog.setButtonCancel("확인")
-                questionDialog.button_question_cancel.setOnClickListener { // No
-                    questionDialog.dismiss()
+                if (questionDialog == null) {
+                    questionDialog = QuestionDialog(requireContext(), question)
+                    questionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    questionDialog?.setCanceledOnTouchOutside(false)
+                } else {
+                    questionDialog?.question = question
+                }
+                questionDialog?.show()
+                questionDialog?.setInfo()
+                questionDialog?.showButtonOk(false)
+                questionDialog?.setButtonCancel("확인")
+                questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
+                    questionDialog?.dismiss()
                 }
             } else if (user.fanClubRequestId.size > 100) {
                 Toast.makeText(activity, "더 이상 팬클럽 가입 신청을 할 수 없습니다. 가입 승인을 기다려 주세요.", Toast.LENGTH_SHORT).show()
@@ -143,10 +149,12 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
                     if (memberDTO != null) {
                         Toast.makeText(activity, "이미 가입 요청을 한 팬클럽 입니다!", Toast.LENGTH_SHORT).show()
                     } else {
-                        val member = MemberDTO(false, user?.uid, user?.nickname, user?.level, user?.aboutMe, 0, MemberDTO.Position.GUEST, Date(), null, null, user?.token)
+                        val member = MemberDTO(false, user.uid, user.nickname, user.level, user.aboutMe, 0, MemberDTO.Position.GUEST, Date(), null, null, user.token)
                         firebaseViewModel.updateMember(selectedFanClub?.docName.toString(), member) {
                             user.fanClubRequestId.add(selectedFanClub?.docName.toString())
-                            firebaseViewModel.updateUserFanClubRequestId(user) { }
+                            firebaseViewModel.updateUserFanClubRequestId(user) {
+                                Toast.makeText(activity, "가입 요청이 정상적으로 되었습니다.", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
                     selectRecyclerView()
@@ -167,7 +175,7 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
 
         var uriCheckIndex = 0
         for (uid in uidSet) {
-            firebaseStorageViewModel.getFanClubSymbol(uid) { uri ->
+            firebaseStorageViewModel.getFanClubSymbolImage(uid) { uri ->
                 if (uri != null) {
                     for (item in itemsEx) {
                         if (item.fanClubDTO?.docName == uid) {
@@ -197,7 +205,7 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
         var isBlock = false
         if (user.fanClubQuitDate != null) {
             val calendar= Calendar.getInstance()
-            calendar.time = user.fanClubQuitDate
+            calendar.time = user.fanClubQuitDate!!
             calendar.add(Calendar.DATE, 1)
 
             if (Date() < calendar.time) {
@@ -295,7 +303,7 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
     }
 
     private fun selectRecyclerView() {
-        if (recyclerViewAdapter?.selectItem(selectedPosition!!)) { // 선택 일 경우 메뉴 표시 및 레이아웃 어둡게
+        if (recyclerViewAdapter.selectItem(selectedPosition!!)) { // 선택 일 경우 메뉴 표시 및 레이아웃 어둡게
             openLayout()
         } else { // 해제 일 경우 메뉴 숨김 및 레이아웃 밝게
             closeLayout()

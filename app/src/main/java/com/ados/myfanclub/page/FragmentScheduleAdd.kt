@@ -3,11 +3,14 @@ package com.ados.myfanclub.page
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.*
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.size
 import androidx.core.widget.doAfterTextChanged
@@ -25,13 +28,13 @@ import com.ados.myfanclub.model.MemberDTO
 import com.ados.myfanclub.model.ScheduleDTO
 import com.ados.myfanclub.util.Utility
 import com.ados.myfanclub.util.Utility.Companion.randomDocumentName
+import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.applikeysolutions.cosmocalendar.selection.OnDaySelectedListener
 import com.applikeysolutions.cosmocalendar.selection.RangeSelectionManager
 import com.applikeysolutions.cosmocalendar.utils.SelectionType
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetSequence
-import kotlinx.android.synthetic.main.select_app_dialog.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -57,9 +60,12 @@ class FragmentScheduleAdd : Fragment() {
     private lateinit var callback: OnBackPressedCallback
 
     private val firebaseViewModel : FirebaseViewModel by viewModels()
+    private val firebaseStorageViewModel : FirebaseStorageViewModel by viewModels()
 
     private var fanClubDTO: FanClubDTO? = null
     private var currentMember: MemberDTO? = null
+
+    private var selectAppDialog: SelectAppDialog? = null
 
     var scheduleDTO = ScheduleDTO()
     private var titleOK: Boolean = false
@@ -68,6 +74,37 @@ class FragmentScheduleAdd : Fragment() {
     private var actionOK: Boolean = false
     private var cycleOK: Boolean = false
     private var countOK: Boolean = false
+
+    private val resultLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            (activity as MainActivity?)?.loading()
+            if (uri != null) { // 프로필 업로드
+                var bitmap = (activity as MainActivity?)?.getBitmap(uri)
+                if (bitmap == null) {
+                    Toast.makeText(activity, "이미지 업로드 실패 ", Toast.LENGTH_SHORT).show()
+                    (activity as MainActivity?)?.loadingEnd()
+                } else {
+                    //firebaseStorageViewModel.setUserProfile(currentUserEx?.userDTO?.uid.toString(), bitmap) {
+                       // if (!it) {
+                       //     Toast.makeText(activity, "이미지 업로드 실패 ", Toast.LENGTH_SHORT).show()
+                       //     (activity as MainActivity?)?.loadingEnd()
+                        //} else {
+                            //currentUserEx?.userDTO?.imgProfile = currentUserEx?.userDTO?.getProfileImageName()
+                            //firebaseViewModel.updateUserProfile(currentUserEx?.userDTO!!) {
+                                //Toast.makeText(activity, "프로필 사진 변경 완료!", Toast.LENGTH_SHORT).show()
+                                binding.imgPhoto.setImageBitmap(bitmap)
+                                binding.layoutPhoto.visibility = View.VISIBLE
+                                binding.layoutLoadPhoto.visibility = View.GONE
+                                (activity as MainActivity?)?.loadingEnd()
+                            //}
+                        //}
+                    //}
+                }
+            }
+        } else {
+            Toast.makeText(context, "이미지를 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,6 +127,7 @@ class FragmentScheduleAdd : Fragment() {
         _binding = FragmentScheduleAddBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
 
+        binding.layoutPhoto.visibility = View.GONE
         binding.layoutSelectApp.visibility = View.GONE
         binding.editUrl.visibility = View.GONE
         binding.layoutAlarm.visibility = View.GONE
@@ -144,19 +182,30 @@ class FragmentScheduleAdd : Fragment() {
                     binding.radioEtc.isChecked = true
                     selectActionNone()
                 }
+                else -> {
+                    binding.textSelectedApp.text = scheduleDTO.appDTO?.appName
+                    binding.radioApp.isChecked = true
+                    selectActionApp()
+                }
             }
             when (scheduleDTO.cycle) {
                 ScheduleDTO.Cycle.DAY -> binding.radioDay.isChecked = true
                 ScheduleDTO.Cycle.WEEK -> binding.radioWeek.isChecked = true
                 ScheduleDTO.Cycle.MONTH -> binding.radioMonth.isChecked = true
                 ScheduleDTO.Cycle.PERIOD -> binding.radioPeriod.isChecked = true
+                else -> binding.radioDay.isChecked = true
             }
             binding.editCount.setText(scheduleDTO.count.toString())
 
             if (scheduleDTO.isAlarm == true) {
                 binding.layoutAlarm.visibility = View.VISIBLE
-                binding.timepickerAlarm.currentHour = scheduleDTO.alarmDTO.alarmHour!!
-                binding.timepickerAlarm.currentMinute = scheduleDTO.alarmDTO.alarmMinute!!
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    binding.timepickerAlarm.hour = scheduleDTO.alarmDTO.alarmHour!!
+                    binding.timepickerAlarm.minute = scheduleDTO.alarmDTO.alarmMinute!!
+                } else {
+                    binding.timepickerAlarm.currentHour = scheduleDTO.alarmDTO.alarmHour!!
+                    binding.timepickerAlarm.currentMinute = scheduleDTO.alarmDTO.alarmMinute!!
+                }
 
                 if (scheduleDTO.alarmDTO.alarmDate != null) {
                     setCalendarSingleSubExecute()
@@ -175,10 +224,15 @@ class FragmentScheduleAdd : Fragment() {
 
             visibleOkButton()
         } else {
-            getAlarmDateText(binding.timepickerAlarm.currentHour, binding.timepickerAlarm.currentMinute)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                getAlarmDateText(binding.timepickerAlarm.hour, binding.timepickerAlarm.minute)
+            } else {
+                getAlarmDateText(binding.timepickerAlarm.currentHour, binding.timepickerAlarm.currentMinute)
+            }
+
         }
 
-        binding.editPurpose.setOnTouchListener { view, motionEvent ->
+        binding.editPurpose.setOnTouchListener { _, _ ->
             binding.scrollView.requestDisallowInterceptTouchEvent(true)
             false
         }
@@ -187,23 +241,35 @@ class FragmentScheduleAdd : Fragment() {
             callBackPressed()
         }
 
-        binding.buttonSelectApp.setOnClickListener {
-            val dialog = SelectAppDialog(requireContext())
-            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.show()
+        binding.layoutLoadPhoto.setOnClickListener {
+            resultLauncher.launch("image/*")
+        }
 
-            dialog.button_app_cancel.setOnClickListener { // No
-                dialog.dismiss()
+        binding.imgDeletePhoto.setOnClickListener {
+            binding.layoutPhoto.visibility = View.GONE
+            binding.layoutLoadPhoto.visibility = View.VISIBLE
+        }
+
+        binding.buttonSelectApp.setOnClickListener {
+            if (selectAppDialog == null) {
+                selectAppDialog = SelectAppDialog(requireContext())
+                selectAppDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                selectAppDialog?.setCanceledOnTouchOutside(false)
+            }
+            selectAppDialog?.show()
+            selectAppDialog?.setInfo()
+
+            selectAppDialog?.binding?.buttonAppCancel?.setOnClickListener { // No
+                selectAppDialog?.dismiss()
             }
 
-            dialog.button_app_ok.setOnClickListener { // Ok
-                if (dialog.selectedApp == null) {
+            selectAppDialog?.binding?.buttonAppOk?.setOnClickListener { // Ok
+                if (selectAppDialog?.selectedApp == null) {
                     Toast.makeText(activity,"선택된 앱이 없습니다.", Toast.LENGTH_SHORT).show()
                 } else {
-                    scheduleDTO.appDTO = dialog.selectedApp
+                    scheduleDTO.appDTO = selectAppDialog?.selectedApp
                     binding.textSelectedApp.text = scheduleDTO.appDTO?.appName
-                    dialog.dismiss()
+                    selectAppDialog?.dismiss()
                     actionOK = true
                     visibleOkButton()
                 }
@@ -217,7 +283,7 @@ class FragmentScheduleAdd : Fragment() {
             setCalendarRange()
         }
 
-        binding.radioGroupAction.setOnCheckedChangeListener { radioGroup, i ->
+        binding.radioGroupAction.setOnCheckedChangeListener { _, i ->
             when(i) {
                 R.id.radio_app -> {
                     selectActionApp()
@@ -231,7 +297,7 @@ class FragmentScheduleAdd : Fragment() {
             }
         }
 
-        binding.switchAlarm.setOnCheckedChangeListener { compoundButton, b ->
+        binding.switchAlarm.setOnCheckedChangeListener { _, b ->
             if (b) {
                 binding.layoutAlarm.visibility = View.VISIBLE
                 scheduleDTO.isAlarm = true
@@ -245,13 +311,13 @@ class FragmentScheduleAdd : Fragment() {
             setCalendarSingle()
         }
 
-        binding.timepickerAlarm.setOnTimeChangedListener { timePicker, i, i2 ->
+        binding.timepickerAlarm.setOnTimeChangedListener { _, i, i2 ->
             if (binding.weekGroup.checkedIds.size == 0) {
                 getAlarmDateText(i, i2)
             }
         }
 
-        binding.weekGroup.setOnCheckedChangeListener { group, checkedId, isChecked ->
+        binding.weekGroup.setOnCheckedChangeListener { _, _, _ ->
             setWeekString()
         }
 
@@ -310,7 +376,7 @@ class FragmentScheduleAdd : Fragment() {
             visibleOkButton()
         }
 
-        binding.radioGroupCycle.setOnCheckedChangeListener { radioGroup, i ->
+        binding.radioGroupCycle.setOnCheckedChangeListener { _, i ->
             when(i) {
                 R.id.radio_day -> {
                     scheduleDTO.cycle = ScheduleDTO.Cycle.DAY
@@ -457,7 +523,11 @@ class FragmentScheduleAdd : Fragment() {
         scheduleDTO.alarmDTO.clearDayOfWeek()
         when {
             binding.weekGroup.checkedIds.size == 0 -> {
-                getAlarmDateText(binding.timepickerAlarm.currentHour, binding.timepickerAlarm.currentMinute)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    getAlarmDateText(binding.timepickerAlarm.hour, binding.timepickerAlarm.minute)
+                } else {
+                    getAlarmDateText(binding.timepickerAlarm.currentHour, binding.timepickerAlarm.currentMinute)
+                }
             }
             binding.weekGroup.checkedIds.size >= binding.weekGroup.size -> {
                 binding.textAlarmDate.text = "매일"
@@ -517,7 +587,7 @@ class FragmentScheduleAdd : Fragment() {
                     if (weekSize > 0)
                         weekString += ", "
                     weekString += "토"
-                    weekSize++
+                    //weekSize++
 
                     scheduleDTO.alarmDTO.dayOfWeek["7"] = true
                 }
@@ -572,8 +642,8 @@ class FragmentScheduleAdd : Fragment() {
     }
 
     private fun setStartEndDate() {
-        var startDate = SimpleDateFormat("yyyy.MM.dd").format(scheduleDTO.startDate)
-        var endDate = SimpleDateFormat("yyyy.MM.dd").format(scheduleDTO.endDate)
+        var startDate = SimpleDateFormat("yyyy.MM.dd").format(scheduleDTO.startDate!!)
+        var endDate = SimpleDateFormat("yyyy.MM.dd").format(scheduleDTO.endDate!!)
 
         println("스타트 ${scheduleDTO.startDate}, 엔드 ${scheduleDTO.endDate}")
 
@@ -616,11 +686,11 @@ class FragmentScheduleAdd : Fragment() {
     }
 
     private fun setCalendarSingleSubExecute() {
-        val alarmDate = SimpleDateFormat("yyyyMMdd").format(scheduleDTO.alarmDTO.alarmDate).toInt()
+        val alarmDate = SimpleDateFormat("yyyyMMdd").format(scheduleDTO.alarmDTO.alarmDate!!).toInt()
         val todayDate = SimpleDateFormat("yyyyMMdd").format(Date()).toInt()
 
-        var alarmDateFormat = SimpleDateFormat("MM월 dd일 (E)", Locale("ko", "KR")).format(scheduleDTO.alarmDTO.alarmDate)
-        val alarmYear = SimpleDateFormat("yyyy").format(scheduleDTO.alarmDTO.alarmDate).toInt()
+        var alarmDateFormat = SimpleDateFormat("MM월 dd일 (E)", Locale("ko", "KR")).format(scheduleDTO.alarmDTO.alarmDate!!)
+        val alarmYear = SimpleDateFormat("yyyy").format(scheduleDTO.alarmDTO.alarmDate!!).toInt()
         val todayYear = SimpleDateFormat("yyyy").format(Date()).toInt()
         if (alarmYear > todayYear) { // 년도가 바뀌면 년도 표시
             alarmDateFormat = "${alarmYear}년 $alarmDateFormat"
@@ -628,7 +698,11 @@ class FragmentScheduleAdd : Fragment() {
 
         when (alarmDate) {
             todayDate -> { // 오늘
-                val alarmTime = "${binding.timepickerAlarm.currentHour}${binding.timepickerAlarm.currentMinute}".toInt()
+                val alarmTime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    "${binding.timepickerAlarm.hour}${binding.timepickerAlarm.minute}".toInt()
+                } else {
+                    "${binding.timepickerAlarm.currentHour}${binding.timepickerAlarm.currentMinute}".toInt()
+                }
                 val nowTime = SimpleDateFormat("HHmm").format(Date()).toInt()
 
                 //println("${binding.timepickerAlarm.hour}")
@@ -658,7 +732,7 @@ class FragmentScheduleAdd : Fragment() {
                 scheduleDTO.alarmDTO.alarmDate = binding.calendarView.selectedDays[0].calendar.time
                 if (binding.weekGroup.checkedIds.size > 0) {
                     binding.weekGroup.clearCheck()
-                    Handler().postDelayed({ // weekGroup 체크 해제하는데 시간이 걸려서 딜레이 추가
+                    Handler(Looper.getMainLooper()).postDelayed({ // weekGroup 체크 해제하는데 시간이 걸려서 딜레이 추가
                         setCalendarSingleSubExecute()
                     }, 50L)
                 } else {
@@ -704,11 +778,19 @@ class FragmentScheduleAdd : Fragment() {
                 scheduleDTO.url = ""
                 scheduleDTO.appDTO = null
             }
+            else -> {
+                scheduleDTO.url = ""
+            }
         }
 
         scheduleDTO.count = binding.editCount.text.toString().toLong()
-        scheduleDTO.alarmDTO.alarmHour = binding.timepickerAlarm.currentHour
-        scheduleDTO.alarmDTO.alarmMinute = binding.timepickerAlarm.currentMinute
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            scheduleDTO.alarmDTO.alarmHour = binding.timepickerAlarm.hour
+            scheduleDTO.alarmDTO.alarmMinute = binding.timepickerAlarm.minute
+        } else {
+            scheduleDTO.alarmDTO.alarmHour = binding.timepickerAlarm.currentHour
+            scheduleDTO.alarmDTO.alarmMinute = binding.timepickerAlarm.currentMinute
+        }
 
         if (fanClubDTO == null) {
             setPersonalSchedule()

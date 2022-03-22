@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.BlendModeColorFilterCompat
+import androidx.core.graphics.BlendModeCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.ListItemMissionBinding
@@ -36,7 +38,7 @@ class RecyclerViewAdapterMission(private val items: ArrayList<DashboardMissionDT
             with(holder) {
                 title.text = "${item.scheduleDTO?.title}"
                 count.text = "${item.scheduleProgressDTO?.count}/${item.scheduleDTO?.count}"
-                textPeriod.text = SimpleDateFormat("M월 d일 까지").format(item.scheduleDTO?.endDate)
+                textPeriod.text = SimpleDateFormat("M월 d일 까지").format(item.scheduleDTO?.endDate!!)
 
                 var percentage = ((item.scheduleProgressDTO?.count?.toDouble()!! / item.scheduleDTO?.count!!) * 100).toInt()
                 percent.text = "$percentage%"
@@ -95,7 +97,8 @@ class RecyclerViewAdapterMission(private val items: ArrayList<DashboardMissionDT
         fun setPercent(color: Int) {
             layoutPercent.setBackgroundColor(color)
             percent.setTextColor(color)
-            progress.progressDrawable.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+            //progress.progressDrawable.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+            progress.progressDrawable.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(color, BlendModeCompat.SRC_ATOP)
 
         }
     }

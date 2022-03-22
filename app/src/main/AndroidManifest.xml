@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyFanClub">
         <activity
+            android:name=".LoginEmailVerifyActivity"
+            android:exported="false" />
+        <activity
             android:name=".NoticeActivity"
             android:exported="false" />
         <activity

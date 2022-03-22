@@ -2,17 +2,13 @@ package com.ados.myfanclub
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.ados.myfanclub.databinding.ListItemMailBinding
 import com.ados.myfanclub.databinding.ListItemQuestBinding
 import com.ados.myfanclub.model.QuestDTO
 import java.text.DecimalFormat
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.collections.ArrayList
 
 class RecyclerViewAdapterQuest(private val items: ArrayList<QuestDTO>, var clickListener: OnQuestItemClickListener) : RecyclerView.Adapter<RecyclerViewAdapterQuest.ViewHolder>() {
@@ -30,7 +26,7 @@ class RecyclerViewAdapterQuest(private val items: ArrayList<QuestDTO>, var click
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.initalize(items[position],clickListener)
+        holder.initialize(items[position],clickListener)
 
         items[position].let { item ->
             with(holder) {
@@ -46,7 +42,7 @@ class RecyclerViewAdapterQuest(private val items: ArrayList<QuestDTO>, var click
                         }
                     }
 
-                    var percent = ((count?.toDouble()!! / (items.size-1)!!) * 100).toInt()
+                    var percent = ((count.toDouble() / (items.size-1)) * 100).toInt()
                     progress.progress = percent
                     progressText.text = "$count/${items.size-1}"
 
@@ -119,7 +115,7 @@ class RecyclerViewAdapterQuest(private val items: ArrayList<QuestDTO>, var click
         var progressText = viewBinding.textProgress
         var layoutItem = viewBinding.layoutItem
 
-        fun initalize(item: QuestDTO, action:OnQuestItemClickListener) {
+        fun initialize(item: QuestDTO, action:OnQuestItemClickListener) {
             /*itemView.setOnClickListener {
                 action.onItemClick(item, adapterPosition)
                 itemView.img_favorite.setImageResource(R.drawable.star_icon_fill)

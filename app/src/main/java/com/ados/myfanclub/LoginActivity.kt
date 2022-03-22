@@ -27,8 +27,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import kotlinx.android.synthetic.main.document_dialog.*
-import kotlinx.android.synthetic.main.maintenance_dialog.*
 import java.util.*
 
 
@@ -61,9 +59,9 @@ class LoginActivity : AppCompatActivity() {
         resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             println("구글 로그인 $result")
             if (result.resultCode == RESULT_OK) {
-                var result = Auth.GoogleSignInApi.getSignInResultFromIntent(result.data)
-                if (result.isSuccess) {
-                    var account = result.signInAccount
+                var signResult = Auth.GoogleSignInApi.getSignInResultFromIntent(result.data!!)!!
+                if (signResult.isSuccess) {
+                    var account = signResult.signInAccount
                     firebaseAuthWithGoogle(account)
                 }
             }
@@ -91,11 +89,11 @@ class LoginActivity : AppCompatActivity() {
                 documentDialog?.setInfo()
                 documentDialog?.setButtonOk("동의")
                 documentDialog?.setButtonCancel("동의안함")
-                documentDialog?.button_document_cancel?.setOnClickListener { // No
+                documentDialog?.binding?.buttonDocumentCancel?.setOnClickListener { // No
                     documentDialog?.dismiss()
                     Toast.makeText(this, "약관에 동의해야 회원가입이 가능합니다.", Toast.LENGTH_SHORT).show()
                 }
-                documentDialog?.button_document_ok?.setOnClickListener { // Ok
+                documentDialog?.binding?.buttonDocumentOk?.setOnClickListener { // Ok
                     documentDialog?.dismiss()
                     Toast.makeText(this, "약관에 동의 하셨습니다.", Toast.LENGTH_SHORT).show()
 
@@ -108,7 +106,7 @@ class LoginActivity : AppCompatActivity() {
             startActivity(Intent(this, FindPasswordActivity::class.java))
         }
 
-        binding.editPassword.setOnKeyListener { view, i, keyEvent ->
+        binding.editPassword.setOnKeyListener { _, i, keyEvent ->
             if (keyEvent.action == KeyEvent.ACTION_DOWN && i == KEYCODE_ENTER) {
                 login()
             }
@@ -147,7 +145,7 @@ class LoginActivity : AppCompatActivity() {
         maintenanceDialog.setCanceledOnTouchOutside(false)
         maintenanceDialog.updateDTO = firebaseViewModel.updateDTO.value
         maintenanceDialog.show()
-        maintenanceDialog.button_maintenance_ok.setOnClickListener {
+        maintenanceDialog.binding.buttonMaintenanceOk.setOnClickListener {
             maintenanceDialog.dismiss()
             finish() //액티비티 종료
         }
@@ -186,31 +184,37 @@ class LoginActivity : AppCompatActivity() {
             else -> {
                 firebaseAuth?.signInWithEmailAndPassword(email, binding.editPassword.text.toString())?.addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        firebaseViewModel.getUser(firebaseAuth?.uid!!) { userDTO ->
-                            if (userDTO != null) {
-                                if (userDTO.deleteTime != null) { // 탈퇴한 사용자
-                                    firebaseAuth?.signOut()
-                                    googleSignInClient?.signOut()?.addOnCompleteListener { }
-                                    Toast.makeText(this, "탈퇴처리된 사용자입니다.", Toast.LENGTH_SHORT).show()
+                        if (firebaseAuth?.currentUser?.isEmailVerified!!) { // 인증 받은 사용자인지 확인
+                            firebaseViewModel.getUser(firebaseAuth?.uid!!) { userDTO ->
+                                if (userDTO != null) {
+                                    if (userDTO.deleteTime != null) { // 탈퇴한 사용자
+                                        firebaseAuth?.signOut()
+                                        googleSignInClient?.signOut()?.addOnCompleteListener { }
+                                        Toast.makeText(this, "탈퇴처리된 사용자입니다.", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        callMainActivity(userDTO)
+                                        Toast.makeText(this, "로그인 성공", Toast.LENGTH_SHORT).show()
+                                    }
                                 } else {
-                                    callMainActivity(userDTO)
-                                    Toast.makeText(this, "로그인 성공", Toast.LENGTH_SHORT).show()
-                                }
-                            } else {
-                                Toast.makeText(this, "로그인에 실패하였습니다. 관리자에게 문의 하세요.", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                        /*firestore?.collection("user")?.document(firebaseAuth?.uid!!)?.get()?.addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                if (task.result.exists()) { // document 있음
-                                    var user = task.result.toObject(UserDTO::class.java)!!
-                                    callMainActivity(user)
-                                    Toast.makeText(this, "로그인 성공", Toast.LENGTH_SHORT).show()
-                                } else { // document 없으면 회원 가입 페이지로 이동
                                     Toast.makeText(this, "로그인에 실패하였습니다. 관리자에게 문의 하세요.", Toast.LENGTH_SHORT).show()
                                 }
                             }
-                        }*/
+                            /*firestore?.collection("user")?.document(firebaseAuth?.uid!!)?.get()?.addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    if (task.result.exists()) { // document 있음
+                                        var user = task.result.toObject(UserDTO::class.java)!!
+                                        callMainActivity(user)
+                                        Toast.makeText(this, "로그인 성공", Toast.LENGTH_SHORT).show()
+                                    } else { // document 없으면 회원 가입 페이지로 이동
+                                        Toast.makeText(this, "로그인에 실패하였습니다. 관리자에게 문의 하세요.", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }*/
+                        } else {
+                            firebaseAuth?.signOut()
+                            callLoginEmailVerifyActivity(email, binding.editPassword.text.toString())
+                            //Toast.makeText(this, "이메일 인증이 완료되지 않았습니다. 이메일 인증 완료 후 로그인 가능합니다.", Toast.LENGTH_SHORT).show()
+                        }
                     } else if (!task.exception?.message.isNullOrEmpty()) {
                         //Toast.makeText(this, task.exception?.message, Toast.LENGTH_SHORT).show()
                         Toast.makeText(this, "로그인에 실패하였습니다. 이메일과 비밀번호를 확인해보세요.", Toast.LENGTH_SHORT).show()
@@ -377,6 +381,13 @@ class LoginActivity : AppCompatActivity() {
         intent.putExtra("user", user)
         startActivity(intent)
         finish()
+    }
+
+    private fun callLoginEmailVerifyActivity(email: String, password: String) {
+        var intent = Intent(this, LoginEmailVerifyActivity::class.java)
+        intent.putExtra("email", email)
+        intent.putExtra("password", password)
+        startActivity(intent)
     }
 
     override fun onBackPressed() {

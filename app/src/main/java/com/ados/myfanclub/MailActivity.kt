@@ -2,6 +2,7 @@ package com.ados.myfanclub
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Looper
 import android.view.View
 import android.view.Window
 import android.widget.Toast
@@ -18,9 +19,6 @@ import com.ados.myfanclub.model.MailDTO
 import com.ados.myfanclub.model.QuestionDTO
 import com.ados.myfanclub.model.UserDTO
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
-import kotlinx.android.synthetic.main.get_item_dialog.*
-import kotlinx.android.synthetic.main.mail_dialog.*
-import kotlinx.android.synthetic.main.question_dialog.*
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.concurrent.timer
@@ -34,7 +32,9 @@ class MailActivity : AppCompatActivity(), OnMailItemClickListener {
     lateinit var recyclerViewAdapter : RecyclerViewAdapterMail
 
     private var loadingDialog : LoadingDialog? = null
+    private var questionDialog: QuestionDialog? = null
     private var getItemDialog : GetItemDialog? = null
+    private var mailDialog : MailDialog? = null
 
     private var userDTO: UserDTO? = null
     private var mails : ArrayList<MailDTO> = arrayListOf()
@@ -92,6 +92,7 @@ class MailActivity : AppCompatActivity(), OnMailItemClickListener {
                         when (i.item) {
                             MailDTO.Item.PAID_GEM -> paidGemCount = paidGemCount.plus(i.itemCount!!)
                             MailDTO.Item.FREE_GEM -> freeGemCount = freeGemCount.plus(i.itemCount!!)
+                            else -> continue
                         }
                     }
                     firebaseViewModel.addUserGem(userDTO?.uid.toString(), paidGemCount, freeGemCount) {
@@ -102,8 +103,8 @@ class MailActivity : AppCompatActivity(), OnMailItemClickListener {
                                 var mail = iter.next()
                                 if (mail.item == MailDTO.Item.PAID_GEM || mail.item == MailDTO.Item.FREE_GEM) {
                                     firebaseViewModel.updateUserMailDelete(userDTO?.uid.toString(), mail.docName.toString()) {
-                                        var log = LogDTO("[우편함에서 아이템 받기] 아이템(${mail.item}, ${mail.itemCount}) 획득, mail document(${mail.docName})", Date())
-                                        firebaseViewModel.writeUserLog(userDTO?.uid.toString(), log) { }
+                                        var log2 = LogDTO("[우편함에서 아이템 받기] 아이템(${mail.item}, ${mail.itemCount}) 획득, mail document(${mail.docName})", Date())
+                                        firebaseViewModel.writeUserLog(userDTO?.uid.toString(), log2) { }
                                         successCount++
                                     }
                                     iter.remove()
@@ -144,15 +145,20 @@ class MailActivity : AppCompatActivity(), OnMailItemClickListener {
                     //"첨부된 아이템이 없는 우편을 모두 삭제 합니다.\n정말 삭제 하시겠습니까?",
                     "읽은 우편을 모두 삭제 합니다.\n정말 삭제 하시겠습니까?\n\n(첨부 아이템이 있는 우편은 삭제되지 않습니다)",
                 )
-                val questionDialog = QuestionDialog(this, question)
-                questionDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-                questionDialog.setCanceledOnTouchOutside(false)
-                questionDialog.show()
-                questionDialog.button_question_cancel.setOnClickListener { // No
-                    questionDialog.dismiss()
+                if (questionDialog == null) {
+                    questionDialog = QuestionDialog(this, question)
+                    questionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    questionDialog?.setCanceledOnTouchOutside(false)
+                } else {
+                    questionDialog?.question = question
                 }
-                questionDialog.button_question_ok.setOnClickListener { // Ok
-                    questionDialog.dismiss()
+                questionDialog?.show()
+                questionDialog?.setInfo()
+                questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
+                    questionDialog?.dismiss()
+                }
+                questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
+                    questionDialog?.dismiss()
                     loading()
 
                     successCount = 0
@@ -214,6 +220,7 @@ class MailActivity : AppCompatActivity(), OnMailItemClickListener {
         when (item.item) {
             MailDTO.Item.PAID_GEM -> paidGemCount = item.itemCount!!
             MailDTO.Item.FREE_GEM -> freeGemCount = item.itemCount!!
+            else -> return
         }
         firebaseViewModel.addUserGem(userDTO?.uid.toString(), paidGemCount, freeGemCount) {
             if (it != null) {
@@ -238,11 +245,14 @@ class MailActivity : AppCompatActivity(), OnMailItemClickListener {
     }
 
     override fun onItemClick(item: MailDTO, position: Int) {
-        val dialog = MailDialog(this)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setCanceledOnTouchOutside(false)
-        dialog.mailDTO = item
-        dialog.show()
+        if (mailDialog == null) {
+            mailDialog = MailDialog(this)
+            mailDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            mailDialog?.setCanceledOnTouchOutside(false)
+        }
+        mailDialog?.mailDTO = item
+        mailDialog?.show()
+        mailDialog?.setInfo()
 
         if (item.read == false) { // 읽지 않은 메일이라면 읽음 표시
             item.read = true
@@ -252,13 +262,13 @@ class MailActivity : AppCompatActivity(), OnMailItemClickListener {
             }
         }
 
-        dialog.button_mail_cancel.setOnClickListener { // No
+        mailDialog?.binding?.buttonMailCancel?.setOnClickListener { // No
             recyclerViewAdapter.notifyItemChanged(position)
-            dialog.dismiss()
+            mailDialog?.dismiss()
         }
 
-        dialog.button_get.setOnClickListener {
-            dialog.dismiss()
+        mailDialog?.binding?.buttonGet?.setOnClickListener {
+            mailDialog?.dismiss()
             loading()
             successCount = 0
             var jobCount = 1
@@ -299,6 +309,7 @@ class MailActivity : AppCompatActivity(), OnMailItemClickListener {
                         }
                     }
                 }
+                else -> return@setOnClickListener
             }
         }
     }
@@ -313,7 +324,7 @@ class MailActivity : AppCompatActivity(), OnMailItemClickListener {
     }
 
     private fun loadingEnd() {
-        android.os.Handler().postDelayed({
+        android.os.Handler(Looper.getMainLooper()).postDelayed({
             if (loadingDialog != null) {
                 loadingDialog?.dismiss()
             }
@@ -330,7 +341,7 @@ class MailActivity : AppCompatActivity(), OnMailItemClickListener {
         getItemDialog?.show()
         getItemDialog?.setInfo()
 
-        getItemDialog?.button_get_item_ok?.setOnClickListener {
+        getItemDialog?.binding?.buttonGetItemOk?.setOnClickListener {
             getItemDialog?.dismiss()
         }
     }

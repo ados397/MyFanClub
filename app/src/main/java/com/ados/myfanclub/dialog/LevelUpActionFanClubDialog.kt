@@ -181,15 +181,15 @@ class LevelUpActionFanClubDialog(context: Context) : Dialog(context), View.OnCli
         val gemExpString = decimalFormat.format(gemExp)
         val ssb1 = SpannableStringBuilder("1 다이아 당 ${gemExpString}의 경험치 획득!")
         ssb1.apply {
-            setSpan(ForegroundColorSpan(ContextCompat.getColor(context!!, R.color.text_red)), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-            setSpan(ForegroundColorSpan(ContextCompat.getColor(context!!, R.color.text_red)), 8, 8 + gemExpString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.text_red)), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.text_red)), 8, 8 + gemExpString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
         binding.textUseGem.text = ssb1
         binding.textUpExpCount.text = "오늘 사용 가능한 다이아 : ${decimalFormat.format(availableExpGem)}"
 
         val ssb2 = SpannableStringBuilder("광고를 시청하고 무료 경험치 ${gemExpString}을 받으세요!")
         ssb2.apply {
-            setSpan(ForegroundColorSpan(ContextCompat.getColor(context!!, R.color.text_red)), 16, 16 + gemExpString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.text_red)), 16, 16 + gemExpString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
         binding.textGetExp.text = ssb2
         binding.textGetExpCount.text = "오늘 받을 수 있는 횟수 : ${decimalFormat.format(rewardExpCount)}"
@@ -197,7 +197,7 @@ class LevelUpActionFanClubDialog(context: Context) : Dialog(context), View.OnCli
         val rewardGemString = decimalFormat.format(rewardGem)
         val ssb3 = SpannableStringBuilder("광고를 시청하고 무료 다이아 1개를 받으세요!")
         ssb3.apply {
-            setSpan(ForegroundColorSpan(ContextCompat.getColor(context!!, R.color.text_red)), 16, 16 + rewardGemString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.text_red)), 16, 16 + rewardGemString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
         binding.textGetGem.text = ssb3
         binding.textGetGemCount.text = "오늘 받을 수 있는 횟수 : ${decimalFormat.format(rewardGemCount)}"
@@ -213,20 +213,20 @@ class LevelUpActionFanClubDialog(context: Context) : Dialog(context), View.OnCli
         binding.textExpTotal.text = "/${decimalFormat.format(nextLevelExp)}"
 
         if (oldFanClubDTO?.exp!! < newFanClubDTO?.exp!!) {
-            binding.textExp.setTextColor(ContextCompat.getColor(context!!, R.color.text_red))
+            binding.textExp.setTextColor(ContextCompat.getColor(context, R.color.text_red))
             //binding.progressPercent.progressDrawable.setColorFilter(ContextCompat.getColor(context!!, R.color.progress_0), PorterDuff.Mode.SRC_IN)
             //binding.progressPercent.progressBackgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.progress_background_0))
             binding.progressPercent.progressTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.progress_background_0))
             binding.buttonUpExpFanClub.isEnabled = true
             binding.buttonUpExpFanClub.background = AppCompatResources.getDrawable(context, R.drawable.btn_round8)
-            binding.buttonUpExpFanClub.setTextColor(ContextCompat.getColor(context!!, R.color.text_gold))
+            binding.buttonUpExpFanClub.setTextColor(ContextCompat.getColor(context, R.color.text_gold))
         } else {
-            binding.textExp.setTextColor(ContextCompat.getColor(context!!, R.color.text))
+            binding.textExp.setTextColor(ContextCompat.getColor(context, R.color.text))
             //binding.progressPercent.progressDrawable.colorFilter = null
             binding.progressPercent.progressTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.progress_70))
             binding.buttonUpExpFanClub.isEnabled = false
             binding.buttonUpExpFanClub.background = AppCompatResources.getDrawable(context, R.drawable.btn_round2)
-            binding.buttonUpExpFanClub.setTextColor(ContextCompat.getColor(context!!, R.color.text_disable))
+            binding.buttonUpExpFanClub.setTextColor(ContextCompat.getColor(context, R.color.text_disable))
         }
     }
 

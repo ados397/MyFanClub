@@ -45,6 +45,7 @@ class GetItemDialog(context: Context) : Dialog(context), View.OnClickListener {
                 binding.imgItem.setImageResource(R.drawable.diamond)
                 binding.textItemCount.text = "${decimalFormat.format(mailDTO?.itemCount)}"
             }
+            else -> binding.imgItem.visibility = View.GONE
         }
     }
 

@@ -4,12 +4,7 @@ import android.app.Application
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
-import com.ados.myfanclub.model.*
-import com.ados.myfanclub.repository.FirebaseRepository
 import com.ados.myfanclub.repository.FirebaseStorageRepository
-import kotlinx.coroutines.launch
-import java.util.ArrayList
 
 class FirebaseStorageViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -23,43 +18,64 @@ class FirebaseStorageViewModel(application: Application) : AndroidViewModel(appl
     //<editor-fold desc="@ 데이터 획득 함수">
 
     // 사용자 프로필 이미지 불러오기
-    fun getUserProfile(uid: String, myCallback: (Uri?) -> Unit) {
-        repository.getUserProfile(uid) {
+    fun getUserProfileImage(uid: String, myCallback: (Uri?) -> Unit) {
+        repository.getUserProfileImage(uid) {
             myCallback(it)
         }
     }
 
     // 사용자 프로필 이미지 저장
-    fun setUserProfile(uid: String, bitmap: Bitmap, myCallback: (Boolean) -> Unit) {
-        repository.setUserProfile(uid, bitmap) {
+    fun setUserProfileImage(uid: String, bitmap: Bitmap, myCallback: (Boolean) -> Unit) {
+        repository.setUserProfileImage(uid, bitmap) {
             myCallback(it)
         }
     }
 
     // 사용자 프로필 이미지 삭제
-    fun deleteUserProfile(uid: String, myCallback: (Boolean) -> Unit) {
-        repository.deleteUserProfile(uid) {
+    fun deleteUserProfileImage(uid: String, myCallback: (Boolean) -> Unit) {
+        repository.deleteUserProfileImage(uid) {
             myCallback(it)
         }
     }
 
     // 팬클럽 심볼 이미지 불러오기
-    fun getFanClubSymbol(fanClubId: String, myCallback: (Uri?) -> Unit) {
-        repository.getFanClubSymbol(fanClubId) {
+    fun getFanClubSymbolImage(fanClubId: String, myCallback: (Uri?) -> Unit) {
+        repository.getFanClubSymbolImage(fanClubId) {
             myCallback(it)
         }
     }
 
     // 팬클럽 심볼 이미지 저장
-    fun setFanClubSymbol(fanClubId: String, bitmap: Bitmap, myCallback: (Boolean) -> Unit) {
-        repository.setFanClubSymbol(fanClubId, bitmap) {
+    fun setFanClubSymbolImage(fanClubId: String, bitmap: Bitmap, myCallback: (Boolean) -> Unit) {
+        repository.setFanClubSymbolImage(fanClubId, bitmap) {
             myCallback(it)
         }
     }
 
     // 팬클럽 심볼 이미지 삭제
-    fun deleteFanClubSymbol(fanClubId: String, myCallback: (Boolean) -> Unit) {
-        repository.deleteFanClubSymbol(fanClubId) {
+    fun deleteFanClubSymbolImage(fanClubId: String, myCallback: (Boolean) -> Unit) {
+        repository.deleteFanClubSymbolImage(fanClubId) {
+            myCallback(it)
+        }
+    }
+
+    // 스케줄 이미지 불러오기
+    fun getScheduleImage(uid: String, scheduleId: String, type: FirebaseStorageRepository.ScheduleType, myCallback: (Uri?) -> Unit) {
+        repository.getScheduleImage(uid, scheduleId, type) {
+            myCallback(it)
+        }
+    }
+
+    // 스케줄 이미지 저장
+    fun setScheduleImage(uid: String, scheduleId: String, type: FirebaseStorageRepository.ScheduleType, bitmap: Bitmap, myCallback: (Boolean) -> Unit) {
+        repository.setScheduleImage(uid, scheduleId, type, bitmap) {
+            myCallback(it)
+        }
+    }
+
+    // 스케줄 이미지 삭제
+    fun deleteScheduleImage(uid: String, scheduleId: String, type: FirebaseStorageRepository.ScheduleType, myCallback: (Boolean) -> Unit) {
+        repository.deleteScheduleImage(uid, scheduleId, type) {
             myCallback(it)
         }
     }

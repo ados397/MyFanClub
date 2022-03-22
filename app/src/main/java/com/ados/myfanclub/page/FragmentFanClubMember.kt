@@ -20,10 +20,6 @@ import com.ados.myfanclub.model.*
 import com.ados.myfanclub.repository.FirebaseRepository
 import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
-import kotlinx.android.synthetic.main.question_dialog.*
-import kotlinx.android.synthetic.main.question_dialog.button_question_cancel
-import kotlinx.android.synthetic.main.question_dialog.button_question_ok
-import kotlinx.android.synthetic.main.user_info_dialog.*
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -55,6 +51,9 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
     private var currentMember: MemberDTO? = null
     private var members : ArrayList<MemberDTO> = arrayListOf()
 
+    private var questionDialog: QuestionDialog? = null
+    private var userInfoDialog: UserInfoDialog? = null
+
     private var selectedMember: MemberDTO? = null
     private var selectedPosition: Int? = 0
 
@@ -77,7 +76,7 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
         _binding = FragmentFanClubMemberBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
 
-        recyclerView = rootView.findViewById(R.id.rv_fan_club_member!!)as RecyclerView
+        recyclerView = rootView.findViewById(R.id.rv_fan_club_member)as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         // 기본 숨김 설정
@@ -146,12 +145,12 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
                 if (userDTO != null) {
                     var userEx = UserExDTO(userDTO)
                     if (userDTO.imgProfile != null) {
-                        firebaseStorageViewModel.getUserProfile(selectedMember?.userUid.toString()) { uri ->
+                        firebaseStorageViewModel.getUserProfileImage(selectedMember?.userUid.toString()) { uri ->
                             userEx.imgProfileUri = uri
-                            userInfo(userEx)
+                            onUserInfo(userEx)
                         }
                     } else {
-                        userInfo(userEx)
+                        onUserInfo(userEx)
                     }
                 } else {
                     Toast.makeText(activity, "사용자 정보 획득에 실패하였습니다.", Toast.LENGTH_SHORT).show()
@@ -160,13 +159,19 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
         }
     }
 
-    private fun userInfo(userEx: UserExDTO) {
-        val dialog = UserInfoDialog(requireContext(), selectedMember!!, userEx)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setCanceledOnTouchOutside(false)
-        dialog.show()
-        dialog.button_user_info_close.setOnClickListener {
-            dialog.dismiss()
+    private fun onUserInfo(userEx: UserExDTO) {
+        if (userInfoDialog == null) {
+            userInfoDialog = UserInfoDialog(requireContext(), selectedMember!!, userEx)
+            userInfoDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            userInfoDialog?.setCanceledOnTouchOutside(false)
+        } else {
+            userInfoDialog?.member = selectedMember!!
+            userInfoDialog?.user = userEx
+        }
+        userInfoDialog?.show()
+        userInfoDialog?.setInfo()
+        userInfoDialog?.binding?.buttonUserInfoClose?.setOnClickListener {
+            userInfoDialog?.dismiss()
         }
     }
 
@@ -176,15 +181,20 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
             "클럽장 위임",
             "[${selectedMember?.userNickname}]님에게 클럽장을 위임하시겠습니까?\n클럽장을 위임하고나면 클럽원으로 강등됩니다."
         )
-        val dialog = QuestionDialog(requireContext(), question)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setCanceledOnTouchOutside(false)
-        dialog.show()
-        dialog.button_question_cancel.setOnClickListener { // No
-            dialog.dismiss()
+        if (questionDialog == null) {
+            questionDialog = QuestionDialog(requireContext(), question)
+            questionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            questionDialog?.setCanceledOnTouchOutside(false)
+        } else {
+            questionDialog?.question = question
         }
-        dialog.button_question_ok.setOnClickListener { // No
-            dialog.dismiss()
+        questionDialog?.show()
+        questionDialog?.setInfo()
+        questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
+            questionDialog?.dismiss()
+        }
+        questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
+            questionDialog?.dismiss()
             (activity as MainActivity?)?.loading()
             selectedMember?.position = MemberDTO.Position.MASTER
             firebaseViewModel.updateMemberPosition(fanClubDTO?.docName.toString(), selectedMember!!) { // 선택한 멤버 클럽장 임명
@@ -209,15 +219,20 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
             "부클럽장 임명",
             "[${selectedMember?.userNickname}]님을 부클럽장으로 임명 하시겠습니까?"
         )
-        val dialog = QuestionDialog(requireContext(), question)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setCanceledOnTouchOutside(false)
-        dialog.show()
-        dialog.button_question_cancel.setOnClickListener { // No
-            dialog.dismiss()
+        if (questionDialog == null) {
+            questionDialog = QuestionDialog(requireContext(), question)
+            questionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            questionDialog?.setCanceledOnTouchOutside(false)
+        } else {
+            questionDialog?.question = question
         }
-        dialog.button_question_ok.setOnClickListener { // Yes
-            dialog.dismiss()
+        questionDialog?.show()
+        questionDialog?.setInfo()
+        questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
+            questionDialog?.dismiss()
+        }
+        questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
+            questionDialog?.dismiss()
             selectedMember?.position = MemberDTO.Position.SUB_MASTER
             //firebaseViewModel.updateMemberPosition(fanClubDTO?.docName.toString(), selectedMember!!) { // 선택한 멤버 부클럽장 임명
             firebaseViewModel.updateFanClubSubMaster(fanClubDTO?.docName.toString(), selectedMember!!) { fanClub -> // 선택한 멤버 부클럽장 임명
@@ -239,15 +254,20 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
             "부클럽장 해임",
             "[${selectedMember?.userNickname}]님을 부클럽장에서 해임 하시겠습니까?"
         )
-        val dialog = QuestionDialog(requireContext(), question)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setCanceledOnTouchOutside(false)
-        dialog.show()
-        dialog.button_question_cancel.setOnClickListener { // No
-            dialog.dismiss()
+        if (questionDialog == null) {
+            questionDialog = QuestionDialog(requireContext(), question)
+            questionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            questionDialog?.setCanceledOnTouchOutside(false)
+        } else {
+            questionDialog?.question = question
         }
-        dialog.button_question_ok.setOnClickListener { // Yes
-            dialog.dismiss()
+        questionDialog?.show()
+        questionDialog?.setInfo()
+        questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
+            questionDialog?.dismiss()
+        }
+        questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
+            questionDialog?.dismiss()
             selectedMember?.position = MemberDTO.Position.MEMBER
             //firebaseViewModel.updateMemberPosition(fanClubDTO?.docName.toString(), selectedMember!!) { // 선택한 멤버 부클럽장 해임
             firebaseViewModel.updateFanClubSubMaster(fanClubDTO?.docName.toString(), selectedMember!!, true) { fanClub -> // 선택한 멤버 부클럽장 해임
@@ -269,15 +289,20 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
             "강제 추방",
             "[${selectedMember?.userNickname}]님을 강제 추방 하시겠습니까?"
         )
-        val dialog = QuestionDialog(requireContext(), question)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setCanceledOnTouchOutside(false)
-        dialog.show()
-        dialog.button_question_cancel.setOnClickListener { // No
-            dialog.dismiss()
+        if (questionDialog == null) {
+            questionDialog = QuestionDialog(requireContext(), question)
+            questionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            questionDialog?.setCanceledOnTouchOutside(false)
+        } else {
+            questionDialog?.question = question
         }
-        dialog.button_question_ok.setOnClickListener { // Yes
-            dialog.dismiss()
+        questionDialog?.show()
+        questionDialog?.setInfo()
+        questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
+            questionDialog?.dismiss()
+        }
+        questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
+            questionDialog?.dismiss()
 
             // 팬클럽 멤버에서 삭제
             (activity as MainActivity?)?.loading()
@@ -296,8 +321,8 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
                         calendar.add(Calendar.DATE, 7)
                         var mail = MailDTO(docName,"팬클럽 추방", "죄송합니다. 가입하신 팬클럽 [${fanClubDTO?.name}]에서 추방 당하셨습니다.", "시스템", MailDTO.Item.NONE, 0, date, calendar.time)
                         firebaseViewModel.sendUserMail(selectedMember?.userUid.toString(), mail) {
-                            var log = LogDTO("[팬클럽 추방됨] 추방된 팬클럽 : ${fanClubDTO?.name}(${fanClubDTO?.docName.toString()}), 추방한 관리자 : ${currentMember?.userNickname}(${currentMember?.userUid.toString()})", date)
-                            firebaseViewModel.writeUserLog(selectedMember?.userUid.toString(), log) { }
+                            var log2 = LogDTO("[팬클럽 추방됨] 추방된 팬클럽 : ${fanClubDTO?.name}(${fanClubDTO?.docName.toString()}), 추방한 관리자 : ${currentMember?.userNickname}(${currentMember?.userUid.toString()})", date)
+                            firebaseViewModel.writeUserLog(selectedMember?.userUid.toString(), log2) { }
                         }
 
                         selectRecyclerView()
@@ -394,7 +419,7 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
     }
 
     private fun selectRecyclerView() {
-        if (recyclerViewAdapter?.selectItem(selectedPosition!!)) { // 선택 일 경우 메뉴 표시 및 레이아웃 어둡게
+        if (recyclerViewAdapter.selectItem(selectedPosition!!)) { // 선택 일 경우 메뉴 표시 및 레이아웃 어둡게
             val translateUp = AnimationUtils.loadAnimation(context, R.anim.translate_up)
             binding.layoutMenu.visibility = View.VISIBLE
             binding.layoutMenu.startAnimation(translateUp)

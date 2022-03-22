@@ -62,11 +62,15 @@ class SelectAppDialog(context: Context) : Dialog(context), OnAppListClickListene
             firestore?.collection("app")?.document()?.set(app)
         }*/
 
+        setInfo()
+    }
+
+    fun setInfo() {
         firestore?.collection("app")?.orderBy("order", Query.Direction.ASCENDING)?.get()?.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 apps.clear()
                 for (document in task.result) {
-                    var app = document.toObject(AppDTO::class.java)!!
+                    var app = document.toObject(AppDTO::class.java)
                     apps.add(app)
                 }
 

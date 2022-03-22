@@ -12,6 +12,8 @@ import android.text.method.ScrollingMovementMethod
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.BlendModeColorFilterCompat
+import androidx.core.graphics.BlendModeCompat
 import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.MissionDialogBinding
@@ -89,11 +91,12 @@ class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(address))
                     context.startActivity(intent)
                 }
+                else -> return@setOnClickListener
             }
         }
 
         binding.textPurpose.movementMethod = ScrollingMovementMethod.getInstance()
-        binding.textPurpose.setOnTouchListener { view, motionEvent ->
+        binding.textPurpose.setOnTouchListener { _, _ ->
             binding.scrollView.requestDisallowInterceptTouchEvent(true)
             false
         }
@@ -105,11 +108,12 @@ class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
             ScheduleDTO.Cycle.WEEK -> binding.imgScheduleType.setImageResource(R.drawable.schedule_week)
             ScheduleDTO.Cycle.MONTH -> binding.imgScheduleType.setImageResource(R.drawable.schedule_month)
             ScheduleDTO.Cycle.PERIOD -> binding.imgScheduleType.setImageResource(R.drawable.schedule_period)
+            else -> binding.imgScheduleType.setImageResource(R.drawable.schedule_day)
         }
 
         binding.textTitle.text = dashboardMissionDTO?.scheduleDTO?.title
         binding.textPurpose.text = dashboardMissionDTO?.scheduleDTO?.purpose
-        binding.textRange.text = "${SimpleDateFormat("yyyy.MM.dd").format(dashboardMissionDTO?.scheduleDTO?.startDate)} ~ ${SimpleDateFormat("yyyy.MM.dd").format(dashboardMissionDTO?.scheduleDTO?.endDate)}"
+        binding.textRange.text = "${SimpleDateFormat("yyyy.MM.dd").format(dashboardMissionDTO?.scheduleDTO?.startDate!!)} ~ ${SimpleDateFormat("yyyy.MM.dd").format(dashboardMissionDTO?.scheduleDTO?.endDate!!)}"
 
         missionCount = dashboardMissionDTO?.scheduleProgressDTO?.count!!
         missionCountMax = dashboardMissionDTO?.scheduleDTO?.count!!
@@ -133,6 +137,7 @@ class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
             ScheduleDTO.Action.ETC -> {
                 binding.layoutQuickMenu.visibility = View.GONE
             }
+            else-> binding.layoutQuickMenu.visibility = View.GONE
         }
     }
 
@@ -173,25 +178,25 @@ class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
             binding.imgComplete.visibility = View.GONE
             when {
                 missionPercent < 40 -> {
-                    setPercent(ContextCompat.getColor(context!!, R.color.progress_0))
+                    setPercent(ContextCompat.getColor(context, R.color.progress_0))
                 }
                 missionPercent < 70 -> {
-                    setPercent(ContextCompat.getColor(context!!, R.color.progress_40))
+                    setPercent(ContextCompat.getColor(context, R.color.progress_40))
                 }
                 else -> {
-                    setPercent(ContextCompat.getColor(context!!, R.color.progress_70))
+                    setPercent(ContextCompat.getColor(context, R.color.progress_70))
                 }
             }
         } else {
             binding.imgComplete.visibility = View.VISIBLE
-            setPercent(ContextCompat.getColor(context!!, R.color.progress_100))
+            setPercent(ContextCompat.getColor(context, R.color.progress_100))
         }
     }
 
     private fun setPercent(color: Int) {
         binding.textPercent.setTextColor(color)
-        binding.progressPercent.progressDrawable.setColorFilter(color, PorterDuff.Mode.SRC_IN)
-
+        //binding.progressPercent.progressDrawable.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+        binding.progressPercent.progressDrawable.colorFilter = BlendModeColorFilterCompat.createBlendModeColorFilterCompat(color, BlendModeCompat.SRC_ATOP)
     }
 
     private fun init() {

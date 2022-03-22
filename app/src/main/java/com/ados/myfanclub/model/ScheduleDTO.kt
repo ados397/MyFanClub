@@ -47,11 +47,12 @@ data class ScheduleDTO(
                 successCalendarWeek.initBaseCalendar()
                 var week = successCalendarWeek.getCurrentWeek()
                 if (week != null) {
-                    docName = "${SimpleDateFormat("yyyyMMdd").format(week.startDate)}${SimpleDateFormat("yyyyMMdd").format(week.endDate)}"
+                    docName = "${SimpleDateFormat("yyyyMMdd").format(week.startDate!!)}${SimpleDateFormat("yyyyMMdd").format(week.endDate!!)}"
                 }
             }
             Cycle.MONTH -> docName = SimpleDateFormat("yyyyMM").format(Date())
-            Cycle.PERIOD -> docName = "${SimpleDateFormat("yyMMdd").format(startDate)}${SimpleDateFormat("yyMMdd").format(endDate)}"
+            Cycle.PERIOD -> docName = "${SimpleDateFormat("yyMMdd").format(startDate!!)}${SimpleDateFormat("yyMMdd").format(endDate!!)}"
+            else -> docName = SimpleDateFormat("yyyyMMdd").format(Date())
         }
         return docName
     }
@@ -62,13 +63,13 @@ data class ScheduleDTO(
         }
 
         val calStart = Calendar.getInstance()
-        calStart.time = startDate
+        calStart.time = startDate!!
         calStart.set(Calendar.HOUR, 0)
         calStart.set(Calendar.MINUTE, 0)
         calStart.set(Calendar.SECOND, 0)
 
         val calEnd = Calendar.getInstance()
-        calEnd.time = endDate
+        calEnd.time = endDate!!
         calEnd.set(Calendar.HOUR_OF_DAY, 23)
         calEnd.set(Calendar.MINUTE, 59)
         calEnd.set(Calendar.SECOND, 59)
@@ -79,7 +80,7 @@ data class ScheduleDTO(
     }
 
     fun isExpired() : Boolean {
-        var endTime = SimpleDateFormat("yyyyMMdd").format(endDate).toInt()
+        var endTime = SimpleDateFormat("yyyyMMdd").format(endDate!!).toInt()
         var currentTime = SimpleDateFormat("yyyyMMdd").format(Date()).toInt()
         return endTime < currentTime
     }

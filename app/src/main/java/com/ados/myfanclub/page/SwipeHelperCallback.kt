@@ -40,12 +40,12 @@ class SwipeHelperCallback(private val itemMoveListener: OnItemMoveListener): Ite
         actionState: Int,
         isCurrentlyActive: Boolean
     ) {
-        val icon: Bitmap
+        //val icon: Bitmap
         // actionState가 SWIPE 동작일 때 배경을 빨간색으로 칠하는 작업을 수행하도록 함
         if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
             val itemView = viewHolder.itemView
-            val height = (itemView.bottom - itemView.top).toFloat()
-            val width = height / 4
+            //val height = (itemView.bottom - itemView.top).toFloat()
+            //val width = height / 4
             val paint = Paint()
             /*if (dX < 0) {  // 왼쪽으로 스와이프하는지 확인
                 // 뷰홀더의 백그라운드에 깔아줄 사각형의 크기와 색상을 지정
