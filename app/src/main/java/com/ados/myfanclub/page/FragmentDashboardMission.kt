@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.Rect
+import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -30,6 +31,8 @@ import com.ados.myfanclub.dialog.EditTextModifyDialog
 import com.ados.myfanclub.dialog.MissionDialog
 import com.ados.myfanclub.dialog.QuestionDialog
 import com.ados.myfanclub.model.*
+import com.ados.myfanclub.repository.FirebaseStorageRepository
+import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetSequence
@@ -58,6 +61,7 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
     private val binding get() = _binding!!
 
     private val firebaseViewModel : FirebaseViewModel by viewModels()
+    private val firebaseStorageViewModel : FirebaseStorageViewModel by viewModels()
 
     private var fanClubDTO: FanClubDTO? = null
     private var currentMember: MemberDTO? = null
@@ -522,109 +526,130 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
         onMission(item, position)
     }
 
-    private fun onMission(item: DashboardMissionDTO, position: Int) {
-        if (missionDialog == null) {
-            missionDialog = MissionDialog(requireContext())
-            missionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
-            missionDialog?.setCanceledOnTouchOutside(false)
-        }
-        missionDialog?.mainActivity = (activity as MainActivity?)
-        missionDialog?.dashboardMissionDTO = item
-        missionDialog?.show()
-        missionDialog?.setInfo()
-
-        missionDialog?.binding?.buttonMissionCancel?.setOnClickListener { // No
-            missionDialog?.dismiss()
-        }
-
-        missionDialog?.binding?.buttonMissionOk?.setOnClickListener { // Ok
-            val docName = when (item.scheduleDTO?.cycle) {
-                ScheduleDTO.Cycle.DAY -> "day"
-                ScheduleDTO.Cycle.WEEK -> "week"
-                ScheduleDTO.Cycle.MONTH -> "month"
-                else -> ""
+    private fun getPhotoUri(item: DashboardMissionDTO, myCallback: (Uri?) -> Unit) {
+        if (item.scheduleDTO?.isPhoto!!) {
+            val uidAndType = if (item.type == DashboardMissionDTO.Type.PERSONAL) {
+                Pair((activity as MainActivity?)?.getUser()?.uid.toString(), FirebaseStorageRepository.ScheduleType.PERSONAL)
+            } else {
+                Pair(fanClubDTO?.docName.toString(), FirebaseStorageRepository.ScheduleType.FAN_CLUB)
             }
-            val fieldValue = getStatisticsFieldValueName(item.scheduleDTO!!)
 
-            item.scheduleProgressDTO?.count = missionDialog?.missionCount
-            item.scheduleProgressDTO?.countMax = item.scheduleDTO?.count
-            val user = (activity as MainActivity?)?.getUser()
-            when (item.type) {
-                DashboardMissionDTO.Type.PERSONAL -> {
-                    firebaseViewModel.updatePersonalMissionProgress(user?.uid.toString(), item) {
-                        recyclerViewPersonalAdapter.notifyItemChanged(position)
+            firebaseStorageViewModel.getScheduleImage(uidAndType.first, item.scheduleDTO?.docName.toString(), uidAndType.second) { uri ->
+                myCallback(uri)
+            }
+        } else {
+            myCallback(null)
+        }
+    }
 
-                        // 통계 정보 기록
-                        if (item.scheduleDTO?.cycle != ScheduleDTO.Cycle.PERIOD) { // 일일, 주간, 월간 통계만 냄
-                            // 스케줄들의 모든 진행률을 통계로 계산
-                            var totalPercent = 0
-                            for (mission in firebaseViewModel.personalDashboardMissionDTOs.value!!) {
-                                if (mission.scheduleDTO?.cycle == item.scheduleDTO?.cycle) {
-                                    var percent = ((mission.scheduleProgressDTO?.count?.toDouble()!! / mission.scheduleProgressDTO?.countMax!!) * 100).toInt()
-                                    totalPercent = totalPercent.plus(percent)
+    private fun onMission(item: DashboardMissionDTO, position: Int) {
+        getPhotoUri(item) { uri ->
+            if (missionDialog == null) {
+                missionDialog = MissionDialog(requireContext())
+                missionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                missionDialog?.setCanceledOnTouchOutside(false)
+            }
+            missionDialog?.mainActivity = (activity as MainActivity?)
+            missionDialog?.dashboardMissionDTO = item
+            missionDialog?.photoUri = uri
+            missionDialog?.show()
+            missionDialog?.setInfo()
+
+            missionDialog?.binding?.buttonMissionCancel?.setOnClickListener { // No
+                missionDialog?.dismiss()
+                missionDialog = null
+            }
+
+            missionDialog?.binding?.buttonMissionOk?.setOnClickListener { // Ok
+                val docName = when (item.scheduleDTO?.cycle) {
+                    ScheduleDTO.Cycle.DAY -> "day"
+                    ScheduleDTO.Cycle.WEEK -> "week"
+                    ScheduleDTO.Cycle.MONTH -> "month"
+                    else -> ""
+                }
+                val fieldValue = getStatisticsFieldValueName(item.scheduleDTO!!)
+
+                item.scheduleProgressDTO?.count = missionDialog?.missionCount
+                item.scheduleProgressDTO?.countMax = item.scheduleDTO?.count
+                val user = (activity as MainActivity?)?.getUser()
+                when (item.type) {
+                    DashboardMissionDTO.Type.PERSONAL -> {
+                        firebaseViewModel.updatePersonalMissionProgress(user?.uid.toString(), item) {
+                            recyclerViewPersonalAdapter.notifyItemChanged(position)
+
+                            // 통계 정보 기록
+                            if (item.scheduleDTO?.cycle != ScheduleDTO.Cycle.PERIOD) { // 일일, 주간, 월간 통계만 냄
+                                // 스케줄들의 모든 진행률을 통계로 계산
+                                var totalPercent = 0
+                                for (mission in firebaseViewModel.personalDashboardMissionDTOs.value!!) {
+                                    if (mission.scheduleDTO?.cycle == item.scheduleDTO?.cycle) {
+                                        var percent = ((mission.scheduleProgressDTO?.count?.toDouble()!! / mission.scheduleProgressDTO?.countMax!!) * 100).toInt()
+                                        totalPercent = totalPercent.plus(percent)
+                                    }
+                                }
+
+                                val averagePercent = totalPercent / firebaseViewModel.personalDashboardMissionDTOs.value!!.size
+                                firebaseViewModel.updatePersonalScheduleStatistics(user?.uid.toString(), docName, fieldValue, averagePercent) {
+
                                 }
                             }
 
-                            val averagePercent = totalPercent / firebaseViewModel.personalDashboardMissionDTOs.value!!.size
-                            firebaseViewModel.updatePersonalScheduleStatistics(user?.uid.toString(), docName, fieldValue, averagePercent) {
-
-                            }
-                        }
-
-                        // 일일 퀘스트 - 개인 일일 스케줄 완료 시 적용
-                        if (!QuestDTO("개인 일일 스케줄", "개인 일일 스케줄을 1회 이상 완료 하세요.", 1, user?.questSuccessTimes?.get("1"), user?.questGemGetTimes?.get("1")).isQuestSuccess()) { // 퀘스트 완료 안했을 때 적용
-                            if (item.scheduleDTO?.cycle == ScheduleDTO.Cycle.DAY && item.scheduleDTO?.count == item.scheduleProgressDTO?.count) { // 일일 미션이고 미션 완료
-                                user?.questSuccessTimes?.set("1", Date())
-                                firebaseViewModel.updateUserQuestSuccessTimes(user!!) {
-                                    Toast.makeText(activity, "일일 과제 달성! 보상을 획득하세요!", Toast.LENGTH_SHORT).show()
+                            // 일일 퀘스트 - 개인 일일 스케줄 완료 시 적용
+                            if (!QuestDTO("개인 일일 스케줄", "개인 일일 스케줄을 1회 이상 완료 하세요.", 1, user?.questSuccessTimes?.get("1"), user?.questGemGetTimes?.get("1")).isQuestSuccess()) { // 퀘스트 완료 안했을 때 적용
+                                if (item.scheduleDTO?.cycle == ScheduleDTO.Cycle.DAY && item.scheduleDTO?.count == item.scheduleProgressDTO?.count) { // 일일 미션이고 미션 완료
+                                    user?.questSuccessTimes?.set("1", Date())
+                                    firebaseViewModel.updateUserQuestSuccessTimes(user!!) {
+                                        Toast.makeText(activity, "일일 과제 달성! 보상을 획득하세요!", Toast.LENGTH_SHORT).show()
+                                    }
+                                } else {
+                                    Toast.makeText(activity,"미션 적용 완료.", Toast.LENGTH_SHORT).show()
                                 }
                             } else {
                                 Toast.makeText(activity,"미션 적용 완료.", Toast.LENGTH_SHORT).show()
                             }
-                        } else {
-                            Toast.makeText(activity,"미션 적용 완료.", Toast.LENGTH_SHORT).show()
                         }
                     }
-                }
-                DashboardMissionDTO.Type.FAN_CLUB -> {
-                    firebaseViewModel.updateFanClubMissionProgress(fanClubDTO?.docName.toString(), currentMember?.userUid.toString(), item) {
-                        recyclerViewFanClubAdapter.notifyItemChanged(position)
+                    DashboardMissionDTO.Type.FAN_CLUB -> {
+                        firebaseViewModel.updateFanClubMissionProgress(fanClubDTO?.docName.toString(), currentMember?.userUid.toString(), item) {
+                            recyclerViewFanClubAdapter.notifyItemChanged(position)
 
-                        // 통계 정보 기록
-                        if (item.scheduleDTO?.cycle != ScheduleDTO.Cycle.PERIOD) { // 일일, 주간, 월간 통계만 냄
-                            // 스케줄들의 모든 진행률을 통계로 계산
-                            var totalPercent = 0
-                            for (mission in firebaseViewModel.fanClubDashboardMissionDTOs.value!!) {
-                                if (mission.scheduleDTO?.cycle == item.scheduleDTO?.cycle) {
-                                    var percent = ((mission.scheduleProgressDTO?.count?.toDouble()!! / mission.scheduleProgressDTO?.countMax!!) * 100).toInt()
-                                    totalPercent = totalPercent.plus(percent)
+                            // 통계 정보 기록
+                            if (item.scheduleDTO?.cycle != ScheduleDTO.Cycle.PERIOD) { // 일일, 주간, 월간 통계만 냄
+                                // 스케줄들의 모든 진행률을 통계로 계산
+                                var totalPercent = 0
+                                for (mission in firebaseViewModel.fanClubDashboardMissionDTOs.value!!) {
+                                    if (mission.scheduleDTO?.cycle == item.scheduleDTO?.cycle) {
+                                        var percent = ((mission.scheduleProgressDTO?.count?.toDouble()!! / mission.scheduleProgressDTO?.countMax!!) * 100).toInt()
+                                        totalPercent = totalPercent.plus(percent)
+                                    }
+                                }
+
+                                val averagePercent = totalPercent / firebaseViewModel.fanClubDashboardMissionDTOs.value!!.size
+                                firebaseViewModel.updateFanClubScheduleStatistics(fanClubDTO?.docName.toString(), currentMember?.userUid.toString(), docName, fieldValue, averagePercent) {
+
                                 }
                             }
 
-                            val averagePercent = totalPercent / firebaseViewModel.fanClubDashboardMissionDTOs.value!!.size
-                            firebaseViewModel.updateFanClubScheduleStatistics(fanClubDTO?.docName.toString(), currentMember?.userUid.toString(), docName, fieldValue, averagePercent) {
-
-                            }
-                        }
-
-                        // 일일 퀘스트 - 팬클럽 일일 스케줄 완료 시 적용
-                        val userDTO = (activity as MainActivity?)?.getUser()!!
-                        if (!QuestDTO("팬클럽 일일 스케줄", "팬클럽 일일 스케줄을 1회 이상 완료 하세요.", 1, userDTO.questSuccessTimes.get("2"), userDTO.questGemGetTimes.get("2")).isQuestSuccess()) { // 퀘스트 완료 안했을 때 적용
-                            if (item.scheduleDTO?.cycle == ScheduleDTO.Cycle.DAY && item.scheduleDTO?.count == item.scheduleProgressDTO?.count) { // 일일 미션이고 미션 완료
-                                userDTO.questSuccessTimes.set("2", Date())
-                                firebaseViewModel.updateUserQuestSuccessTimes(userDTO) {
-                                    Toast.makeText(activity, "일일 과제 달성! 보상을 획득하세요!", Toast.LENGTH_SHORT).show()
+                            // 일일 퀘스트 - 팬클럽 일일 스케줄 완료 시 적용
+                            val userDTO = (activity as MainActivity?)?.getUser()!!
+                            if (!QuestDTO("팬클럽 일일 스케줄", "팬클럽 일일 스케줄을 1회 이상 완료 하세요.", 1, userDTO.questSuccessTimes.get("2"), userDTO.questGemGetTimes.get("2")).isQuestSuccess()) { // 퀘스트 완료 안했을 때 적용
+                                if (item.scheduleDTO?.cycle == ScheduleDTO.Cycle.DAY && item.scheduleDTO?.count == item.scheduleProgressDTO?.count) { // 일일 미션이고 미션 완료
+                                    userDTO.questSuccessTimes.set("2", Date())
+                                    firebaseViewModel.updateUserQuestSuccessTimes(userDTO) {
+                                        Toast.makeText(activity, "일일 과제 달성! 보상을 획득하세요!", Toast.LENGTH_SHORT).show()
+                                    }
+                                } else {
+                                    Toast.makeText(activity,"팬클럽 미션 적용 완료.", Toast.LENGTH_SHORT).show()
                                 }
                             } else {
                                 Toast.makeText(activity,"팬클럽 미션 적용 완료.", Toast.LENGTH_SHORT).show()
                             }
-                        } else {
-                            Toast.makeText(activity,"팬클럽 미션 적용 완료.", Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
+                missionDialog?.dismiss()
+                missionDialog = null
             }
-            missionDialog?.dismiss()
         }
     }
 

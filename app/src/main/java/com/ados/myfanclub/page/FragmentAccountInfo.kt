@@ -599,8 +599,44 @@ class FragmentAccountInfo : Fragment() {
             }
             19 -> {
                 println("튜토리얼 Step - $step")
-                TapTargetView.showFor(requireActivity(),
-                    TapTarget.forView(binding.buttonCheckout,
+                TapTargetSequence(requireActivity())
+                    .targets(
+                        TapTarget.forBounds((activity as MainActivity?)?.getMainLayoutRect(),
+                            "하루 한번 출석체크도 잊지말고 하세요!",
+                            "- OK 버튼을 눌러주세요.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .icon(ContextCompat.getDrawable(requireContext(), R.drawable.ok))
+                            .tintTarget(true),
+                        TapTarget.forView(binding.buttonCheckout,
+                            "경험치와 다이아의 보상이 무료로 주어지니 꼭 챙기세요!",
+                            "- 출석체크는 매일 1회 가능 합니다.") // All options below are optional
+                            .cancelable(false)
+                            .dimColor(R.color.black)
+                            .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle
+                            .outerCircleAlpha(0.9f) // Specify the alpha amount for the outer circle
+                            .titleTextSize(18) // Specify the size (in sp) of the title text
+                            .transparentTarget(true)
+                            .targetRadius(100)
+                            .tintTarget(true)).listener(object : TapTargetSequence.Listener {
+                        override fun onSequenceFinish() {
+                            (activity as MainActivity?)?.addTutorialStep()
+                        }
+                        override fun onSequenceStep(tutorialStep: TapTarget, targetClicked: Boolean) {
+                            //Toast.makeText(secondActivity.this,"GREAT!",Toast.LENGTH_SHORT).show();
+
+                        }
+                        override fun onSequenceCanceled(lastTarget: TapTarget) {
+
+                        }
+                    }).start()
+
+                /*TapTargetView.showFor(requireActivity(),
+                    //TapTarget.forView(binding.buttonCheckout,
+                    TapTarget.forBounds((activity as MainActivity?)?.getMainLayoutRect(),
                         "그리고 하루 한번 경험치와 다이아 획득이 가능한 출석체크도 잊지말고 꼭 하세요!",
                         "- 출석체크는 매일 1회 가능 합니다.") // All options below are optional
                         .cancelable(false)
@@ -617,7 +653,7 @@ class FragmentAccountInfo : Fragment() {
 
                             (activity as MainActivity?)?.addTutorialStep()
                         }
-                    })
+                    })*/
             }
         }
     }

@@ -1,8 +1,10 @@
 package com.ados.myfanclub.page
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -26,6 +28,7 @@ import com.ados.myfanclub.model.AppDTO
 import com.ados.myfanclub.model.FanClubDTO
 import com.ados.myfanclub.model.MemberDTO
 import com.ados.myfanclub.model.ScheduleDTO
+import com.ados.myfanclub.repository.FirebaseStorageRepository
 import com.ados.myfanclub.util.Utility
 import com.ados.myfanclub.util.Utility.Companion.randomDocumentName
 import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
@@ -74,35 +77,22 @@ class FragmentScheduleAdd : Fragment() {
     private var actionOK: Boolean = false
     private var cycleOK: Boolean = false
     private var countOK: Boolean = false
+    private var photoBitmap: Bitmap? = null
+    var isAddedTutorialSampleData = true // 튜토리얼 샘플 데이터가 이미 추가되어 있는지 확인
 
     private val resultLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
-            (activity as MainActivity?)?.loading()
-            if (uri != null) { // 프로필 업로드
-                var bitmap = (activity as MainActivity?)?.getBitmap(uri)
-                if (bitmap == null) {
-                    Toast.makeText(activity, "이미지 업로드 실패 ", Toast.LENGTH_SHORT).show()
-                    (activity as MainActivity?)?.loadingEnd()
-                } else {
-                    //firebaseStorageViewModel.setUserProfile(currentUserEx?.userDTO?.uid.toString(), bitmap) {
-                       // if (!it) {
-                       //     Toast.makeText(activity, "이미지 업로드 실패 ", Toast.LENGTH_SHORT).show()
-                       //     (activity as MainActivity?)?.loadingEnd()
-                        //} else {
-                            //currentUserEx?.userDTO?.imgProfile = currentUserEx?.userDTO?.getProfileImageName()
-                            //firebaseViewModel.updateUserProfile(currentUserEx?.userDTO!!) {
-                                //Toast.makeText(activity, "프로필 사진 변경 완료!", Toast.LENGTH_SHORT).show()
-                                binding.imgPhoto.setImageBitmap(bitmap)
-                                binding.layoutPhoto.visibility = View.VISIBLE
-                                binding.layoutLoadPhoto.visibility = View.GONE
-                                (activity as MainActivity?)?.loadingEnd()
-                            //}
-                        //}
-                    //}
-                }
+            photoBitmap = (activity as MainActivity?)?.getBitmap(uri)
+            if (photoBitmap == null) {
+                photoBitmap = null
+                Toast.makeText(activity, "사진 불러오기 실패. 잠시 후 다시 시도해 주세요.", Toast.LENGTH_SHORT).show()
+            } else {
+                binding.imgPhoto.setImageBitmap(photoBitmap)
+                binding.layoutPhoto.visibility = View.VISIBLE
+                binding.layoutLoadPhoto.visibility = View.GONE
             }
         } else {
-            Toast.makeText(context, "이미지를 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "사진 불러오기 실패. 잠시 후 다시 시도해 주세요.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -248,6 +238,7 @@ class FragmentScheduleAdd : Fragment() {
         binding.imgDeletePhoto.setOnClickListener {
             binding.layoutPhoto.visibility = View.GONE
             binding.layoutLoadPhoto.visibility = View.VISIBLE
+            photoBitmap = null
         }
 
         binding.buttonSelectApp.setOnClickListener {
@@ -421,15 +412,33 @@ class FragmentScheduleAdd : Fragment() {
     private fun setPersonalSchedule() {
         val user = (activity as MainActivity?)?.getUser()!!
         firebaseViewModel.updatePersonalSchedule(user.uid.toString(), scheduleDTO) {
-            Toast.makeText(activity,"스케줄 저장 완료", Toast.LENGTH_SHORT).show()
-            finishFragment()
+            if (scheduleDTO.isPhoto) {
+                firebaseStorageViewModel.setScheduleImage(user.uid.toString(), scheduleDTO.docName.toString(), FirebaseStorageRepository.ScheduleType.PERSONAL, photoBitmap!!) {
+                    Toast.makeText(activity,"스케줄 저장 완료", Toast.LENGTH_SHORT).show()
+                    (activity as MainActivity?)?.loadingEnd()
+                    finishFragment()
+                }
+            } else {
+                Toast.makeText(activity,"스케줄 저장 완료", Toast.LENGTH_SHORT).show()
+                (activity as MainActivity?)?.loadingEnd()
+                finishFragment()
+            }
         }
     }
 
     private fun setFanClubSchedule() {
         firebaseViewModel.updateFanClubSchedule(fanClubDTO?.docName.toString(), scheduleDTO) {
-            Toast.makeText(activity,"팬클럽 스케줄 저장 완료", Toast.LENGTH_SHORT).show()
-            finishFragment()
+            if (scheduleDTO.isPhoto) {
+                firebaseStorageViewModel.setScheduleImage(fanClubDTO?.docName.toString(), scheduleDTO.docName.toString(), FirebaseStorageRepository.ScheduleType.FAN_CLUB, photoBitmap!!) {
+                    Toast.makeText(activity,"팬클럽 스케줄 저장 완료", Toast.LENGTH_SHORT).show()
+                    (activity as MainActivity?)?.loadingEnd()
+                    finishFragment()
+                }
+            } else {
+                Toast.makeText(activity,"팬클럽 스케줄 저장 완료", Toast.LENGTH_SHORT).show()
+                (activity as MainActivity?)?.loadingEnd()
+                finishFragment()
+            }
         }
     }
 
@@ -756,9 +765,14 @@ class FragmentScheduleAdd : Fragment() {
     }
 
     private fun applySchedule() {
+        (activity as MainActivity?)?.loading()
         if (scheduleDTO.docName.isNullOrEmpty()) {
             scheduleDTO.docName = Utility.randomDocumentName()
             scheduleDTO.order = System.currentTimeMillis()
+        }
+
+        if (photoBitmap != null) {
+            scheduleDTO.isPhoto = true
         }
 
         scheduleDTO.isSelected = false
@@ -897,7 +911,11 @@ class FragmentScheduleAdd : Fragment() {
                             .transparentTarget(true)
                             .tintTarget(true)).listener(object : TapTargetSequence.Listener {
                         override fun onSequenceFinish() {
-                            applySchedule()
+                            if (isAddedTutorialSampleData) { // 이미 샘플 스케줄이 추가된 상태라면 추가안함
+                                finishFragment()
+                            } else {
+                                applySchedule()
+                            }
                             (activity as MainActivity?)?.addTutorialStep()
                         }
                         override fun onSequenceStep(tutorialStep: TapTarget, targetClicked: Boolean) {

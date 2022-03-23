@@ -27,6 +27,7 @@ data class ScheduleDTO(
     var url: String? = null,
     var cycle: Cycle? = Cycle.DAY,
     var count: Long? = 0L,
+    var isPhoto: Boolean = false,
     var isAlarm: Boolean? = false,
     var alarmDTO: AlarmDTO = AlarmDTO()
 ) {

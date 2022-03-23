@@ -19,6 +19,7 @@ import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.MissionDialogBinding
 import com.ados.myfanclub.model.DashboardMissionDTO
 import com.ados.myfanclub.model.ScheduleDTO
+import com.bumptech.glide.Glide
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetSequence
 import com.getkeepsafe.taptargetview.TapTargetView
@@ -37,6 +38,7 @@ class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
     var missionCount: Long = 0L
     var missionCountMax: Long = 0L
     var missionPercent: Int = 0
+    var photoUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,6 +116,13 @@ class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
         binding.textTitle.text = dashboardMissionDTO?.scheduleDTO?.title
         binding.textPurpose.text = dashboardMissionDTO?.scheduleDTO?.purpose
         binding.textRange.text = "${SimpleDateFormat("yyyy.MM.dd").format(dashboardMissionDTO?.scheduleDTO?.startDate!!)} ~ ${SimpleDateFormat("yyyy.MM.dd").format(dashboardMissionDTO?.scheduleDTO?.endDate!!)}"
+
+        if (photoUri != null) {
+            binding.imgPhoto.visibility = View.VISIBLE
+            Glide.with(context).load(photoUri).fitCenter().into(binding.imgPhoto)
+        } else {
+            binding.imgPhoto.visibility = View.GONE
+        }
 
         missionCount = dashboardMissionDTO?.scheduleProgressDTO?.count!!
         missionCountMax = dashboardMissionDTO?.scheduleDTO?.count!!

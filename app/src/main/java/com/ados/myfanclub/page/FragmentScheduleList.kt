@@ -63,6 +63,7 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
     private var schedulesBackup : ArrayList<ScheduleDTO> = arrayListOf()
     private var selectedSchedule: ScheduleDTO? = null
     private var selectedPosition: Int? = 0
+    private var isAddedTutorialSampleData = true // 튜토리얼 샘플 데이터가 이미 추가되어 있는지 확인
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -285,6 +286,7 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
         val fragment = FragmentScheduleAdd.newInstance(param1!!, param2!!)
         if (isModify) {
             fragment.scheduleDTO = selectedSchedule!!
+            fragment.isAddedTutorialSampleData = isAddedTutorialSampleData
         }
 
         //parentFragmentManager.popBackStackImmediate("scheduleAdd", FragmentManager.POP_BACK_STACK_INCLUSIVE)
@@ -358,7 +360,13 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
     }
 
     override fun onItemClick(item: ScheduleDTO, position: Int) {
-        if (!(parentFragment as FragmentPageSchedule?)?.isRemoveAdmin()!!) {
+        if (fanClubDTO != null) { // 팬클럽 일때는 관리자 권한이 없어졌는지 확인
+            if (!(parentFragment as FragmentPageSchedule?)?.isRemoveAdmin()!!) {
+                selectedSchedule = item
+                selectedPosition = position
+                selectRecyclerView()
+            }
+        } else {
             selectedSchedule = item
             selectedPosition = position
             selectRecyclerView()
@@ -411,6 +419,13 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
                             .transparentTarget(true)
                             .tintTarget(true)).listener(object : TapTargetSequence.Listener {
                         override fun onSequenceFinish() {
+                            for (i in 0 until firebaseViewModel.scheduleDTOs.value!!.size) {
+                                if (isSampleData(firebaseViewModel.scheduleDTOs.value!![i])) {
+                                    isAddedTutorialSampleData = true
+                                    break
+                                }
+                            }
+
                             addSchedule(true)
                             (activity as MainActivity?)?.addTutorialStep()
                         }
@@ -449,5 +464,13 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
                     })
             }
         }
+    }
+
+    private fun isSampleData(item: ScheduleDTO) : Boolean {
+        return item.title.equals("멜론 노래 스트리밍 하기!") &&
+                item.purpose.equals("하루에 5번 씩 멜론 스트리밍 하기!\n\n내 가수를 위해 꼭꼭 지키기!") &&
+                item.count == 5L &&
+                item.action == ScheduleDTO.Action.APP &&
+                item.appDTO?.appName.equals("멜론")
     }
 }
