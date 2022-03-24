@@ -34,11 +34,11 @@
 
         <TextView
             android:id="@+id/text_page_title"
-            android:fontFamily="@font/font"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/button_back"
+            android:fontFamily="@font/font"
             android:text="스케줄 추가"
             android:textColor="@color/text"
             android:textSize="24dp" />
@@ -252,6 +252,7 @@
                     android:orientation="vertical"
                     android:layout_width="80dp"
                     android:layout_height="wrap_content">
+
                     <ImageView
                         android:id="@+id/img_photo"
                         android:layout_width="64dp"
@@ -700,7 +701,7 @@
             android:enabled="false"
             android:fontFamily="@font/font"
             android:padding="10dp"
-            android:text="작성 완료"
+            android:text="스케줄 추가"
             android:textSize="18dp" />
     </RelativeLayout>
 

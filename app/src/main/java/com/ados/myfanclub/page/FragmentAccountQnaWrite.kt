@@ -92,10 +92,12 @@ class FragmentAccountQnaWrite : Fragment() {
             questionDialog?.setInfo()
             questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                 questionDialog?.dismiss()
+                questionDialog = null
             }
 
             questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
                 questionDialog?.dismiss()
+                questionDialog = null
 
                 val user = (activity as MainActivity?)?.getUser()!!
                 var qnaDTO = QnaDTO()

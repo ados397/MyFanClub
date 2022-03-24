@@ -126,6 +126,7 @@ class FragmentAccountDeleteAccount : Fragment() {
             questionDialog?.setButtonOk("탈퇴하기")
             questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                 questionDialog?.dismiss()
+                questionDialog = null
             }
             questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
                 currentUserEx?.userDTO?.deleteTime = Date()
@@ -137,6 +138,7 @@ class FragmentAccountDeleteAccount : Fragment() {
                     Toast.makeText(activity, "탈퇴처리가 완료되었습니다.", Toast.LENGTH_SHORT).show()
 
                     questionDialog?.dismiss()
+                    questionDialog = null
 
                     val fragment = FragmentAccountDeleteAccountDone()
                     parentFragmentManager.beginTransaction().apply{

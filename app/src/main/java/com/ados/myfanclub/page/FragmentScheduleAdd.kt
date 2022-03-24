@@ -24,10 +24,7 @@ import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentScheduleAddBinding
 import com.ados.myfanclub.dialog.SelectAppDialog
-import com.ados.myfanclub.model.AppDTO
-import com.ados.myfanclub.model.FanClubDTO
-import com.ados.myfanclub.model.MemberDTO
-import com.ados.myfanclub.model.ScheduleDTO
+import com.ados.myfanclub.model.*
 import com.ados.myfanclub.repository.FirebaseStorageRepository
 import com.ados.myfanclub.util.Utility
 import com.ados.myfanclub.util.Utility.Companion.randomDocumentName
@@ -36,6 +33,7 @@ import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.applikeysolutions.cosmocalendar.selection.OnDaySelectedListener
 import com.applikeysolutions.cosmocalendar.selection.RangeSelectionManager
 import com.applikeysolutions.cosmocalendar.utils.SelectionType
+import com.bumptech.glide.Glide
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetSequence
 import java.text.SimpleDateFormat
@@ -84,9 +82,9 @@ class FragmentScheduleAdd : Fragment() {
         if (uri != null) {
             photoBitmap = (activity as MainActivity?)?.getBitmap(uri)
             if (photoBitmap == null) {
-                photoBitmap = null
                 Toast.makeText(activity, "사진 불러오기 실패. 잠시 후 다시 시도해 주세요.", Toast.LENGTH_SHORT).show()
             } else {
+                scheduleDTO.isPhoto = true
                 binding.imgPhoto.setImageBitmap(photoBitmap)
                 binding.layoutPhoto.visibility = View.VISIBLE
                 binding.layoutLoadPhoto.visibility = View.GONE
@@ -152,6 +150,32 @@ class FragmentScheduleAdd : Fragment() {
             cycleOK = true
             countOK = true
 
+            if (scheduleDTO.isPhoto) {
+                val uidAndType = if (fanClubDTO == null) {
+                    Pair((activity as MainActivity?)?.getUser()?.uid.toString(), FirebaseStorageRepository.ScheduleType.PERSONAL)
+                } else {
+                    Pair(fanClubDTO?.docName.toString(), FirebaseStorageRepository.ScheduleType.FAN_CLUB)
+                }
+
+                firebaseStorageViewModel.getScheduleImage(uidAndType.first, scheduleDTO.docName.toString(), uidAndType.second) { uri ->
+                    if (uri != null) {
+                        Glide.with(requireContext()).load(uri).fitCenter().into(binding.imgPhoto)
+                        binding.layoutPhoto.visibility = View.VISIBLE
+                        binding.layoutLoadPhoto.visibility = View.GONE
+                    } else {
+                        Toast.makeText(activity, "저장된 사진 불러오기 실패. 사진을 다시 추가해 주세요.", Toast.LENGTH_SHORT).show()
+                        scheduleDTO.isPhoto = false
+                        binding.layoutPhoto.visibility = View.GONE
+                        binding.layoutLoadPhoto.visibility = View.VISIBLE
+                    }
+                }
+            } else {
+                binding.layoutPhoto.visibility = View.GONE
+                binding.layoutLoadPhoto.visibility = View.VISIBLE
+            }
+
+            binding.textPageTitle.text = "스케줄 수정"
+            binding.buttonOk.text = "스케줄 수정"
             binding.editTitle.setText(scheduleDTO.title)
             binding.textTitleLen.text = "${binding.editTitle.text.length}/30"
             setStartEndDate()
@@ -238,6 +262,7 @@ class FragmentScheduleAdd : Fragment() {
         binding.imgDeletePhoto.setOnClickListener {
             binding.layoutPhoto.visibility = View.GONE
             binding.layoutLoadPhoto.visibility = View.VISIBLE
+            scheduleDTO.isPhoto = false
             photoBitmap = null
         }
 
@@ -413,7 +438,13 @@ class FragmentScheduleAdd : Fragment() {
         val user = (activity as MainActivity?)?.getUser()!!
         firebaseViewModel.updatePersonalSchedule(user.uid.toString(), scheduleDTO) {
             if (scheduleDTO.isPhoto) {
-                firebaseStorageViewModel.setScheduleImage(user.uid.toString(), scheduleDTO.docName.toString(), FirebaseStorageRepository.ScheduleType.PERSONAL, photoBitmap!!) {
+                if (photoBitmap != null) { // isPhoto 가 true 이고 photoBitmap 가 null 이라면 스케줄 수정에서 이미지가 변경되지 않았을 경우임. 이때는 이미지가 바뀐게 없어서 스토리지에 저장할 필요 없음.
+                    firebaseStorageViewModel.setScheduleImage(user.uid.toString(), scheduleDTO.docName.toString(), FirebaseStorageRepository.ScheduleType.PERSONAL, photoBitmap!!) {
+                        Toast.makeText(activity,"스케줄 저장 완료", Toast.LENGTH_SHORT).show()
+                        (activity as MainActivity?)?.loadingEnd()
+                        finishFragment()
+                    }
+                } else {
                     Toast.makeText(activity,"스케줄 저장 완료", Toast.LENGTH_SHORT).show()
                     (activity as MainActivity?)?.loadingEnd()
                     finishFragment()
@@ -769,10 +800,6 @@ class FragmentScheduleAdd : Fragment() {
         if (scheduleDTO.docName.isNullOrEmpty()) {
             scheduleDTO.docName = Utility.randomDocumentName()
             scheduleDTO.order = System.currentTimeMillis()
-        }
-
-        if (photoBitmap != null) {
-            scheduleDTO.isPhoto = true
         }
 
         scheduleDTO.isSelected = false

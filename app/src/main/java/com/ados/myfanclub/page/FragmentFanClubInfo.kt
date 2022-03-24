@@ -197,9 +197,11 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
                 questionDialog?.setInfo()
                 questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                     questionDialog?.dismiss()
+                    questionDialog = null
                 }
                 questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
                     questionDialog?.dismiss()
+                    questionDialog = null
                     (activity as MainActivity?)?.loading()
                     val preferencesDTO = (activity as MainActivity?)?.getPreferences()!!
 
@@ -751,6 +753,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
             questionDialog?.setButtonCancel("확인")
             questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                 questionDialog?.dismiss()
+                questionDialog = null
             }
         } else {
             val item = EditTextDTO("팬클럽 이름 변경", fanClubExDTO?.fanClubDTO?.name, 30, "^[가-힣ㄱ-ㅎa-zA-Z0-9.~!@#\$%^&*\\[\\](){}|_ -]{1,15}\$", "사용할 수 없는 문자열이 포함되어 있습니다.")
@@ -861,9 +864,11 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
         questionDialog?.showImgOk(true)
         questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
             questionDialog?.dismiss()
+            questionDialog = null
         }
         questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
             questionDialog?.dismiss()
+            questionDialog = null
 
             val preferencesDTO = (activity as MainActivity?)?.getPreferences()!!
 
@@ -1004,9 +1009,11 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
             questionDialog?.setInfo()
             questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                 questionDialog?.dismiss()
+                questionDialog = null
             }
             questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
                 questionDialog?.dismiss()
+                questionDialog = null
 
                 val oldNotice = fanClubExDTO?.fanClubDTO?.notice.toString()
                 fanClubExDTO?.fanClubDTO?.notice = editTextModifyDialog?.binding?.editContent?.text.toString()

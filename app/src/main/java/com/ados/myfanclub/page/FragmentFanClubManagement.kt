@@ -330,9 +330,11 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
             questionDialog?.setInfo()
             questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                 questionDialog?.dismiss()
+                questionDialog = null
             }
             questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
                 questionDialog?.dismiss()
+                questionDialog = null
 
                 fanClubDTO?.description = editTextModifyDialog?.binding?.editContent?.text.toString()
                 firebaseViewModel.updateFanClubDescription(fanClubDTO!!) {
@@ -364,6 +366,7 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
             questionDialog?.showButtonOk(false)
             questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                 questionDialog?.dismiss()
+                questionDialog = null
             }
         } else {
             val question = QuestionDTO(
@@ -382,9 +385,11 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
             questionDialog?.setInfo()
             questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                 questionDialog?.dismiss()
+                questionDialog = null
             }
             questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
                 questionDialog?.dismiss()
+                questionDialog = null
 
                 (activity as MainActivity?)?.loading()
 

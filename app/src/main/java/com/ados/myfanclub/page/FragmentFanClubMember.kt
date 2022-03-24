@@ -192,9 +192,11 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
         questionDialog?.setInfo()
         questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
             questionDialog?.dismiss()
+            questionDialog = null
         }
         questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
             questionDialog?.dismiss()
+            questionDialog = null
             (activity as MainActivity?)?.loading()
             selectedMember?.position = MemberDTO.Position.MASTER
             firebaseViewModel.updateMemberPosition(fanClubDTO?.docName.toString(), selectedMember!!) { // 선택한 멤버 클럽장 임명
@@ -230,9 +232,11 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
         questionDialog?.setInfo()
         questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
             questionDialog?.dismiss()
+            questionDialog = null
         }
         questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
             questionDialog?.dismiss()
+            questionDialog = null
             selectedMember?.position = MemberDTO.Position.SUB_MASTER
             //firebaseViewModel.updateMemberPosition(fanClubDTO?.docName.toString(), selectedMember!!) { // 선택한 멤버 부클럽장 임명
             firebaseViewModel.updateFanClubSubMaster(fanClubDTO?.docName.toString(), selectedMember!!) { fanClub -> // 선택한 멤버 부클럽장 임명
@@ -265,9 +269,11 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
         questionDialog?.setInfo()
         questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
             questionDialog?.dismiss()
+            questionDialog = null
         }
         questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
             questionDialog?.dismiss()
+            questionDialog = null
             selectedMember?.position = MemberDTO.Position.MEMBER
             //firebaseViewModel.updateMemberPosition(fanClubDTO?.docName.toString(), selectedMember!!) { // 선택한 멤버 부클럽장 해임
             firebaseViewModel.updateFanClubSubMaster(fanClubDTO?.docName.toString(), selectedMember!!, true) { fanClub -> // 선택한 멤버 부클럽장 해임
@@ -300,9 +306,11 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
         questionDialog?.setInfo()
         questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
             questionDialog?.dismiss()
+            questionDialog = null
         }
         questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
             questionDialog?.dismiss()
+            questionDialog = null
 
             // 팬클럽 멤버에서 삭제
             (activity as MainActivity?)?.loading()

@@ -153,9 +153,11 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
             questionDialog?.setInfo()
             questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                 questionDialog?.dismiss()
+                questionDialog = null
             }
             questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
                 questionDialog?.dismiss()
+                questionDialog = null
 
                 if (fanClubDTO == null) {
                     setPersonalScheduleDelete()

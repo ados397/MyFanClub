@@ -485,6 +485,7 @@ class MainActivity : AppCompatActivity() {
         questionDialog?.setButtonCancel("확인")
         questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
             questionDialog?.dismiss()
+            questionDialog = null
             appExit()
         }
     }
@@ -930,6 +931,7 @@ class MainActivity : AppCompatActivity() {
                 questionDialog?.setButtonCancel("확인")
                 questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                     questionDialog?.dismiss()
+                    questionDialog = null
 
                     // 팬클럽 정보를 초기화 시키고 ViewPager 다시 호출
                     setViewPager()

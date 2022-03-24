@@ -221,8 +221,8 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:layout_centerVertical="true"
                     android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
                     android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />
 
                 <View
@@ -253,8 +253,8 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:layout_centerVertical="true"
                     android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
                     android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />
 
                 <View
@@ -285,8 +285,8 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:layout_centerVertical="true"
                     android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
                     android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />
 
                 <View
@@ -328,8 +328,8 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:layout_centerVertical="true"
                     android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
                     android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />
 
                 <View
@@ -360,8 +360,8 @@
                 <ImageView
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:layout_centerVertical="true"
                     android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
                     android:src="@drawable/ic_baseline_keyboard_arrow_right_24" />
 
                 <View
@@ -384,6 +384,7 @@
                     android:id="@+id/text_logout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
                     android:fontFamily="@font/font"
                     android:text="로그아웃"
                     android:textColor="@color/text_red"
@@ -393,6 +394,7 @@
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
                     android:src="@drawable/logout" />
 
                 <View
@@ -400,7 +402,6 @@
                     android:layout_height="1dp"
                     android:layout_below="@+id/text_logout"
                     android:layout_marginTop="15dp"
-                    android:layout_marginBottom="20dp"
                     android:background="@color/report_text_categories" />
             </RelativeLayout>
 
@@ -415,6 +416,7 @@
                     android:id="@+id/text_delete_account"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
                     android:fontFamily="@font/font"
                     android:text="회원 탈퇴"
                     android:textColor="@color/text_disable"
@@ -425,7 +427,6 @@
                     android:layout_height="1dp"
                     android:layout_below="@+id/text_delete_account"
                     android:layout_marginTop="15dp"
-                    android:layout_marginBottom="20dp"
                     android:background="@color/report_text_categories" />
             </RelativeLayout>
 

@@ -141,6 +141,7 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
                 questionDialog?.setButtonCancel("확인")
                 questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                     questionDialog?.dismiss()
+                    questionDialog = null
                 }
             } else if (user.fanClubRequestId.size > 100) {
                 Toast.makeText(activity, "더 이상 팬클럽 가입 신청을 할 수 없습니다. 가입 승인을 기다려 주세요.", Toast.LENGTH_SHORT).show()

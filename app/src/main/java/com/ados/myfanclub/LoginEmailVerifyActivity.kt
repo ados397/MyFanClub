@@ -53,9 +53,11 @@ class LoginEmailVerifyActivity : AppCompatActivity() {
             questionDialog?.setInfo()
             questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                 questionDialog?.dismiss()
+                questionDialog = null
             }
             questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
                 questionDialog?.dismiss()
+                questionDialog = null
 
                 loading()
                 firebaseAuth?.signInWithEmailAndPassword(email!!, password!!)?.addOnCompleteListener { task ->

@@ -186,9 +186,11 @@ class FragmentAccountInfo : Fragment() {
                 questionDialog?.setInfo()
                 questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                     questionDialog?.dismiss()
+                    questionDialog = null
                 }
                 questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
                     questionDialog?.dismiss()
+                    questionDialog = null
                     (activity as MainActivity?)?.loading()
                     val preferencesDTO = (activity as MainActivity?)?.getPreferences()
 

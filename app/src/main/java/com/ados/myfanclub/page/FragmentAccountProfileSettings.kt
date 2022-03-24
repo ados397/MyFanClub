@@ -158,6 +158,7 @@ class FragmentAccountProfileSettings : Fragment() {
                 questionDialog?.setButtonCancel("확인")
                 questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                     questionDialog?.dismiss()
+                    questionDialog = null
                 }
             } else {
                 val item = EditTextDTO("닉네임 변경", currentUserEx?.userDTO?.nickname, 15, "^[가-힣ㄱ-ㅎa-zA-Z0-9.~!@#\$%^&*\\[\\](){}|_-]{1,15}\$", "사용할 수 없는 문자열이 포함되어 있습니다.")
@@ -296,9 +297,11 @@ class FragmentAccountProfileSettings : Fragment() {
                     questionDialog?.setInfo()
                     questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                         questionDialog?.dismiss()
+                        questionDialog = null
                     }
                     questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
                         questionDialog?.dismiss()
+                        questionDialog = null
 
                         // 내 소개가 포함된 모든 firebase 수정 (uid 값이 키)
                         // 1. user.aboutMe
@@ -373,9 +376,11 @@ class FragmentAccountProfileSettings : Fragment() {
                                 questionDialog?.setInfo()
                                 questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                                     questionDialog?.dismiss()
+                                    questionDialog = null
                                 }
                                 questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
                                     questionDialog?.dismiss()
+                                    questionDialog = null
 
                                     firebaseAuth?.currentUser!!.updatePassword(newPassword).addOnCompleteListener {
                                         Toast.makeText(activity, "비밀번호가 변경되었습니다.", Toast.LENGTH_SHORT).show()
@@ -406,6 +411,7 @@ class FragmentAccountProfileSettings : Fragment() {
             questionDialog?.setButtonOk("로그아웃")
             questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                 questionDialog?.dismiss()
+                questionDialog = null
             }
             questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
                 firebaseAuth?.signOut()
@@ -421,6 +427,7 @@ class FragmentAccountProfileSettings : Fragment() {
                 }
 
                 questionDialog?.dismiss()
+                questionDialog = null
             }
         }
 
@@ -529,9 +536,11 @@ class FragmentAccountProfileSettings : Fragment() {
             questionDialog?.setInfo()
             questionDialog?.binding?.buttonQuestionCancel?.setOnClickListener { // No
                 questionDialog?.dismiss()
+                questionDialog = null
             }
             questionDialog?.binding?.buttonQuestionOk?.setOnClickListener { // Ok
                 questionDialog?.dismiss()
+                questionDialog = null
 
                 (activity as MainActivity?)?.loading()
                 if (uri != null) { // 프로필 업로드
