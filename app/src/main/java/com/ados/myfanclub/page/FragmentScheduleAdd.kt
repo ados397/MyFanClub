@@ -76,7 +76,7 @@ class FragmentScheduleAdd : Fragment() {
     private var cycleOK: Boolean = false
     private var countOK: Boolean = false
     private var photoBitmap: Bitmap? = null
-    var isAddedTutorialSampleData = true // 튜토리얼 샘플 데이터가 이미 추가되어 있는지 확인
+    var isAddedTutorialSampleData = false // 튜토리얼 샘플 데이터가 이미 추가되어 있는지 확인
 
     private val resultLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {

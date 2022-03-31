@@ -15,11 +15,17 @@ import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import com.ados.myfanclub.MainActivity
+import com.ados.myfanclub.MySharedPreferences
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentGambleBinding
+import com.ados.myfanclub.dialog.AdsRewardDialog
 import com.ados.myfanclub.dialog.GemQuestionDialog
+import com.ados.myfanclub.dialog.QuestionDialog
 import com.ados.myfanclub.model.GemQuestionDTO
 import com.ados.myfanclub.model.LogDTO
+import com.ados.myfanclub.model.QuestDTO
+import com.ados.myfanclub.model.QuestionDTO
+import com.ados.myfanclub.util.AdsRewardManager
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.bumptech.glide.Glide
 import java.text.SimpleDateFormat
@@ -50,17 +56,23 @@ class FragmentGamble : Fragment() {
     private val binding get() = _binding!!
 
     private val firebaseViewModel : FirebaseViewModel by viewModels()
+    private var adsRewardManager: AdsRewardManager? = null
 
     private lateinit var callback: OnBackPressedCallback
     private var toast : Toast? = null
 
     private var gemQuestionDialog: GemQuestionDialog? = null
+    private var adsRewardDialog: AdsRewardDialog? = null
 
     private var mIsBusy = false
     private var mGambleType = GambleType.GAMBLE_10
     private var mGambleCount = 0L
     private var mGambleCompleteCount = 0L
     private var currentDate = "" // 12시 지나서 날짜 변경을 체크하기 위한 변수
+
+    private val sharedPreferences: MySharedPreferences by lazy {
+        MySharedPreferences(requireContext())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,6 +90,8 @@ class FragmentGamble : Fragment() {
         _binding = FragmentGambleBinding.inflate(inflater, container, false)
         var rootView = binding.root.rootView
 
+        val adPolicyDTO = (activity as MainActivity?)?.getAdPolicy()!!
+        adsRewardManager = AdsRewardManager(requireActivity(), adPolicyDTO, AdsRewardManager.RewardType.REWARD_GAMBLE_COUNT)
         //currentDate  = SimpleDateFormat("yyyyMMdd").format(Date())
 
         binding.layoutResult.visibility = View.GONE
@@ -206,11 +220,62 @@ class FragmentGamble : Fragment() {
 
     private fun gambleStart() {
         showGambleCount {
+            val preferencesDTO = (activity as MainActivity?)?.getPreferences()!!
+            val user = (activity as MainActivity?)?.getUser()!!
             if (mGambleCount <= 0) {
-                callToast("오늘은 더이상 뽑기를 할 수 없습니다. 내일 다시 이용해 주세요.")
+                val question = QuestionDTO(
+                    QuestionDTO.Stat.INFO,
+                    "오늘은 더이상 뽑기를 할 수 없습니다",
+                    "광고를 시청하고 뽑기 횟수를 ${preferencesDTO.rewardGambleCount}회 무료 충전 하시겠습니까?"
+                )
+                if (adsRewardDialog == null) {
+                    adsRewardDialog = AdsRewardDialog(requireContext())
+                    adsRewardDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    adsRewardDialog?.setCanceledOnTouchOutside(false)
+                }
+                adsRewardDialog?.preferencesDTO = preferencesDTO
+                adsRewardDialog?.userDTO = user
+                adsRewardDialog?.show()
+                adsRewardDialog?.setInfo()
+                adsRewardDialog?.binding?.buttonCancel?.setOnClickListener { // No
+                    adsRewardDialog?.dismiss()
+                    adsRewardDialog = null
+                }
+                adsRewardDialog?.binding?.buttonGet?.setOnClickListener { // Ok
+                    adsRewardDialog?.dismiss()
+                    adsRewardDialog = null
+                    val rewardCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_GAMBLE_COUNT_COUNT, preferencesDTO?.rewardGambleCountCount!!)
+                    when {
+                        rewardCount <= 0 -> {
+                            callToast("오늘은 더 이상 광고를 시청할 수 없습니다.")
+                        }
+                        else -> {
+                            if (adsRewardManager != null) {
+                                adsRewardManager?.callReward {
+                                    if (it) {
+                                        val rewardGemCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_GAMBLE_COUNT_COUNT, preferencesDTO.rewardGambleCountCount!!)
+                                        sharedPreferences.putAdCount(MySharedPreferences.PREF_KEY_REWARD_GAMBLE_COUNT_COUNT, rewardGemCount.minus(1))
+                                        sharedPreferences.putLong(MySharedPreferences.PREF_KEY_REWARD_USER_GEM_TIME, System.currentTimeMillis())
+
+                                        firebaseViewModel.updateTodayCompleteGambleCount(user.uid.toString(), true) { count->
+                                            if (count != null) {
+                                                mGambleCompleteCount = count
+                                                showGambleCount { }
+                                                Toast.makeText(activity, "뽑기 횟수가 추가되었습니다!", Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                    } else {
+                                        callToast("아직 광고를 시청할 수 없습니다.")
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+                //callToast("오늘은 더이상 뽑기를 할 수 없습니다. 내일 다시 이용해 주세요.")
                 //날짜 바뀌었을 때 처리 가능하도록 갱신 가능한 코드 구현 필요
             } else {
-                val preferencesDTO = (activity as MainActivity?)?.getPreferences()!!
                 var price = 0
                 var maxDiamond = 0
                 when (mGambleType) {
@@ -513,7 +578,7 @@ class FragmentGamble : Fragment() {
                 firebaseViewModel.addUserGem(user.uid.toString(), 0, resultValue) { userDTO2->
                     if (userDTO2 != null) {
                         println("뽑기 $userDTO2")
-                        firebaseViewModel.updateTodayCompleteGambleCount(user.uid.toString()) { count->
+                        firebaseViewModel.updateTodayCompleteGambleCount(user.uid.toString(), false) { count->
                             if (count != null) {
                                 mGambleCompleteCount = count
                                 showGambleCount { }

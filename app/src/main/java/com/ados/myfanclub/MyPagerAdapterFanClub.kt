@@ -15,6 +15,8 @@ class MyPagerAdapterFanClub(fm: FragmentManager, life: Lifecycle) : FragmentStat
     override fun getItemCount(): Int = NUM_PAGES
 
     override fun createFragment(position: Int): Fragment {
+        println("탭 : position ${position}")
+
         return when (position) {
             0 -> {
                 FragmentFanClubInfo()

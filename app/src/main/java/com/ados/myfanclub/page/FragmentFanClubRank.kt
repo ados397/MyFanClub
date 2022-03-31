@@ -1,5 +1,6 @@
 package com.ados.myfanclub.page
 
+import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -9,6 +10,7 @@ import android.view.ViewGroup
 import android.view.Window
 import android.view.animation.AnimationUtils
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,6 +25,7 @@ import com.ados.myfanclub.model.MemberDTO
 import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -45,6 +48,8 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
 
     private var _binding: FragmentFanClubRankBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var callback: OnBackPressedCallback
 
     private val firebaseViewModel : FirebaseViewModel by viewModels()
     private val firebaseStorageViewModel : FirebaseStorageViewModel by viewModels()
@@ -94,6 +99,21 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
     override fun onDestroyView() {
         _binding = null
         super.onDestroyView()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                (activity as MainActivity?)?.backPressed()
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

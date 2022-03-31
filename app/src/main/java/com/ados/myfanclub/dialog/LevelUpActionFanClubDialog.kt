@@ -195,7 +195,7 @@ class LevelUpActionFanClubDialog(context: Context) : Dialog(context), View.OnCli
         binding.textGetExpCount.text = "오늘 받을 수 있는 횟수 : ${decimalFormat.format(rewardExpCount)}"
 
         val rewardGemString = decimalFormat.format(rewardGem)
-        val ssb3 = SpannableStringBuilder("광고를 시청하고 무료 다이아 1개를 받으세요!")
+        val ssb3 = SpannableStringBuilder("광고를 시청하고 무료 다이아 ${rewardGemString}개를 받으세요!")
         ssb3.apply {
             setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.text_red)), 16, 16 + rewardGemString.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         }

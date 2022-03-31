@@ -1,5 +1,6 @@
 package com.ados.myfanclub.page
 
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
@@ -9,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
@@ -23,6 +25,7 @@ import com.ados.myfanclub.util.AdsRewardManager
 import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -47,6 +50,8 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
 
     private var _binding: FragmentFanClubInfoBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var callback: OnBackPressedCallback
 
     // 뷰모델 연결
     private val firebaseViewModel : FirebaseViewModel by viewModels()
@@ -122,6 +127,21 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
         super.onDestroyView()
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                (activity as MainActivity?)?.backPressed()
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -162,7 +182,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
                         binding.buttonModifyNotice.visibility = View.VISIBLE
                     }
                     currentMember?.isAdministrator()!! -> { // 부클럽장 메뉴 활성화
-                        binding.buttonModifyName.visibility = View.VISIBLE
+                        binding.buttonModifyName.visibility = View.GONE // 팬클럽 이름 변경 불가
                         binding.buttonModifySymbol.visibility = View.VISIBLE
                         binding.buttonModifyNotice.visibility = View.VISIBLE
                     }
@@ -274,6 +294,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
 
             levelUpActionFanClubDialog?.binding?.buttonLevelUpActionFanClubCancel?.setOnClickListener {
                 levelUpActionFanClubDialog?.dismiss()
+                levelUpActionFanClubDialog = null
             }
 
             levelUpActionFanClubDialog?.binding?.buttonUpExpFanClub?.setOnClickListener {
@@ -290,14 +311,18 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
                 gemQuestionDialog?.setInfo()
                 gemQuestionDialog?.binding?.buttonGemQuestionCancel?.setOnClickListener { // No
                     gemQuestionDialog?.dismiss()
+                    gemQuestionDialog = null
                 }
                 gemQuestionDialog?.binding?.buttonGemQuestionOk?.setOnClickListener { // Ok
                     gemQuestionDialog?.dismiss()
+                    gemQuestionDialog = null
+                    levelUpActionFanClubDialog?.dismiss()
 
                     (activity as MainActivity?)?.loading()
                     val availableExpGem = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_AVAILABLE_FAN_CLUB_EXP_GEM, preferencesDTO.availableFanClubExpGem!!)
                     sharedPreferences.putAdCount(MySharedPreferences.PREF_KEY_AVAILABLE_FAN_CLUB_EXP_GEM, availableExpGem.minus(levelUpActionFanClubDialog?.useGemCount!!))
                     applyExp(levelUpActionFanClubDialog?.addExp!!, levelUpActionFanClubDialog?.useGemCount!!, null)
+                    levelUpActionFanClubDialog = null
                 }
             }
 
@@ -366,6 +391,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
 
                 fanClubRewardDialog?.binding?.buttonFanClubRewardCancel?.setOnClickListener {
                     fanClubRewardDialog?.dismiss()
+                    fanClubRewardDialog = null
                 }
             }
         }
@@ -382,6 +408,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
 
             sendNoticeDialog?.binding?.buttonSendNoticeCancel?.setOnClickListener {
                 sendNoticeDialog?.dismiss()
+                sendNoticeDialog = null
             }
 
             sendNoticeDialog?.binding?.buttonSendNoticeOk?.setOnClickListener {
@@ -410,9 +437,11 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
 
                         gemQuestionDialog?.binding?.buttonGemQuestionCancel?.setOnClickListener { // No
                             gemQuestionDialog?.dismiss()
+                            gemQuestionDialog = null
                         }
                         gemQuestionDialog?.binding?.buttonGemQuestionOk?.setOnClickListener { // Ok
                             gemQuestionDialog?.dismiss()
+                            gemQuestionDialog = null
 
                             val user = (activity as MainActivity?)?.getUser()!!
                             if ((user.paidGem!! + user.freeGem!!) < preferencesDTO.priceFanClubNotice!!) {
@@ -462,6 +491,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
                                             Toast.makeText(activity, "전체 공지 발송 완료!", Toast.LENGTH_SHORT).show()
                                         }
                                         sendNoticeDialog?.dismiss()
+                                        sendNoticeDialog = null
                                         (activity as MainActivity?)?.loadingEnd()
                                     }
                                 }
@@ -591,6 +621,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
                         setInfo()
                         if (fanClubDTO.level!! > oldFanClub?.level!!) { // 레벨업 했다면 레벨업 대화상자 호출
                             expUpFanClubDialog?.dismiss()
+                            expUpFanClubDialog = null
 
                             if (levelUpFanClubDialog == null) {
                                 levelUpFanClubDialog = LevelUpFanClubDialog(requireContext())
@@ -614,6 +645,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
 
                             levelUpFanClubDialog?.binding?.buttonLevelUpFanClubOk?.setOnClickListener {
                                 levelUpFanClubDialog?.dismiss()
+                                levelUpFanClubDialog = null
 
                                 if (dialog != null) {
                                     dialog.oldFanClubDTO = fanClubDTO.copy()
@@ -629,6 +661,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
 
                 expUpFanClubDialog?.binding?.buttonExpUpFanClubOk?.setOnClickListener {
                     expUpFanClubDialog?.dismiss()
+                    expUpFanClubDialog = null
 
                     if (dialog != null) {
                         dialog.oldFanClubDTO = fanClubDTO.copy()
@@ -769,6 +802,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
             editTextModifyDialog?.showImgOk(true)
             editTextModifyDialog?.binding?.buttonModifyCancel?.setOnClickListener { // No
                 editTextModifyDialog?.dismiss()
+                editTextModifyDialog = null
             }
             editTextModifyDialog?.binding?.buttonModifyOk?.setOnClickListener { // Ok
                 val preferencesDTO = (activity as MainActivity?)?.getPreferences()!!
@@ -787,9 +821,11 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
 
                 gemQuestionDialog?.binding?.buttonGemQuestionCancel?.setOnClickListener { // No
                     gemQuestionDialog?.dismiss()
+                    gemQuestionDialog = null
                 }
                 gemQuestionDialog?.binding?.buttonGemQuestionOk?.setOnClickListener { // Ok
                     gemQuestionDialog?.dismiss()
+                    gemQuestionDialog = null
 
                     val user = (activity as MainActivity?)?.getUser()!!
                     if ((user.paidGem!! + user.freeGem!!) < preferencesDTO.priceFanClubName!!) {
@@ -801,6 +837,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
                                 Toast.makeText(activity, "팬클럽 이름이 이미 존재합니다.", Toast.LENGTH_SHORT).show()
                             } else {
                                 editTextModifyDialog?.dismiss()
+                                editTextModifyDialog = null
                                 if (fanClubExDTO?.fanClubDTO?.name != name) {
                                     (activity as MainActivity?)?.loading()
 
@@ -886,9 +923,11 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
 
             gemQuestionDialog?.binding?.buttonGemQuestionCancel?.setOnClickListener { // No
                 gemQuestionDialog?.dismiss()
+                gemQuestionDialog = null
             }
             gemQuestionDialog?.binding?.buttonGemQuestionOk?.setOnClickListener { // Ok
                 gemQuestionDialog?.dismiss()
+                gemQuestionDialog = null
 
                 val user = (activity as MainActivity?)?.getUser()!!
                 if ((user.paidGem!! + user.freeGem!!) < preferencesDTO.priceFanClubSymbol!!) {
@@ -973,6 +1012,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
                     modifySymbolApply(selectFanClubSymbolDialog?.selectedSymbol!!)
                 }
             }
+            selectFanClubSymbolDialog = null
         }
     }
 
@@ -989,9 +1029,11 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
         editTextModifyDialog?.setInfo()
         editTextModifyDialog?.binding?.buttonModifyCancel?.setOnClickListener { // No
             editTextModifyDialog?.dismiss()
+            editTextModifyDialog = null
         }
         editTextModifyDialog?.binding?.buttonModifyOk?.setOnClickListener { // Ok
             editTextModifyDialog?.dismiss()
+            editTextModifyDialog = null
 
             val question = QuestionDTO(
                 QuestionDTO.Stat.WARNING,

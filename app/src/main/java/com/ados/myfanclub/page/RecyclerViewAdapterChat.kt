@@ -46,10 +46,17 @@ class RecyclerViewAdapterChat(private val itemsEx: ArrayList<DisplayBoardExDTO>,
                     if (item.displayBoardDTO.userUid.isNullOrEmpty()) {
                         layoutChatYou.visibility = View.GONE
                         layoutChatMe.visibility = View.GONE
+                        layoutSystem.visibility = View.GONE
+
+                        if (!item.displayBoardDTO.displayText.isNullOrEmpty()) {
+                            layoutSystem.visibility = View.VISIBLE
+                            contentSystem.text = item.displayBoardDTO.displayText
+                        }
                     } else {
                         if (memberDTO.userUid == item.displayBoardDTO.userUid) { // 내가 입력한 채팅
                             layoutChatYou.visibility = View.GONE
                             layoutChatMe.visibility = View.VISIBLE
+                            layoutSystem.visibility = View.GONE
 
                             contentMe.text = item.displayBoardDTO.displayText
                             dateMe.text = SimpleDateFormat("M월 d일").format(item.displayBoardDTO.createTime!!)
@@ -57,6 +64,7 @@ class RecyclerViewAdapterChat(private val itemsEx: ArrayList<DisplayBoardExDTO>,
                         } else { // 다른 사람이 입력한 채팅
                             layoutChatYou.visibility = View.VISIBLE
                             layoutChatMe.visibility = View.GONE
+                            layoutSystem.visibility = View.GONE
 
                             if (item.imgProfileUri != null) {
                                 Glide.with(imgProfile.context).load(item.imgProfileUri).fitCenter().into(holder.imgProfile)
@@ -92,8 +100,10 @@ class RecyclerViewAdapterChat(private val itemsEx: ArrayList<DisplayBoardExDTO>,
     inner class ViewHolder(private val viewBinding: ListItemChatBinding) : RecyclerView.ViewHolder(viewBinding.root) {
         var layoutChatYou = viewBinding.layoutChatYou
         var layoutChatMe = viewBinding.layoutChatMe
+        var layoutSystem = viewBinding.layoutSystem
         var contentYou = viewBinding.textContentYou
         var contentMe = viewBinding.textContentMe
+        var contentSystem = viewBinding.textContentSystem
         var dateYou = viewBinding.textDateYou
         var dateMe = viewBinding.textDateMe
         var timeYou = viewBinding.textTimeYou

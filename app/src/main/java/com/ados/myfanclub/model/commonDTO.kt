@@ -76,6 +76,9 @@ data class PreferencesDTO (
     val rewardFanClubGemTime: Int? = 0, // 팬클럽 무료 다이아 광고 충전 시간
     val rewardPremiumPackBuyGem: Int? = 0, // 프리미엄 패키지 구매 다이아 보상
     val rewardPremiumPackCheckoutGem: Int? = 0, // 프리미엄 패키지 매일 다이아 보상
+    val rewardGambleCount: Int? = 0, // 다이아뽑기 횟수 광고 보상
+    val rewardGambleCountCount: Int? = 0, // 다이아뽑기 횟수 광고 하루 시청 가능 수
+    val rewardGambleCountTime: Int? = 0, // 다이아뽑기 횟수 광고 충전 시간
     val priceDisplayBoard: Int? = 0, // 전광판 1회 표시 비용
     val priceNickname: Int? = 0, // 닉네임 변경 비용
     val priceFanClubCreate: Int? = 0, // 팬클럽 창설 비용

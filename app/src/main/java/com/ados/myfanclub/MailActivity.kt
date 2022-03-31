@@ -259,18 +259,20 @@ class MailActivity : AppCompatActivity(), OnMailItemClickListener {
         if (item.read == false) { // 읽지 않은 메일이라면 읽음 표시
             item.read = true
             firebaseViewModel.updateUserMailRead(userDTO?.uid.toString(), item.docName.toString()) {
+                recyclerViewAdapter.notifyItemChanged(position)
                 var log = LogDTO("[우편함에서 우편 읽음] mail document(${item.docName})", Date())
                 firebaseViewModel.writeUserLog(userDTO?.uid.toString(), log) { }
             }
         }
 
         mailDialog?.binding?.buttonMailCancel?.setOnClickListener { // No
-            recyclerViewAdapter.notifyItemChanged(position)
             mailDialog?.dismiss()
+            mailDialog = null
         }
 
         mailDialog?.binding?.buttonGet?.setOnClickListener {
             mailDialog?.dismiss()
+            mailDialog = null
             loading()
             successCount = 0
             var jobCount = 1

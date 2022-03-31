@@ -15,6 +15,7 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import com.ados.myfanclub.LoginActivity
 import com.ados.myfanclub.MainActivity
+import com.ados.myfanclub.MySharedPreferences
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentAccountSettingsBinding
 import com.ados.myfanclub.dialog.*
@@ -57,6 +58,10 @@ class FragmentAccountSettings : Fragment() {
 
     private var currentUserEx: UserExDTO? = null
     private var toast : Toast? = null
+
+    private val sharedPreferences: MySharedPreferences by lazy {
+        MySharedPreferences(requireContext())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -247,6 +252,9 @@ class FragmentAccountSettings : Fragment() {
                 firebaseAuth?.signOut()
                 //Auth.GoogleSignInApi.signOut()
                 googleSignInClient?.signOut()?.addOnCompleteListener { }
+
+                sharedPreferences.putInt(MySharedPreferences.PREF_KEY_LAST_FAN_CLUB_LEVEL, 0)
+                sharedPreferences.putString(MySharedPreferences.PREF_KEY_LAST_MEMBER_POSITION, "")
 
                 Toast.makeText(activity, "로그아웃 되었습니다.", Toast.LENGTH_SHORT).show()
 

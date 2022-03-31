@@ -1,5 +1,6 @@
 package com.ados.myfanclub.page
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
@@ -19,6 +20,7 @@ import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentDashboardMissionBinding
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentTransaction
@@ -37,6 +39,7 @@ import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetSequence
 import com.getkeepsafe.taptargetview.TapTargetView
+import com.google.android.material.snackbar.Snackbar
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -59,6 +62,8 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
 
     private var _binding: FragmentDashboardMissionBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var callback: OnBackPressedCallback
 
     private val firebaseViewModel : FirebaseViewModel by viewModels()
     private val firebaseStorageViewModel : FirebaseStorageViewModel by viewModels()
@@ -141,6 +146,21 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
             ToggleAnimation.close(fromRv, toRv)
         }
         return isExpanded
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                (activity as MainActivity?)?.backPressed()
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

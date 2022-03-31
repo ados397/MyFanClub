@@ -10,6 +10,7 @@ import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
+import androidx.core.view.size
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import com.ados.myfanclub.MainActivity
@@ -98,13 +99,16 @@ class FragmentFanClubMain : Fragment() {
 
         binding.viewpager.isUserInputEnabled = false // 좌우 터치 스와이프 금지
         binding.viewpager.apply {
+            println("탭 : 이쪽인가?")
             //adapter = MyPagerAdapterFanClub(context as FragmentActivity, fanClubDTO!!, currentMember!!)
             adapter = MyPagerAdapterFanClub(childFragmentManager, viewLifecycleOwner.lifecycle)
             setPageTransformer(ZoomOutPageTransformer())
+
         }
 
         binding.viewpager.post {
             if (param1 != 0) {
+                println("탭 : 이게 들어오나?")
                 changeTab(param1!!)
             }
         }
@@ -153,7 +157,11 @@ class FragmentFanClubMain : Fragment() {
                 activity?.runOnUiThread {
                     lastChatDate = displayChat.createTime!!
                     displayCount = 0
-                    binding.textChat.text = "${displayChat.userNickname} : ${displayChat.displayText}"
+                    if (displayChat.userNickname.isNullOrEmpty()) {
+                        binding.textChat.text = "${displayChat.displayText}"
+                    } else {
+                        binding.textChat.text = "${displayChat.userNickname} : ${displayChat.displayText}"
+                    }
                     openChat()
                 }
             } else if (displayCount >= preferencesDTO.fanClubChatDisplayPeriod!!) { // 표시 시간이 지났다면 채팅창 닫음
@@ -284,7 +292,10 @@ class FragmentFanClubMain : Fragment() {
     }
 
     private fun changeTab(tab: Int) {
+        println("탭 : $tab, 사이즈 : ${binding.viewpager.childCount}")
+        //binding.viewpager.adapter?.notifyItemChanged(tab)
         binding.viewpager.currentItem = tab
+        //binding.viewpager.currentItem = tab
         releaseAllTabButton()
         when (tab) {
             0 -> setTabButton(binding.textTabInfo)

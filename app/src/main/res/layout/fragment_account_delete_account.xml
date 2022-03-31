@@ -151,7 +151,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:fontFamily="@font/font_sub_title"
-                        android:text="· 탈퇴 14일 이내 재가입 할 수 없으며, 탈퇴 후 동일 이메일로 재 가입할 수 없습니다. "
+                        android:text="· 탈퇴 14일 이내 재가입 할 수 없으며, 탈퇴 후 동일 이메일로 재가입할 수 없습니다. "
                         android:textColor="@color/text_disable"
                         android:textSize="14dp" />
                 </LinearLayout>

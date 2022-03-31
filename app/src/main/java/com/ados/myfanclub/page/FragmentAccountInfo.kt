@@ -1,5 +1,6 @@
 package com.ados.myfanclub.page
 
+import android.content.Context
 import android.graphics.Rect
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentTransaction
@@ -24,6 +26,7 @@ import com.bumptech.glide.Glide
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetSequence
 import com.getkeepsafe.taptargetview.TapTargetView
+import com.google.android.material.snackbar.Snackbar
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -48,6 +51,8 @@ class FragmentAccountInfo : Fragment() {
 
     private var _binding: FragmentAccountInfoBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var callback: OnBackPressedCallback
 
     // 뷰모델 연결
     private val firebaseViewModel : FirebaseViewModel by viewModels()
@@ -102,6 +107,21 @@ class FragmentAccountInfo : Fragment() {
     override fun onDestroyView() {
         _binding = null
         super.onDestroyView()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                (activity as MainActivity?)?.backPressed()
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

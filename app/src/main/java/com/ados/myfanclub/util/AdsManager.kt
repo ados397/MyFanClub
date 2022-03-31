@@ -26,6 +26,7 @@ open class AdsManager() {
         const val ADMOB_ID_REWARD_USER_EXP = "ca-app-pub-1859147676618347/7026208312"
         const val ADMOB_ID_REWARD_FAN_CLUB_GEM = "ca-app-pub-1859147676618347/6963656802"
         const val ADMOB_ID_REWARD_FAN_CLUB_EXP = "ca-app-pub-1859147676618347/9398248450"
+        const val ADMOB_ID_REWARD_GAMBLE_COUNT = "ca-app-pub-1859147676618347/3956306705"
 
         // 광고 테스트 ID
         const val ADMOB_TEST_ID_BANNER = "ca-app-pub-3940256099942544/6300978111"
@@ -149,7 +150,7 @@ class AdsInterstitialManager(val activity: Activity, private val adPolicyDTO: Ad
 
 class AdsRewardManager(val activity: Activity, private val adPolicyDTO: AdPolicyDTO, rewardType: RewardType) : AdsManager() {
     enum class RewardType {
-        REWARD_USER_GEM, REWARD_USER_EXP, REWARD_FAN_CLUB_GEM, REWARD_FAN_CLUB_EXP
+        REWARD_USER_GEM, REWARD_USER_EXP, REWARD_FAN_CLUB_GEM, REWARD_FAN_CLUB_EXP, REWARD_GAMBLE_COUNT
     }
 
     private var adsInterstitialManager = AdsInterstitialManager(activity, adPolicyDTO)
@@ -162,6 +163,7 @@ class AdsRewardManager(val activity: Activity, private val adPolicyDTO: AdPolicy
             RewardType.REWARD_USER_EXP -> ADMOB_ID_REWARD_USER_EXP
             RewardType.REWARD_FAN_CLUB_GEM -> ADMOB_ID_REWARD_FAN_CLUB_GEM
             RewardType.REWARD_FAN_CLUB_EXP -> ADMOB_ID_REWARD_FAN_CLUB_EXP
+            RewardType.REWARD_GAMBLE_COUNT -> ADMOB_ID_REWARD_GAMBLE_COUNT
         }
         admobID = ADMOB_TEST_ID_REWARD // @테스트
 

@@ -640,8 +640,8 @@ class FirebaseViewModel(application: Application) : AndroidViewModel(application
     }
 
     // 오늘 다이아뽑기 완료 횟수 기록
-    fun updateTodayCompleteGambleCount(uid: String, myCallback: (Long?) -> Unit) {
-        repository.updateTodayCompleteGambleCount(uid) {
+    fun updateTodayCompleteGambleCount(uid: String, isMinus: Boolean, myCallback: (Long?) -> Unit) {
+        repository.updateTodayCompleteGambleCount(uid, isMinus) {
             myCallback(it)
         }
     }

@@ -1199,7 +1199,7 @@ class FirebaseRepository() {
                     newDisplayBoard.order = displayBoardDTO.order?.plus(1)
                     newDisplayBoard.createTime = Date()
 
-                    firestore.collection("displayBoard").document().set(newDisplayBoard).addOnCompleteListener {
+                    firestore.collection("displayBoard").document(newDisplayBoard.docName.toString()).set(newDisplayBoard).addOnCompleteListener {
                         myCallback(true)
                     }
                 }
@@ -1408,7 +1408,7 @@ class FirebaseRepository() {
     }
 
     // 오늘 다이아뽑기 완료 횟수 기록
-    fun updateTodayCompleteGambleCount(uid: String, myCallback: (Long?) -> Unit) {
+    fun updateTodayCompleteGambleCount(uid: String, isMinus: Boolean, myCallback: (Long?) -> Unit) {
         var completeGambleCount : Long? = null
         val currentDate = SimpleDateFormat("yyyyMMdd").format(Date())
         var tsDoc = firestore.collection("user").document(uid).collection("otherOption").document("completeGambleCount")
@@ -1416,7 +1416,10 @@ class FirebaseRepository() {
             val snapshot = transaction.get(tsDoc)
             completeGambleCount = snapshot.getLong(currentDate)
             if (completeGambleCount != null) {
-                completeGambleCount = completeGambleCount?.plus(1)
+                completeGambleCount = if (isMinus)
+                    completeGambleCount?.minus(1) // 광고 보기로 완료 횟수 1개 감소
+                else
+                    completeGambleCount?.plus(1) // 뽑기로 완료 횟수 1개 추가
                 transaction.update(tsDoc, currentDate, completeGambleCount)
             } else {
                 completeGambleCount = 1

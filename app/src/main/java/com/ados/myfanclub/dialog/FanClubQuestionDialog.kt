@@ -9,6 +9,8 @@ import android.os.Bundle
 import android.view.View
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FanClubQuestionDialogBinding
+import com.ados.myfanclub.model.FanClubDTO
+import com.ados.myfanclub.model.MemberDTO
 import java.text.DecimalFormat
 
 class FanClubQuestionDialog(context: Context) : Dialog(context), View.OnClickListener {
@@ -27,6 +29,15 @@ class FanClubQuestionDialog(context: Context) : Dialog(context), View.OnClickLis
         window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
     }
 
+    fun setMemberPosition(member: MemberDTO, fanClub: FanClubDTO) {
+        binding.textSubTitle.text = "팬클럽 알림"
+        binding.textTitle.text = "팬클럽 등급 변경"
+        binding.imgInfo.setImageResource(member.getPositionImage())
+        binding.textInfo.text = "${member.getPositionString()} 등급이 되었습니다."
+        binding.textContent.text = "[${fanClub.name}]"
+        binding.textDescription.text = "팬클럽에서 확인해 보세요."
+    }
+
     private fun init() {
         //button_ok.setOnClickListener(this)
     }
@@ -37,5 +48,9 @@ class FanClubQuestionDialog(context: Context) : Dialog(context), View.OnClickLis
                 dismiss()
             }
         }*/
+    }
+
+    override fun onBackPressed() {
+        //super.onBackPressed()
     }
 }

@@ -1,5 +1,6 @@
 package com.ados.myfanclub.page
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import android.view.Window
 import android.view.animation.AnimationUtils
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,8 +20,10 @@ import com.ados.myfanclub.dialog.QuestionDialog
 import com.ados.myfanclub.dialog.UserInfoDialog
 import com.ados.myfanclub.model.*
 import com.ados.myfanclub.repository.FirebaseRepository
+import com.ados.myfanclub.util.Utility
 import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
+import com.google.android.material.snackbar.Snackbar
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -40,6 +44,8 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
 
     private var _binding: FragmentFanClubMemberBinding? = null
     private val binding get() = _binding!!
+
+    private lateinit var callback: OnBackPressedCallback
 
     lateinit var recyclerView : RecyclerView
     lateinit var recyclerViewAdapter : RecyclerViewAdapterFanClubMember
@@ -92,6 +98,21 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
     override fun onDestroyView() {
         _binding = null
         super.onDestroyView()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                (activity as MainActivity?)?.backPressed()
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -206,6 +227,10 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
                     fanClubDTO?.masterUid = selectedMember?.userUid
                     fanClubDTO?.masterNickname = selectedMember?.userNickname
                     firebaseViewModel.updateFanClub(fanClubDTO!!) {
+                        val displayText = "* ${selectedMember?.userNickname}님이 새로운 클럽장이 되셨습니다!"
+                        val chat = DisplayBoardDTO(Utility.randomDocumentName(), displayText, null, null, null, 0, Date())
+                        firebaseViewModel.sendFanClubChat(fanClubDTO?.docName.toString(), chat) { }
+
                         selectRecyclerView()
                         refreshMembers()
                         Toast.makeText(activity, "클럽장 위임 완료", Toast.LENGTH_SHORT).show()
@@ -242,6 +267,11 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
             firebaseViewModel.updateFanClubSubMaster(fanClubDTO?.docName.toString(), selectedMember!!) { fanClub -> // 선택한 멤버 부클럽장 임명
                 if (fanClub != null) {
                     fanClubDTO = fanClub
+
+                    val displayText = "* ${selectedMember?.userNickname}님이 새로운 부클럽장이 되셨습니다!"
+                    val chat = DisplayBoardDTO(Utility.randomDocumentName(), displayText, null, null, null, 0, Date())
+                    firebaseViewModel.sendFanClubChat(fanClubDTO?.docName.toString(), chat) { }
+
                     members[selectedPosition!!].position = MemberDTO.Position.SUB_MASTER
                     recyclerViewAdapter.notifyDataSetChanged()
                     selectRecyclerView()
@@ -323,6 +353,10 @@ class FragmentFanClubMember : Fragment(), OnFanClubMemberItemClickListener {
                     firebaseViewModel.writeFanClubLog(fanClubDTO?.docName.toString(), log) { }
 
                     firebaseViewModel.deleteUserFanClubId(selectedMember?.userUid.toString(), true) {
+                        val displayText = "* ${selectedMember?.userNickname}님이 팬클럽을 탈퇴하셨습니다."
+                        val chat = DisplayBoardDTO(Utility.randomDocumentName(), displayText, null, null, null, 0, Date())
+                        firebaseViewModel.sendFanClubChat(fanClubDTO?.docName.toString(), chat) { }
+
                         // 팬클럽 추방 우편으로 발송
                         val docName = "master${System.currentTimeMillis()}"
                         val calendar= Calendar.getInstance()

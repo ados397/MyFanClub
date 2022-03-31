@@ -25,6 +25,7 @@ import com.ados.myfanclub.databinding.ActivityMainBinding
 import com.ados.myfanclub.dialog.*
 import com.ados.myfanclub.model.*
 import com.ados.myfanclub.page.ZoomOutPageTransformer
+import com.ados.myfanclub.util.Utility
 import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.getkeepsafe.taptargetview.TapTarget
@@ -95,6 +96,10 @@ class MainActivity : AppCompatActivity() {
         if (result.resultCode != RESULT_OK) {
             Toast.makeText(this, "업데이트가 취소되었습니다.", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private val sharedPreferences: MySharedPreferences by lazy {
+        MySharedPreferences(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -605,10 +610,23 @@ class MainActivity : AppCompatActivity() {
     // 실시간 팬클럽 정보 모니터링
     private fun observeFanClub() {
         firebaseViewModel.fanClubDTO.observe(this) { fanClubDTO ->
-            currentFanClubExDTO.fanClubDTO = fanClubDTO
-            if (currentFanClubExDTO.fanClubDTO?.imgSymbolCustom != null) {
-                firebaseStorageViewModel.getFanClubSymbolImage(fanClubDTO?.docName.toString()) { uri ->
-                    currentFanClubExDTO.imgSymbolCustomUri = uri
+            if (fanClubDTO != null) {
+                // 팬클럽 레벨업 알림
+                val fanClubLevel = sharedPreferences.getInt(MySharedPreferences.PREF_KEY_LAST_FAN_CLUB_LEVEL, 0) //초기화에 값을 넣지 않는 이유는 최초 상태인지 확인하기 위해
+                if (fanClubLevel > 0 && fanClubLevel < fanClubDTO?.level!!) { // 팬클럽 레벨업을 했다면 우편 발송
+                    val docName = "master${System.currentTimeMillis()}"
+                    val calendar= Calendar.getInstance()
+                    calendar.add(Calendar.DATE, 7)
+                    var mail = MailDTO(docName,"팬클럽 레벨업!!", "축하합니다!\n팬클럽 [${fanClubDTO.name}]의 레벨이 ${fanClubDTO?.level}이 되었습니다!\n\n지금 팬클럽으로 가서 축하를 건네보세요!", "시스템", MailDTO.Item.NONE, 0, Date(), calendar.time)
+                    firebaseViewModel.sendUserMail(currentUserExDTO.userDTO?.uid.toString(), mail) { }
+                }
+                sharedPreferences.putInt(MySharedPreferences.PREF_KEY_LAST_FAN_CLUB_LEVEL, fanClubDTO?.level!!)
+
+                currentFanClubExDTO.fanClubDTO = fanClubDTO
+                if (currentFanClubExDTO.fanClubDTO?.imgSymbolCustom != null) {
+                    firebaseStorageViewModel.getFanClubSymbolImage(fanClubDTO?.docName.toString()) { uri ->
+                        currentFanClubExDTO.imgSymbolCustomUri = uri
+                    }
                 }
             }
 
@@ -622,8 +640,35 @@ class MainActivity : AppCompatActivity() {
 
     // 실시간 팬클럽 멤버 정보 모니터링
     private fun observeMember() {
-        firebaseViewModel.memberDTO.observe(this) {
-            oldMemberDTO = it?.copy() // 기존 정보와 변경사항 체크를 위해 복사
+        firebaseViewModel.memberDTO.observe(this) { memberDTO ->
+            println("멤버 : ${oldMemberDTO}")
+            if (memberDTO != null) {
+                // 팬클럽 회원 등급 변경 알림
+                val memberPosition = sharedPreferences.getString(MySharedPreferences.PREF_KEY_LAST_MEMBER_POSITION, "") //초기화에 값을 넣지 않는 이유는 최초 상태인지 확인하기 위해
+                if (!memberPosition.isNullOrEmpty() && memberPosition.toString() != memberDTO?.position.toString() && memberDTO?.position != MemberDTO.Position.GUEST) { // 직책이 바뀌었다면 우편 발송
+                    val docName = "master${System.currentTimeMillis()}"
+                    val calendar= Calendar.getInstance()
+                    calendar.add(Calendar.DATE, 7)
+                    var mail = MailDTO(docName,"팬클럽 등급이 변경되었습니다.", "팬클럽 [${firebaseViewModel.fanClubDTO.value!!.name}]에서 [${memberDTO?.getPositionString()}] 등급이 되었습니다.\n\n지금 팬클럽으로 가서 확인해보세요.", "시스템", MailDTO.Item.NONE, 0, Date(), calendar.time)
+                    firebaseViewModel.sendUserMail(currentUserExDTO.userDTO?.uid.toString(), mail) { }
+
+                    val dialog = FanClubQuestionDialog(this)
+                    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    dialog.setCanceledOnTouchOutside(false)
+                    dialog.show()
+                    dialog.setMemberPosition(memberDTO!!, firebaseViewModel.fanClubDTO.value!!)
+
+                    dialog.binding.buttonFanClubQuestionOk.setOnClickListener { // Ok
+                        dialog.dismiss()
+                    }
+                }
+
+                if (memberDTO?.position != MemberDTO.Position.GUEST) {
+                    sharedPreferences.putString(MySharedPreferences.PREF_KEY_LAST_MEMBER_POSITION, memberDTO?.position.toString())
+                }
+            }
+
+            oldMemberDTO = memberDTO?.copy() // 기존 정보와 변경사항 체크를 위해 복사
             //println("[로딩] 멤버 획득")
             //addLoadingCount()
             loadingData[9] = true
@@ -690,7 +735,6 @@ class MainActivity : AppCompatActivity() {
     // 실시간 메일 모니터링
     private fun observeMail() {
         firebaseViewModel.mailDTOs.observe(this) {
-            println("메일 참조 오류 ${firebaseViewModel.mailDTOs.value}, ${firebaseViewModel.mailDTOs}")
             if (firebaseViewModel.mailDTOs.value != null) {
                 var count = 0
                 if (firebaseViewModel.mailDTOs.value!!.size > 0) {
@@ -740,15 +784,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        //super.onBackPressed()
+        super.onBackPressed()
         //appExit()
 
-        if (tutorialStep.value == 0) { // 튜토리얼이 진행중이 아닐때만 종료
+        /*if (tutorialStep.value == 0) { // 튜토리얼이 진행중이 아닐때만 종료
             if(System.currentTimeMillis() - backWaitTime >=2000 ) {
                 backWaitTime = System.currentTimeMillis()
                 Snackbar.make(binding.layoutMain,"'뒤로' 버튼을 한번 더 누르면 앱이 종료됩니다.", Snackbar.LENGTH_LONG).show()
             } else {
                 finish() //액티비티 종료
+            }
+        }*/
+    }
+
+    fun backPressed() {
+        if (tutorialStep.value == 0) { // 튜토리얼이 진행중이 아닐때만 종료
+            if(System.currentTimeMillis() - backWaitTime >=2000 ) {
+                backWaitTime = System.currentTimeMillis()
+                Snackbar.make(binding.layoutMain,"'뒤로' 버튼을 한번 더 누르면 앱이 종료됩니다.", Snackbar.LENGTH_LONG).show()
+            } else {
+                appExit() // 앱 종료
             }
         }
     }
@@ -802,7 +857,7 @@ class MainActivity : AppCompatActivity() {
         }, 400)
     }
 
-    private fun appExit() {
+    fun appExit() {
         finishAffinity() //해당 앱의 루트 액티비티를 종료시킨다. (API  16미만은 ActivityCompat.finishAffinity())
         System.runFinalization() //현재 작업중인 쓰레드가 다 종료되면, 종료 시키라는 명령어이다.
         exitProcess(0) // 현재 액티비티를 종료시킨다.
@@ -862,6 +917,8 @@ class MainActivity : AppCompatActivity() {
                 "중복 로그인",
                 "다른 기기에서 해당 계정으로 접속하여 마이팬클럽을 종료합니다."
             )
+            sharedPreferences.putInt(MySharedPreferences.PREF_KEY_LAST_FAN_CLUB_LEVEL, 0)
+            sharedPreferences.putString(MySharedPreferences.PREF_KEY_LAST_MEMBER_POSITION, "")
             onAppExit(question)
         }
     }
@@ -913,6 +970,9 @@ class MainActivity : AppCompatActivity() {
             firebaseViewModel.stopMemberListen()
 
             if (firebaseViewModel.userDTO.value?.fanClubQuitDate == firebaseViewModel.userDTO.value?.fanClubDeportationDate) { // 팬클럽 추방
+                sharedPreferences.putInt(MySharedPreferences.PREF_KEY_LAST_FAN_CLUB_LEVEL, 0)
+                sharedPreferences.putString(MySharedPreferences.PREF_KEY_LAST_MEMBER_POSITION, "")
+
                 val question = QuestionDTO(
                     QuestionDTO.Stat.WARNING,
                     "팬클럽 추방",
@@ -952,6 +1012,12 @@ class MainActivity : AppCompatActivity() {
         } else { // 팬클럽 정보가 없으면 데이터 획득 중지
             firebaseViewModel.stopFanClubListen()
             firebaseViewModel.stopMemberListen()
+        }
+
+        // 팬클럽 정보가 없을 때 로컬에 저장된 정보 초기화
+        if (firebaseViewModel.userDTO.value?.fanClubId.isNullOrEmpty()) {
+            sharedPreferences.putInt(MySharedPreferences.PREF_KEY_LAST_FAN_CLUB_LEVEL, 0)
+            sharedPreferences.putString(MySharedPreferences.PREF_KEY_LAST_MEMBER_POSITION, "")
         }
     }
 

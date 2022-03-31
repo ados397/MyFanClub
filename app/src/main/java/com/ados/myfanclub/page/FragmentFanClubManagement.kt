@@ -1,5 +1,6 @@
 package com.ados.myfanclub.page
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -8,18 +9,22 @@ import android.view.ViewGroup
 import android.view.Window
 import android.view.animation.AnimationUtils
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ados.myfanclub.MainActivity
+import com.ados.myfanclub.MySharedPreferences
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentFanClubManagementBinding
 import com.ados.myfanclub.dialog.EditTextModifyDialog
 import com.ados.myfanclub.dialog.QuestionDialog
 import com.ados.myfanclub.model.*
 import com.ados.myfanclub.repository.FirebaseRepository
+import com.ados.myfanclub.util.Utility
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
+import com.google.android.material.snackbar.Snackbar
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -43,6 +48,8 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
     private var _binding: FragmentFanClubManagementBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var callback: OnBackPressedCallback
+
     lateinit var recyclerView : RecyclerView
     lateinit var recyclerViewAdapter : RecyclerViewAdapterFanClubSignUp
 
@@ -54,6 +61,10 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
 
     private var questionDialog: QuestionDialog? = null
     private var editTextModifyDialog: EditTextModifyDialog? = null
+
+    private val sharedPreferences: MySharedPreferences by lazy {
+        MySharedPreferences(requireContext())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,8 +102,25 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
         super.onDestroyView()
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                (activity as MainActivity?)?.backPressed()
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        println("탭 : 호출되기전인가?")
 
         binding.swipeRefreshLayout.setOnRefreshListener {
             refresh()
@@ -121,6 +149,8 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
                     var jobCount = 0
                     var successCount = 0
                     val date = Date()
+                    val calendar= Calendar.getInstance()
+                    calendar.add(Calendar.DATE, 7)
                     var currentUser = (activity as MainActivity?)?.getUser()
                     for (member in members) {
                         if (!member.isSelected) {
@@ -148,10 +178,13 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
                                                 successCount++
                                             }
 
+                                            // 팬클럽 가입 정보 팬클럽 채팅방에 알림
+                                            val displayText = "* ${member.userNickname}님이 팬클럽에 가입되셨습니다! 환영인사를 건네보세요."
+                                            val chat = DisplayBoardDTO(Utility.randomDocumentName(), displayText, null, null, null, 0, Date())
+                                            firebaseViewModel.sendFanClubChat(fanClubDTO?.docName.toString(), chat) { }
+
                                             // 팬클럽 가입 승인 우편으로 발송
                                             val docName = "master${System.currentTimeMillis()}"
-                                            val calendar= Calendar.getInstance()
-                                            calendar.add(Calendar.DATE, 7)
                                             var mail = MailDTO(docName,"팬클럽 가입 승인", "축하합니다! 팬클럽 [${fanClubDTO?.name}]에 가입 되었습니다! 멋진 팬클럽 멤버들과 함께 매너있고 즐거운 팬클럽 활동을 시작해보세요!", "시스템", MailDTO.Item.NONE, 0, date, calendar.time)
                                             firebaseViewModel.sendUserMail(member.userUid.toString(), mail) {
                                                 var log = LogDTO("[팬클럽 가입 승인] 팬클럽 정보 - Name : ${fanClubDTO?.name}, docName : ${fanClubDTO?.docName} 우편 발송, 유효기간 : ${SimpleDateFormat("yyyy.MM.dd HH:mm").format(calendar.time)}까지", date)
@@ -189,11 +222,22 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
                 (activity as MainActivity?)?.loading()
                 var jobCount = 0
                 var successCount = 0
+                val date = Date()
+                val calendar= Calendar.getInstance()
+                calendar.add(Calendar.DATE, 7)
                 for (member in members) {
                     if (member.isSelected) {
                         jobCount++
                         firebaseViewModel.updateUserFanClubReject(fanClubDTO?.docName.toString(), member.userUid.toString()) {
                             successCount++
+
+                            // 팬클럽 가입 거절 우편으로 발송
+                            val docName = "master${System.currentTimeMillis()}"
+                            var mail = MailDTO(docName,"팬클럽 가입 거절", "죄송합니다. 팬클럽 [${fanClubDTO?.name}]에 가입이 거절되었습니다.", "시스템", MailDTO.Item.NONE, 0, date, calendar.time)
+                            firebaseViewModel.sendUserMail(member.userUid.toString(), mail) {
+                                var log = LogDTO("[팬클럽 가입 거절] 팬클럽 정보 - Name : ${fanClubDTO?.name}, docName : ${fanClubDTO?.docName} 우편 발송, 유효기간 : ${SimpleDateFormat("yyyy.MM.dd HH:mm").format(calendar.time)}까지", date)
+                                firebaseViewModel.writeUserLog(member.userUid.toString(), log) { }
+                            }
                         }
                     }
                 }
@@ -406,6 +450,13 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
                                 firebaseViewModel.writeAdminLog(log) { }
                             }
                         } else {
+                            val displayText = "* ${currentMember?.userNickname}님이 팬클럽을 탈퇴하셨습니다."
+                            val chat = DisplayBoardDTO(Utility.randomDocumentName(), displayText, null, null, null, 0, Date())
+                            firebaseViewModel.sendFanClubChat(fanClubDTO?.docName.toString(), chat) { }
+
+                            sharedPreferences.putInt(MySharedPreferences.PREF_KEY_LAST_FAN_CLUB_LEVEL, 0)
+                            sharedPreferences.putString(MySharedPreferences.PREF_KEY_LAST_MEMBER_POSITION, "")
+
                             var log = LogDTO("[클럽원 탈퇴] ${currentMember?.userNickname}(${currentMember?.userUid.toString()})", Date())
                             firebaseViewModel.writeFanClubLog(fanClub.docName.toString(), log) { }
                         }

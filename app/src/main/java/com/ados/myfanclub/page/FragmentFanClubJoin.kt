@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.FragmentFanClubJoinBinding
+import com.ados.myfanclub.dialog.ImageViewDialog
 import com.ados.myfanclub.dialog.QuestionDialog
 import com.ados.myfanclub.model.*
 import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
@@ -59,6 +60,7 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
     lateinit var recyclerViewAdapter : RecyclerViewAdapterFanClub
 
     private var questionDialog: QuestionDialog? = null
+    private var imageViewDialog: ImageViewDialog? = null
 
     private var selectedFanClub: FanClubDTO? = null
     private var selectedPosition: Int? = 0
@@ -262,6 +264,22 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
             binding.textMaster.text = selectedFanClub?.masterNickname
             binding.textCount.text = "${selectedFanClub?.memberCount}/${selectedFanClub?.getMaxMemberCount()}"
             binding.editDescription.setText(selectedFanClub?.description)
+
+            binding.imgSymbol.setOnClickListener {
+                if (imageViewDialog == null) {
+                    imageViewDialog = ImageViewDialog(requireContext())
+                    imageViewDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    imageViewDialog?.setCanceledOnTouchOutside(false)
+                }
+                imageViewDialog?.imageUri = item.imgSymbolCustomUri
+                imageViewDialog?.imageID = requireContext().resources.getIdentifier(selectedFanClub?.imgSymbol, "drawable", requireContext().packageName)
+                imageViewDialog?.show()
+                imageViewDialog?.setInfo()
+                imageViewDialog?.binding?.buttonCancel?.setOnClickListener { // No
+                    imageViewDialog?.dismiss()
+                    imageViewDialog = null
+                }
+            }
         }
     }
 

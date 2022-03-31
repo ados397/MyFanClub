@@ -262,6 +262,7 @@ class BuyGemActivity : AppCompatActivity() {
                 if (it != null) {
                     var log2 = LogDTO("[다이아 패키지 구매] 다이아 추가 (paidGem : $oldPaidGem -> ${it.paidGem}, freeGem : ${it.freeGem}, totalGem : ${it.paidGem!! + it.freeGem!!}))", Date())
                     firebaseViewModel.writeUserLog(userDTO?.uid.toString(), log2) {
+                        Toast.makeText(this, "다이아 패키지 구매 완료!", Toast.LENGTH_SHORT).show()
                         finish()
                     }
                 }

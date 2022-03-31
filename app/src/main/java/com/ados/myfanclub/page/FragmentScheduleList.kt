@@ -1,5 +1,6 @@
 package com.ados.myfanclub.page
 
+import android.content.Context
 import android.graphics.Point
 import android.graphics.Rect
 import android.os.Bundle
@@ -10,6 +11,7 @@ import android.view.ViewGroup
 import android.view.Window
 import android.view.animation.AnimationUtils
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
@@ -30,6 +32,7 @@ import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.getkeepsafe.taptargetview.TapTarget
 import com.getkeepsafe.taptargetview.TapTargetSequence
 import com.getkeepsafe.taptargetview.TapTargetView
+import com.google.android.material.snackbar.Snackbar
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -49,6 +52,8 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
     private var _binding: FragmentScheduleListBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var callback: OnBackPressedCallback
+
     private val firebaseViewModel : FirebaseViewModel by viewModels()
 
     private var fanClubDTO: FanClubDTO? = null
@@ -63,7 +68,7 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
     private var schedulesBackup : ArrayList<ScheduleDTO> = arrayListOf()
     private var selectedSchedule: ScheduleDTO? = null
     private var selectedPosition: Int? = 0
-    private var isAddedTutorialSampleData = true // 튜토리얼 샘플 데이터가 이미 추가되어 있는지 확인
+    private var isAddedTutorialSampleData = false // 튜토리얼 샘플 데이터가 이미 추가되어 있는지 확인
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -106,6 +111,21 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
     override fun onDestroyView() {
         _binding = null
         super.onDestroyView()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                (activity as MainActivity?)?.backPressed()
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callback.remove()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
