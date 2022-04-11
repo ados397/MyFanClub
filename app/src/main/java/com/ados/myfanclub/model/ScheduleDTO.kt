@@ -7,7 +7,8 @@ import java.util.*
 data class DashboardMissionDTO(
     var type: Type = Type.PERSONAL,
     var scheduleDTO: ScheduleDTO? = null,
-    var scheduleProgressDTO: ScheduleProgressDTO? = null
+    var scheduleProgressDTO: ScheduleProgressDTO? = null,
+    var isBlocked: Boolean = false
 ) {
     enum class Type {
         PERSONAL, FAN_CLUB

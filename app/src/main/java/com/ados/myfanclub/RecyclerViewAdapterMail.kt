@@ -1,18 +1,22 @@
 package com.ados.myfanclub
 
+import android.content.Context
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.ados.myfanclub.databinding.ListItemMailBinding
 import com.ados.myfanclub.model.MailDTO
 import java.text.DecimalFormat
 
 class RecyclerViewAdapterMail(private val items: ArrayList<MailDTO>, var clickListener: OnMailItemClickListener) : RecyclerView.Adapter<RecyclerViewAdapterMail.ViewHolder>() {
-
+    var context: Context? = null
     var decimalFormat: DecimalFormat = DecimalFormat("###,###")
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        context = parent.context
         val view = ListItemMailBinding.inflate(LayoutInflater.from(parent.context) , parent,false)
         return ViewHolder(view)
     }
@@ -56,8 +60,10 @@ class RecyclerViewAdapterMail(private val items: ArrayList<MailDTO>, var clickLi
 
                 if (item.read!!) {
                     imgMail.setImageResource(R.drawable.mail_open)
+                    cardView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.card_view_3))
                 } else {
                     imgMail.setImageResource(R.drawable.mail_close)
+                    cardView.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context!!, R.color.card_view_1))
                 }
 
 
@@ -92,6 +98,7 @@ class RecyclerViewAdapterMail(private val items: ArrayList<MailDTO>, var clickLi
     }*/
 
     inner class ViewHolder(private val viewBinding: ListItemMailBinding) : RecyclerView.ViewHolder(viewBinding.root) {
+        var cardView = viewBinding.cardView
         var imgMail = viewBinding.imgMail
         var mainLayout = viewBinding.layoutMain
         val title = viewBinding.textTitle

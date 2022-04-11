@@ -171,15 +171,20 @@ class AdsRewardManager(val activity: Activity, private val adPolicyDTO: AdPolicy
     }
 
     fun callReward(myCallback: (Boolean) -> Unit) {
+        println("광고 - isRunReward = $isRunReward")
         if (!isRunReward) {
             isRunReward = true
             showReward(adPolicyDTO.ad_reward1.toString()) { reward1 ->
+                println("광고 결과1 $reward1")
                 if (!reward1) {
                     showReward(adPolicyDTO.ad_reward1.toString()) { reward2 ->
+                        println("광고 결과2 $reward2")
                         if (!reward2) {
                             showReward(adPolicyDTO.ad_reward1.toString()) { reward3 ->
+                                println("광고 결과3 $reward3")
                                 if (!reward3) {
                                     adsInterstitialManager.callInterstitial {
+                                        println("광고 결과4 $it")
                                         isRunReward = false
                                         myCallback(it)
                                     }
@@ -205,9 +210,11 @@ class AdsRewardManager(val activity: Activity, private val adPolicyDTO: AdPolicy
     }
 
     private fun showReward(adType: String, myCallback: (Boolean) -> Unit) {
+        println("광고 - adType = $adType")
         when (adType) {
             AD_TYPE_ADMOB -> {
                 showRewardAdmob {
+                    println("광고 결과 $it")
                     myCallback(it)
                 }
             }
@@ -239,36 +246,45 @@ class AdsRewardManager(val activity: Activity, private val adPolicyDTO: AdPolicy
     }
 
     private fun showRewardAdmob(myCallback: (Boolean) -> Unit) {
+        println("광고 - showRewardAdmob")
         if (mRewardedAdmob != null) {
+            println("광고 - mRewardedAdmob != null")
             mRewardedAdmob?.fullScreenContentCallback = object : FullScreenContentCallback() {
                 override fun onAdShowedFullScreenContent() {
                     // Called when ad is shown.
                     //Log.d(TAG, "Ad was shown.")
                     loadRewardedAdmob()
+                    println("광고 - onAdShowedFullScreenContent")
                 }
 
                 override fun onAdFailedToShowFullScreenContent(adError: AdError?) {
                     // Called when ad fails to show.
                     //Log.d(TAG, "Ad failed to show.")
+                    loadRewardedAdmob()
+                    println("광고 - onAdFailedToShowFullScreenContent")
                 }
 
                 override fun onAdDismissedFullScreenContent() {
                     // Called when ad is dismissed.
                     // Set the ad reference to null so you don't show the ad a second time.
                     //Log.d(TAG, "Ad was dismissed.")
+                    isRunReward = false
                     mRewardedAdmob = null
                     loadRewardedAdmob()
+                    println("광고 - onAdDismissedFullScreenContent")
                 }
             }
             mRewardedAdmob?.show(activity) { _ ->
                 //var rewardAmount = rewardItem.amount
                 //var rewardType = rewardItem.type
+                println("광고 - mRewardedAdmob?.show(activity)")
                 myCallback(true)
             }
         } else {
             //Toast.makeText(activity, "아직 광고를 시청할 수 없습니다.", Toast.LENGTH_SHORT).show()
             //Log.d(TAG, "The rewarded ad wasn't ready yet.")
             //Toast.makeText(activity, "The rewarded ad wasn't ready yet.", Toast.LENGTH_SHORT).show()
+            println("광고 - mRewardedAdmob == null")
             myCallback(false)
         }
     }

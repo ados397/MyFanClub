@@ -70,28 +70,38 @@ class RecyclerViewAdapterFanClubRank(private val itemsEx: ArrayList<FanClubExDTO
                     }
                 }
 
-                if (item.imgSymbolCustomUri != null) {
-                    Glide.with(imgSymbol.context).load(item.imgSymbolCustomUri).fitCenter().into(holder.imgSymbol)
+                if (item.isBlocked) {
+                    imgSymbol.setImageResource(R.drawable.reward_icon_25)
+                    name.text = "차단됨"
+                    name.setTextColor(ContextCompat.getColor(context!!, R.color.text_disable2))
+                    description.text = "내가 신고한 팬클럽 입니다."
+                    description.setTextColor(ContextCompat.getColor(context!!, R.color.text_disable2))
                 } else {
-                    var imageID = itemView.context.resources.getIdentifier(item.fanClubDTO?.imgSymbol, "drawable", itemView.context.packageName)
-                    if (imageID > 0) {
-                        //iconImage?.setImageResource(item)
-                        Glide.with(imgSymbol.context)
-                            .asBitmap()
-                            .load(imageID) ///feed in path of the image
-                            .fitCenter()
-                            .into(holder.imgSymbol)
+                    if (item.imgSymbolCustomUri != null) {
+                        Glide.with(imgSymbol.context).load(item.imgSymbolCustomUri).fitCenter().into(holder.imgSymbol)
+                    } else {
+                        var imageID = itemView.context.resources.getIdentifier(item.fanClubDTO?.imgSymbol, "drawable", itemView.context.packageName)
+                        if (imageID > 0) {
+                            //iconImage?.setImageResource(item)
+                            Glide.with(imgSymbol.context)
+                                .asBitmap()
+                                .load(imageID) ///feed in path of the image
+                                .fitCenter()
+                                .into(holder.imgSymbol)
+                        }
                     }
-                }
 
-                name.text = "${item.fanClubDTO?.name}"
+                    name.text = "${item.fanClubDTO?.name}"
+                    name.setTextColor(ContextCompat.getColor(context!!, R.color.text))
+                    description.text = item.fanClubDTO?.description
+                    description.setTextColor(ContextCompat.getColor(context!!, R.color.text_sub))
+                }
                 level.text = "Lv. ${item.fanClubDTO?.level}"
                 //exp.text = "${decimalFormat.format(item.getTotalExp())}"
                 exp.text = "${decimalFormat.format(item.fanClubDTO?.expTotal)}"
                 count.text = "${item.fanClubDTO?.memberCount}/${item.fanClubDTO?.getMaxMemberCount()}"
-                description.text = item.fanClubDTO?.description
 
-                if (item.fanClubDTO?.isSelected == true) {
+                if (item.isSelected) {
                     mainLayout.setBackgroundColor(Color.parseColor("#BBD5F8"))
                 } else {
                     mainLayout.setBackgroundColor(Color.parseColor("#FFFFFF"))
@@ -107,15 +117,15 @@ class RecyclerViewAdapterFanClubRank(private val itemsEx: ArrayList<FanClubExDTO
 
     // 이미 선택된 항목을 선택할 경우 선택을 해제하고 false 반환, 아닐경우 해당항목 선택 후 true 반환
     fun selectItem(position: Int) : Boolean {
-        return if (itemsEx[position].fanClubDTO?.isSelected == true) {
-            itemsEx[position].fanClubDTO?.isSelected = false
+        return if (itemsEx[position].isSelected == true) {
+            itemsEx[position].isSelected = false
             notifyDataSetChanged()
             false
         } else {
             for (item in itemsEx) {
-                item.fanClubDTO?.isSelected = false
+                item.isSelected = false
             }
-            itemsEx[position].fanClubDTO?.isSelected = true
+            itemsEx[position].isSelected = true
             notifyDataSetChanged()
             true
         }

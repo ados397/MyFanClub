@@ -36,7 +36,14 @@ class RecyclerViewAdapterMission(private val items: ArrayList<DashboardMissionDT
 
         items[position].let { item ->
             with(holder) {
-                title.text = "${item.scheduleDTO?.title}"
+                if (item.isBlocked) {
+                    title.text = "내가 신고한 스케줄 입니다."
+                    title.setTextColor(ContextCompat.getColor(context!!, R.color.text_disable2))
+                } else {
+                    title.text = "${item.scheduleDTO?.title}"
+                    title.setTextColor(ContextCompat.getColor(context!!, R.color.text))
+                }
+
                 count.text = "${item.scheduleProgressDTO?.count}/${item.scheduleDTO?.count}"
                 textPeriod.text = SimpleDateFormat("M월 d일 까지").format(item.scheduleDTO?.endDate!!)
 

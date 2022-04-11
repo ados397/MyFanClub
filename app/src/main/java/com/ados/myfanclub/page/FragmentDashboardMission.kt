@@ -29,9 +29,11 @@ import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R.drawable.btn_round
 import com.ados.myfanclub.SuccessCalendarWeek
 import com.ados.myfanclub.ToggleAnimation
+import com.ados.myfanclub.database.DBHelperReport
 import com.ados.myfanclub.dialog.EditTextModifyDialog
 import com.ados.myfanclub.dialog.MissionDialog
 import com.ados.myfanclub.dialog.QuestionDialog
+import com.ados.myfanclub.dialog.ReportDialog
 import com.ados.myfanclub.model.*
 import com.ados.myfanclub.repository.FirebaseStorageRepository
 import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
@@ -83,6 +85,8 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
 
     private var missionDialog : MissionDialog? = null
     private var editTextModifyDialog : EditTextModifyDialog? = null
+    private var reportDialog : ReportDialog? = null
+    lateinit var dbHandler : DBHelperReport
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,6 +112,8 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
 
         recyclerViewPersonal = rootView.findViewById(R.id.rv_mission_personal)as RecyclerView
         recyclerViewPersonal.layoutManager = LinearLayoutManager(requireContext())
+
+        dbHandler = DBHelperReport(requireContext())
 
         selectedCycle = when (param2) {
             "week" -> ScheduleDTO.Cycle.WEEK
@@ -423,6 +429,9 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
     private fun setAdapterPersonal() {
         if (firebaseViewModel.personalDashboardMissionDTOs.value!!.size > 0) {
             binding.textEmptyPersonal.visibility = View.GONE
+            for (mission in firebaseViewModel.personalDashboardMissionDTOs.value!!) {
+                mission.isBlocked = dbHandler.getBlock(mission.scheduleDTO?.docName.toString())
+            }
         } else {
             binding.textEmptyPersonal.visibility = View.VISIBLE
         }
@@ -438,6 +447,9 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
         } else {
             if (firebaseViewModel.fanClubDashboardMissionDTOs.value!!.size > 0) {
                 binding.textEmptyFanClub.visibility = View.GONE
+                for (mission in firebaseViewModel.fanClubDashboardMissionDTOs.value!!) {
+                    mission.isBlocked = dbHandler.getBlock(mission.scheduleDTO?.docName.toString())
+                }
             } else {
                 binding.textEmptyFanClub.visibility = View.VISIBLE
             }
@@ -543,7 +555,11 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
     }
 
     override fun onItemClick(item: DashboardMissionDTO, position: Int) {
-        onMission(item, position)
+        if (item.isBlocked) {
+            Toast.makeText(activity, "차단된 스케줄 입니다.", Toast.LENGTH_SHORT).show()
+        } else {
+            onMission(item, position)
+        }
     }
 
     private fun getPhotoUri(item: DashboardMissionDTO, myCallback: (Uri?) -> Unit) {
@@ -576,6 +592,7 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
             missionDialog?.setInfo()
 
             missionDialog?.binding?.buttonMissionCancel?.setOnClickListener { // No
+                println("이쪽으로 들어오나?")
                 missionDialog?.dismiss()
                 missionDialog = null
             }
@@ -670,6 +687,40 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                 missionDialog?.dismiss()
                 missionDialog = null
             }
+
+            missionDialog?.binding?.buttonReport?.setOnClickListener {
+                val user = (activity as MainActivity?)?.getUser()!!
+
+                if (reportDialog == null) {
+                    reportDialog = ReportDialog(requireContext())
+                    reportDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    reportDialog?.setCanceledOnTouchOutside(false)
+                }
+                reportDialog?.reportDTO = ReportDTO(user.uid, user.nickname, fanClubDTO?.docName, item.scheduleDTO?.title, item.scheduleDTO?.purpose, item.scheduleDTO?.docName, ReportDTO.Type.Schedule)
+                reportDialog?.show()
+                reportDialog?.setInfo()
+
+                reportDialog?.setOnDismissListener {
+                    if (!reportDialog?.reportDTO?.reason.isNullOrEmpty()) {
+                        firebaseViewModel.sendReport(reportDialog?.reportDTO!!) {
+                            if (!dbHandler.getBlock(reportDialog?.reportDTO?.contentDocName.toString())) {
+                                dbHandler.updateBlock(reportDialog?.reportDTO?.contentDocName.toString(), 1)
+                            } else {
+                                dbHandler.updateBlock(reportDialog?.reportDTO?.contentDocName.toString(), 0)
+                            }
+
+                            item?.isBlocked = true
+                            if (item.type == DashboardMissionDTO.Type.PERSONAL) {
+                                recyclerViewPersonalAdapter.notifyItemChanged(position)
+                            } else {
+                                recyclerViewFanClubAdapter.notifyItemChanged(position)
+                            }
+                            missionDialog?.binding?.buttonMissionCancel?.performClick()
+                            Toast.makeText(activity, "신고 처리 완료되었습니다.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -686,7 +737,7 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                 TapTargetSequence(requireActivity())
                     .targets(
                         TapTarget.forBounds((activity as MainActivity?)?.getMainLayoutRect(),
-                            "메인 화면에서 등록된 스케줄을 기준으로 매일매일 해야할 일을 확인할 수 있습니다.",
+                            "메인 화면에서 등록된 스케줄을 확인할 수 있습니다.",
                             "- OK 버튼을 눌러주세요.") // All options below are optional
                             .cancelable(false)
                             .dimColor(R.color.black)
@@ -696,7 +747,7 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                             .icon(ContextCompat.getDrawable(requireContext(), R.drawable.ok))
                             .tintTarget(true),
                         TapTarget.forView(binding.layoutRefreshPersonal,
-                            "스케줄을 등록했는데 보이지 않으면 새로고침을 눌러줍니다. (기간내에 속하지 않는 스케줄을 표시되지 않습니다.)",
+                            "등록한 스케줄이 보이지 않으면 새로고침을 눌러줍니다.(기간 내에 속하지 않는 스케줄은 표시되지 않습니다)",
                             "- 새로고침 버튼을 눌러주세요.") // All options below are optional
                             .cancelable(false)
                             .dimColor(R.color.black)
@@ -745,7 +796,7 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                 val rect = Rect(location[0], location[1], location[0] + width, location[1] + binding.layoutTitlePersonal.height.times(4))
                 TapTargetView.showFor(requireActivity(),
                     TapTarget.forBounds(rect,
-                        "이제 등록된 스케줄을 선택해 스트리밍을 위한 '멜론' 실행 및 진행도를 업데이트 해보겠습니다.",
+                        "이제 등록된 스케줄을 선택해 스트리밍을 위한 어플 실행 및 진행도를 업데이트 해보겠습니다.",
                         "- 등록된 스케줄을 선택해 주세요.")
                         .cancelable(false)
                         .dimColor(R.color.black)
@@ -774,7 +825,7 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                 TapTargetSequence(requireActivity())
                     .targets(
                         TapTarget.forView(binding.layoutMain,
-                            "축하합니다! 오늘의 '멜론' 스트리밍 목표를 완료하였습니다!",
+                            "축하합니다! 오늘의 스트리밍 목표를 완료하였습니다!",
                             "- OK 버튼을 눌러주세요.") // All options below are optional
                             .cancelable(false)
                             .dimColor(R.color.black)
@@ -784,7 +835,7 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                             .icon(ContextCompat.getDrawable(requireContext(), R.drawable.ok))
                             .tintTarget(true),
                         TapTarget.forView(binding.layoutMain,
-                            "다양한 목표를 설정해놓고 스마트한 덕질 라이프를 즐겨보세요!",
+                            "다양한 목표를 설정하고, 달성하며 스마트한 덕질 라이프를 즐겨보세요!",
                             "- OK 버튼을 눌러주세요.") // All options below are optional
                             .cancelable(false)
                             .dimColor(R.color.black)
@@ -794,7 +845,7 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                             .icon(ContextCompat.getDrawable(requireContext(), R.drawable.ok))
                             .tintTarget(true),
                         TapTarget.forView(binding.textTabDay,
-                            "등록된 스케줄은 매일, 매주, 매월, 특정 기간내 수행할 일을 구분하여 관리가 가능합니다.",
+                            "등록된 스케줄은 설정된 기간에 따라 구분하여 관리가 가능합니다.",
                             "- 일일 버튼을 눌러주세요.") // All options below are optional
                             .cancelable(false)
                             .dimColor(R.color.black)
@@ -804,7 +855,7 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                             .transparentTarget(true)
                             .tintTarget(true),
                         TapTarget.forView(binding.textTabWeek,
-                            "등록된 스케줄은 매일, 매주, 매월, 특정 기간내 수행할 일을 구분하여 관리가 가능합니다.",
+                            "등록된 스케줄은 설정된 기간에 따라 구분하여 관리가 가능합니다.",
                             "- 주간 버튼을 눌러주세요.") // All options below are optional
                             .cancelable(false)
                             .dimColor(R.color.black)
@@ -814,7 +865,7 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                             .transparentTarget(true)
                             .tintTarget(true),
                         TapTarget.forView(binding.textTabMonth,
-                            "등록된 스케줄은 매일, 매주, 매월, 특정 기간내 수행할 일을 구분하여 관리가 가능합니다.",
+                            "등록된 스케줄은 설정된 기간에 따라 구분하여 관리가 가능합니다.",
                             "- 월간 버튼을 눌러주세요.") // All options below are optional
                             .cancelable(false)
                             .dimColor(R.color.black)
@@ -824,7 +875,7 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                             .transparentTarget(true)
                             .tintTarget(true),
                         TapTarget.forView(binding.textTabPeriod,
-                            "등록된 스케줄은 매일, 매주, 매월, 특정 기간내 수행할 일을 구분하여 관리가 가능합니다.",
+                            "등록된 스케줄은 설정된 기간에 따라 구분하여 관리가 가능합니다.",
                             "- 기간내 버튼을 눌러주세요.") // All options below are optional
                             .cancelable(false)
                             .dimColor(R.color.black)
@@ -834,7 +885,7 @@ class FragmentDashboardMission : Fragment(), OnMissionItemClickListener {
                             .transparentTarget(true)
                             .tintTarget(true),
                         TapTarget.forView(binding.buttonSuccessCalendarPersonal,
-                            "또한 스케줄을 내가 얼마나 잘 수행하고 있는지 통계를 통해서 성취율도 확인할 수 있습니다.",
+                            "스케줄을 잘 수행하고 있는지 이곳에서 확인 할 수 있습니다.",
                             "- 통계 버튼을 눌러주세요.") // All options below are optional
                             .cancelable(false)
                             .dimColor(R.color.black)

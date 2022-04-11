@@ -149,6 +149,7 @@ class FragmentGamble : Fragment() {
             binding.buttonGambleFinish.visibility = View.GONE
             binding.layoutResult.visibility = View.GONE
             binding.layoutButton.visibility = View.VISIBLE
+            binding.textInfo2.text = "100 다이아"
         }
     }
 
@@ -189,7 +190,8 @@ class FragmentGamble : Fragment() {
         checkGambleCount {
             if (it) {
                 var user = (activity as MainActivity?)?.getUser()!!
-                var gambleCount = (activity as MainActivity?)?.getPreferences()?.usedGambleCount!!
+                val usedGambleCount = (activity as MainActivity?)?.getPreferences()?.usedGambleCount!!
+                var gambleCount = usedGambleCount
                 if (user.isPremium()) {  // 프리미엄 패키지 사용중이라면 뽑기 횟수 두배
                     gambleCount = gambleCount.times(2)
                     binding.layoutPremium.visibility = View.VISIBLE
@@ -198,7 +200,11 @@ class FragmentGamble : Fragment() {
                 }
                 mGambleCount = gambleCount.minus(mGambleCompleteCount)
 
-                binding.textGambleCount.text = "오늘 남은 뽑기 횟수 : $mGambleCount"
+                if (user.isPremium()) {  // 프리미엄 패키지 사용중이라면 뽑기 횟수 두배
+                    binding.textGambleCount.text = "오늘 남은 뽑기 횟수 : $mGambleCount / $gambleCount(${usedGambleCount}+${usedGambleCount})"
+                } else {
+                    binding.textGambleCount.text = "오늘 남은 뽑기 횟수 : $mGambleCount / $gambleCount"
+                }
             }
             myCallback(it)
         }
@@ -223,11 +229,6 @@ class FragmentGamble : Fragment() {
             val preferencesDTO = (activity as MainActivity?)?.getPreferences()!!
             val user = (activity as MainActivity?)?.getUser()!!
             if (mGambleCount <= 0) {
-                val question = QuestionDTO(
-                    QuestionDTO.Stat.INFO,
-                    "오늘은 더이상 뽑기를 할 수 없습니다",
-                    "광고를 시청하고 뽑기 횟수를 ${preferencesDTO.rewardGambleCount}회 무료 충전 하시겠습니까?"
-                )
                 if (adsRewardDialog == null) {
                     adsRewardDialog = AdsRewardDialog(requireContext())
                     adsRewardDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -338,6 +339,8 @@ class FragmentGamble : Fragment() {
                         binding.layoutButton.visibility = View.GONE
                         binding.buttonGambleResult.visibility = View.VISIBLE
                         binding.imgDiamond.visibility = View.VISIBLE
+
+                        binding.textInfo2.text = "$maxDiamond 다이아"
 
                         (binding.imgDiamond.background as AnimationDrawable).start()
                     }

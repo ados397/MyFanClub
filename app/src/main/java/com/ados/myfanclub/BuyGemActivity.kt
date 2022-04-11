@@ -4,12 +4,17 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Looper
 import android.view.View
+import android.view.Window
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.ados.myfanclub.databinding.ActivityBuyGemBinding
+import com.ados.myfanclub.dialog.GetItemDialog
+import com.ados.myfanclub.dialog.LoadingDialog
 import com.ados.myfanclub.model.LogDTO
+import com.ados.myfanclub.model.MailDTO
 import com.ados.myfanclub.model.UserDTO
 import com.ados.myfanclub.repository.FirebaseRepository
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
@@ -37,6 +42,7 @@ class BuyGemActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBuyGemBinding
     private lateinit var bm: BillingModule
 
+    private var loadingDialog : LoadingDialog? = null
     private val firebaseViewModel : FirebaseViewModel by viewModels()
     private var userDTO: UserDTO? = null
 
@@ -263,10 +269,35 @@ class BuyGemActivity : AppCompatActivity() {
                     var log2 = LogDTO("[다이아 패키지 구매] 다이아 추가 (paidGem : $oldPaidGem -> ${it.paidGem}, freeGem : ${it.freeGem}, totalGem : ${it.paidGem!! + it.freeGem!!}))", Date())
                     firebaseViewModel.writeUserLog(userDTO?.uid.toString(), log2) {
                         Toast.makeText(this, "다이아 패키지 구매 완료!", Toast.LENGTH_SHORT).show()
-                        finish()
+                        val getDialog = GetItemDialog(this)
+                        getDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                        getDialog.setCanceledOnTouchOutside(false)
+                        getDialog.mailDTO = MailDTO("", "", "", "", MailDTO.Item.PAID_GEM, gemCount)
+                        getDialog.show()
+                        getDialog.binding.buttonGetItemOk.setOnClickListener {
+                            getDialog.dismiss()
+                            finish()
+                        }
                     }
                 }
             }
         }
+    }
+
+    private fun loading() {
+        if (loadingDialog == null) {
+            loadingDialog = LoadingDialog(this)
+            loadingDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            loadingDialog?.setCanceledOnTouchOutside(false)
+        }
+        loadingDialog?.show()
+    }
+
+    private fun loadingEnd() {
+        android.os.Handler(Looper.getMainLooper()).postDelayed({
+            if (loadingDialog != null) {
+                loadingDialog?.dismiss()
+            }
+        }, 400)
     }
 }

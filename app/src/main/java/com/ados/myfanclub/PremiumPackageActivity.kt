@@ -98,7 +98,7 @@ class PremiumPackageActivity : AppCompatActivity() {
                 binding.buttonBuyPremiumPackage.visibility = View.GONE
             }
 
-            binding.buttonPremiumGem.visibility = View.VISIBLE
+            binding.layoutGetPremiumGem.visibility = View.VISIBLE
             binding.textExpireDate.visibility = View.VISIBLE
 
             binding.textExpireDate.text = "남은 보상 일수 : ${currentUser?.getPremiumDay()}"
@@ -117,7 +117,7 @@ class PremiumPackageActivity : AppCompatActivity() {
             binding.textDiscount.visibility = View.GONE
             binding.textPrice.text = "\\ 9,900 구매"
 
-            binding.buttonPremiumGem.visibility = View.GONE
+            binding.layoutGetPremiumGem.visibility = View.GONE
             binding.textExpireDate.visibility = View.GONE
         }
 

@@ -90,7 +90,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="7dp"
                                 android:fontFamily="@font/font"
-                                android:text="다이아를 기부하여 팬클럽 경험치를 올립니다."
+                                android:text="다이아를 기부하여 팬클럽 경험치를 획득합니다."
                                 android:textColor="@color/text"
                                 android:textSize="16dp" />
 

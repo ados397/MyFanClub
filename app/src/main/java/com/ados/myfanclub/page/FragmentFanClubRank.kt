@@ -17,11 +17,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R
+import com.ados.myfanclub.database.DBHelperReport
 import com.ados.myfanclub.databinding.FragmentFanClubRankBinding
 import com.ados.myfanclub.dialog.ImageViewDialog
+import com.ados.myfanclub.dialog.ReportDialog
 import com.ados.myfanclub.model.FanClubDTO
 import com.ados.myfanclub.model.FanClubExDTO
 import com.ados.myfanclub.model.MemberDTO
+import com.ados.myfanclub.model.ReportDTO
 import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
 import com.ados.myfanclub.viewmodel.FirebaseViewModel
 import com.bumptech.glide.Glide
@@ -61,8 +64,10 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
     private var currentMember: MemberDTO? = null
 
     private var imageViewDialog: ImageViewDialog? = null
+    private var reportDialog : ReportDialog? = null
+    lateinit var dbHandler : DBHelperReport
 
-    private var selectedFanClub: FanClubDTO? = null
+    private var selectedFanClubEx: FanClubExDTO? = null
     private var selectedPosition: Int? = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,6 +91,8 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
 
         recyclerView = rootView.findViewById(R.id.rv_fan_club_rank)as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        dbHandler = DBHelperReport(requireContext())
 
         // 메뉴는 기본 숨김
         binding.layoutMenu.visibility = View.GONE
@@ -133,6 +140,36 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
 
             binding.swipeRefreshLayout.isRefreshing = false
             Toast.makeText(activity, "새로 고침", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.buttonReport.setOnClickListener {
+            val user = (activity as MainActivity?)?.getUser()!!
+
+            if (reportDialog == null) {
+                reportDialog = ReportDialog(requireContext())
+                reportDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                reportDialog?.setCanceledOnTouchOutside(false)
+            }
+            reportDialog?.reportDTO = ReportDTO(user.uid, user.nickname, selectedFanClubEx?.fanClubDTO?.docName, selectedFanClubEx?.fanClubDTO?.name, selectedFanClubEx?.fanClubDTO?.description, selectedFanClubEx?.fanClubDTO?.docName, ReportDTO.Type.FanClub)
+            reportDialog?.show()
+            reportDialog?.setInfo()
+
+            reportDialog?.setOnDismissListener {
+                if (!reportDialog?.reportDTO?.reason.isNullOrEmpty()) {
+                    firebaseViewModel.sendReport(reportDialog?.reportDTO!!) {
+                        if (!dbHandler.getBlock(reportDialog?.reportDTO?.contentDocName.toString())) {
+                            dbHandler.updateBlock(reportDialog?.reportDTO?.contentDocName.toString(), 1)
+                        } else {
+                            dbHandler.updateBlock(reportDialog?.reportDTO?.contentDocName.toString(), 0)
+                        }
+
+                        selectedFanClubEx?.isBlocked = true
+                        recyclerViewAdapter.notifyItemChanged(selectedPosition!!)
+                        binding.buttonClose.performClick()
+                        Toast.makeText(activity, "신고 처리 완료되었습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
     }
 
@@ -208,11 +245,11 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
     }
 
     private fun setSelectFanClubInfo(item: FanClubExDTO) {
-        if (selectedFanClub != null) {
+        if (selectedFanClubEx != null) {
             if (item.imgSymbolCustomUri != null) {
                 Glide.with(requireContext()).load(item.imgSymbolCustomUri).fitCenter().into(binding.imgSymbol)
             } else {
-                var imageID = requireContext().resources.getIdentifier(selectedFanClub?.imgSymbol, "drawable", requireContext().packageName)
+                var imageID = requireContext().resources.getIdentifier(selectedFanClubEx?.fanClubDTO?.imgSymbol, "drawable", requireContext().packageName)
                 if (imageID > 0) {
                     binding.imgSymbol.setImageResource(imageID)
                 }
@@ -245,11 +282,11 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
                 }
             }
 
-            binding.textName.text = selectedFanClub?.name
-            binding.textLevel.text = "Lv. ${selectedFanClub?.level}"
-            binding.textMaster.text = selectedFanClub?.masterNickname
-            binding.textCount.text = "${selectedFanClub?.memberCount}/${selectedFanClub?.getMaxMemberCount()}"
-            binding.editDescription.setText(selectedFanClub?.description)
+            binding.textName.text = selectedFanClubEx?.fanClubDTO?.name
+            binding.textLevel.text = "Lv. ${selectedFanClubEx?.fanClubDTO?.level}"
+            binding.textMaster.text = selectedFanClubEx?.fanClubDTO?.masterNickname
+            binding.textCount.text = "${selectedFanClubEx?.fanClubDTO?.memberCount}/${selectedFanClubEx?.fanClubDTO?.getMaxMemberCount()}"
+            binding.editDescription.setText(selectedFanClubEx?.fanClubDTO?.description)
 
             binding.imgSymbol.setOnClickListener {
                 if (imageViewDialog == null) {
@@ -258,7 +295,7 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
                     imageViewDialog?.setCanceledOnTouchOutside(false)
                 }
                 imageViewDialog?.imageUri = item.imgSymbolCustomUri
-                imageViewDialog?.imageID = requireContext().resources.getIdentifier(selectedFanClub?.imgSymbol, "drawable", requireContext().packageName)
+                imageViewDialog?.imageID = requireContext().resources.getIdentifier(selectedFanClubEx?.fanClubDTO?.imgSymbol, "drawable", requireContext().packageName)
                 imageViewDialog?.show()
                 imageViewDialog?.setInfo()
                 imageViewDialog?.binding?.buttonCancel?.setOnClickListener { // No
@@ -296,9 +333,13 @@ class FragmentFanClubRank : Fragment(), OnFanClubRankItemClickListener {
     }
 
     override fun onItemClick(item: FanClubExDTO, position: Int) {
-        selectedFanClub = item.fanClubDTO
-        selectedPosition = position
-        setSelectFanClubInfo(item)
-        selectRecyclerView()
+        if (item.isBlocked) {
+            Toast.makeText(activity, "차단된 팬클럽 입니다.", Toast.LENGTH_SHORT).show()
+        } else {
+            selectedFanClubEx = item
+            selectedPosition = position
+            setSelectFanClubInfo(item)
+            selectRecyclerView()
+        }
     }
 }

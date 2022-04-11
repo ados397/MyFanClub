@@ -155,6 +155,7 @@
                         android:ellipsize="end"
                         android:fontFamily="@font/font"
                         android:maxLines="1"
+                        android:textColor="@color/text_sub"
                         android:textSize="16dp"
                         android:text="자기 소개 글" />
 

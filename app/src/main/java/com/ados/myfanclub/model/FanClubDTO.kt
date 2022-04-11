@@ -4,12 +4,12 @@ import android.net.Uri
 import android.os.Parcelable
 import com.ados.myfanclub.R
 import kotlinx.parcelize.Parcelize
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Parcelize
 data class FanClubDTO(
-    var isSelected: Boolean = false,
     val docName: String? = null,
     var name: String? = null,
     var nameChangeDate: Date? = null,
@@ -117,12 +117,13 @@ data class FanClubDTO(
 
 data class FanClubExDTO(
     var fanClubDTO: FanClubDTO? = null,
+    var isBlocked: Boolean = false,
+    var isSelected: Boolean = false,
     var imgSymbolCustomUri: Uri? = null
 )
 
 @Parcelize
 data class MemberDTO(
-    var isSelected: Boolean = false,
     val userUid: String? = null,
     var userNickname: String? = null,
     var userLevel: Int? = 0,
@@ -165,6 +166,18 @@ data class MemberDTO(
             R.drawable.cancel
     }
 
+    // 화면에 표시되는 기여도 정보 - 실제 값의 1/1000으로 표시, 너무 숫자가 많으면 보기 힘들어서
+    fun getDisplayContribution() : String {
+        val value = if (contribution == null || contribution!! <= 0) {
+            0
+        } else {
+            contribution?.div(100)
+        }
+
+        var decimalFormat = DecimalFormat("###,###")
+        return decimalFormat.format(value)
+    }
+
     fun isCheckout() : Boolean {
         var isCheckout = false
         if (checkoutTime != null) {
@@ -186,6 +199,12 @@ data class MemberDTO(
         return position == Position.MASTER || position == Position.SUB_MASTER
     }
 }
+
+data class MemberExDTO(
+    var memberDTO: MemberDTO? = null,
+    var isBlocked: Boolean = false,
+    var isSelected: Boolean = false,
+)
 
 data class FanClubRewardDTO(
     val docName: String? = null,

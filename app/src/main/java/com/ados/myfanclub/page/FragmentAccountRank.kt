@@ -18,8 +18,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R
+import com.ados.myfanclub.database.DBHelperReport
 import com.ados.myfanclub.databinding.FragmentAccountRankBinding
 import com.ados.myfanclub.dialog.ImageViewDialog
+import com.ados.myfanclub.dialog.ReportDialog
+import com.ados.myfanclub.model.ReportDTO
 import com.ados.myfanclub.model.UserDTO
 import com.ados.myfanclub.model.UserExDTO
 import com.ados.myfanclub.viewmodel.FirebaseStorageViewModel
@@ -57,8 +60,10 @@ class FragmentAccountRank : Fragment(), OnUserRankItemClickListener {
     lateinit var recyclerViewAdapter : RecyclerViewAdapterUserRank
 
     private var imageViewDialog: ImageViewDialog? = null
+    private var reportDialog : ReportDialog? = null
+    lateinit var dbHandler : DBHelperReport
 
-    private var selectedUser: UserDTO? = null
+    private var selectedUserEx: UserExDTO? = null
     private var selectedPosition: Int? = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,6 +84,8 @@ class FragmentAccountRank : Fragment(), OnUserRankItemClickListener {
 
         recyclerView = rootView.findViewById(R.id.rv_user_rank)as RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        dbHandler = DBHelperReport(requireContext())
 
         // 메뉴는 기본 숨김
         binding.layoutMenu.visibility = View.GONE
@@ -115,6 +122,36 @@ class FragmentAccountRank : Fragment(), OnUserRankItemClickListener {
 
         binding.buttonClose.setOnClickListener {
             selectRecyclerView()
+        }
+
+        binding.buttonReport.setOnClickListener {
+            val user = (activity as MainActivity?)?.getUser()!!
+
+            if (reportDialog == null) {
+                reportDialog = ReportDialog(requireContext())
+                reportDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+                reportDialog?.setCanceledOnTouchOutside(false)
+            }
+            reportDialog?.reportDTO = ReportDTO(user.uid, user.nickname, selectedUserEx?.userDTO?.uid, selectedUserEx?.userDTO?.nickname, selectedUserEx?.userDTO?.aboutMe, selectedUserEx?.userDTO?.uid, ReportDTO.Type.User)
+            reportDialog?.show()
+            reportDialog?.setInfo()
+
+            reportDialog?.setOnDismissListener {
+                if (!reportDialog?.reportDTO?.reason.isNullOrEmpty()) {
+                    firebaseViewModel.sendReport(reportDialog?.reportDTO!!) {
+                        if (!dbHandler.getBlock(reportDialog?.reportDTO?.contentDocName.toString())) {
+                            dbHandler.updateBlock(reportDialog?.reportDTO?.contentDocName.toString(), 1)
+                        } else {
+                            dbHandler.updateBlock(reportDialog?.reportDTO?.contentDocName.toString(), 0)
+                        }
+
+                        selectedUserEx?.isBlocked = true
+                        recyclerViewAdapter.notifyItemChanged(selectedPosition!!)
+                        binding.buttonClose.performClick()
+                        Toast.makeText(activity, "신고 처리 완료되었습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
     }
 
@@ -163,7 +200,7 @@ class FragmentAccountRank : Fragment(), OnUserRankItemClickListener {
         var uidSet = hashSetOf<String>()
         val itemsEx: ArrayList<UserExDTO> = arrayListOf()
         for (user in firebaseViewModel.userDTOs.value!!) {
-            itemsEx.add(UserExDTO(user))
+            itemsEx.add(UserExDTO(user, dbHandler.getBlock(user.uid.toString())))
             if (!user.uid.isNullOrEmpty()) {
                 uidSet.add(user.uid.toString())
             }
@@ -217,9 +254,9 @@ class FragmentAccountRank : Fragment(), OnUserRankItemClickListener {
     }
 
     private fun setSelectUserInfo(item: UserExDTO) {
-        if (selectedUser != null) {
-            if (!selectedUser?.fanClubId.isNullOrEmpty()) {
-                firebaseViewModel.getFanClub(selectedUser?.fanClubId.toString()) { fanClubDTO ->
+        if (selectedUserEx != null) {
+            if (!selectedUserEx?.userDTO?.fanClubId.isNullOrEmpty()) {
+                firebaseViewModel.getFanClub(selectedUserEx?.userDTO?.fanClubId.toString()) { fanClubDTO ->
                     if (fanClubDTO != null) {
                         binding.textFanClub.text = fanClubDTO.name
                         binding.imgFanClub.visibility = View.VISIBLE
@@ -263,9 +300,9 @@ class FragmentAccountRank : Fragment(), OnUserRankItemClickListener {
                 }
             }
 
-            binding.textName.text = selectedUser?.nickname
-            binding.textLevel.text = "Lv. ${selectedUser?.level}"
-            binding.editAboutMe.setText(selectedUser?.aboutMe)
+            binding.textName.text = selectedUserEx?.userDTO?.nickname
+            binding.textLevel.text = "Lv. ${selectedUserEx?.userDTO?.level}"
+            binding.editAboutMe.setText(selectedUserEx?.userDTO?.aboutMe)
 
             binding.imgProfile.setOnClickListener {
                 if (imageViewDialog == null) {
@@ -312,9 +349,13 @@ class FragmentAccountRank : Fragment(), OnUserRankItemClickListener {
     }
 
     override fun onItemClick(item: UserExDTO, position: Int) {
-        selectedUser = item.userDTO
-        selectedPosition = position
-        setSelectUserInfo(item)
-        selectRecyclerView()
+        if (item.isBlocked) {
+            Toast.makeText(activity, "차단된 사용자 입니다.", Toast.LENGTH_SHORT).show()
+        } else {
+            selectedUserEx = item
+            selectedPosition = position
+            setSelectUserInfo(item)
+            selectRecyclerView()
+        }
     }
 }

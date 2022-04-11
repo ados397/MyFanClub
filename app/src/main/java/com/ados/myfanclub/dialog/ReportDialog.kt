@@ -60,6 +60,12 @@ class ReportDialog(context: Context) : Dialog(context), View.OnClickListener {
             binding.radioGroup.clearCheck()
             binding.textNickname.text = reportDTO?.toUserNickname
             binding.textContent.text = reportDTO?.content
+
+            binding.textNicknameTitle.text = when (reportDTO?.type) {
+                ReportDTO.Type.FanClub -> "팬클럽 : "
+                ReportDTO.Type.Schedule -> "제목 : "
+                else -> "작성자 : "
+            }
         }
     }
 

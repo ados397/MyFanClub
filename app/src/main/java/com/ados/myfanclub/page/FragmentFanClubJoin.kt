@@ -152,7 +152,7 @@ class FragmentFanClubJoin : Fragment(), OnFanClubItemClickListener {
                     if (memberDTO != null) {
                         Toast.makeText(activity, "이미 가입 요청을 한 팬클럽 입니다!", Toast.LENGTH_SHORT).show()
                     } else {
-                        val member = MemberDTO(false, user.uid, user.nickname, user.level, user.aboutMe, 0, MemberDTO.Position.GUEST, Date(), null, null, user.token)
+                        val member = MemberDTO(user.uid, user.nickname, user.level, user.aboutMe, 0, MemberDTO.Position.GUEST, Date(), null, null, user.token)
                         firebaseViewModel.updateMember(selectedFanClub?.docName.toString(), member) {
                             user.fanClubRequestId.add(selectedFanClub?.docName.toString())
                             firebaseViewModel.updateUserFanClubRequestId(user) {

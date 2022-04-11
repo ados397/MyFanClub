@@ -169,7 +169,7 @@ class FragmentFanClubCreate : Fragment() {
                             val date = Date()
                             val docName = Utility.randomDocumentName()
                             // 팬클럽 창설 시 회원이 1명이기 때문에 count 는 1로 설정
-                            fanClubDTO = FanClubDTO(false, docName, name, null, description, "", symbolImage, null, null, 1, 0L, 0L, user.uid, user.nickname, 1, 0, date)
+                            fanClubDTO = FanClubDTO(docName, name, null, description, "", symbolImage, null, null, 1, 0L, 0L, user.uid, user.nickname, 1, 0, date)
                             if (symbolImageCustomBitmap != null) {
                                 fanClubDTO?.imgSymbolCustom = fanClubDTO?.getSymbolCustomImageName()
                             }
@@ -181,7 +181,7 @@ class FragmentFanClubCreate : Fragment() {
                                             Toast.makeText(activity, "팬클럽 창설에 실패했습니다. 잠시 후 다시 시도해 주세요.", Toast.LENGTH_SHORT).show()
                                         } else { // 이미지 업로드 성공
                                             // 클럽장은 팬클럽 창설 시 100,000의 기여도로 시작
-                                            val member = MemberDTO(false, user.uid, user.nickname, user.level, user.aboutMe, 100000, MemberDTO.Position.MASTER, date, date, null, user.token)
+                                            val member = MemberDTO(user.uid, user.nickname, user.level, user.aboutMe, 100000, MemberDTO.Position.MASTER, date, date, null, user.token)
                                             firebaseViewModel.updateMember(docName, member) {
                                                 // 팬클럽 ID 등록 및 기존 신청 리스트 초기화
                                                 user.fanClubId = docName
@@ -206,7 +206,7 @@ class FragmentFanClubCreate : Fragment() {
                                     }
                                 } else { // 제공된 심볼 중에서 선택
                                     // 클럽장은 팬클럽 창설 시 100,000의 기여도로 시작
-                                    val member = MemberDTO(false, user.uid, user.nickname, user.level, user.aboutMe, 100000, MemberDTO.Position.MASTER, date, date, null, user.token)
+                                    val member = MemberDTO(user.uid, user.nickname, user.level, user.aboutMe, 100000, MemberDTO.Position.MASTER, date, date, null, user.token)
                                     firebaseViewModel.updateMember(docName, member) {
                                         // 팬클럽 ID 등록 및 기존 신청 리스트 초기화
                                         user.fanClubId = docName

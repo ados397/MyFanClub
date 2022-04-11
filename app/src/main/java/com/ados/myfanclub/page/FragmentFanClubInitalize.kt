@@ -189,7 +189,7 @@ class FragmentFanClubInitalize : Fragment() {
                             .targetRadius(100)
                             .tintTarget(true),
                         TapTarget.forView(binding.layoutMain,
-                            "같은 팬클럽에 속한 멤버들끼리 스케줄 공유, 채팅, 푸시메시지 발송 등 다양한 기능을 함께할 수 있습니다.",
+                            "내가 설정한 스케줄을 팬클럽원들과 공유할 수 있습니다.",
                             "- OK 버튼을 눌러주세요.") // All options below are optional
                             .cancelable(false)
                             .dimColor(R.color.black)

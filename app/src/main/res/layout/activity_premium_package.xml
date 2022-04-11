@@ -145,50 +145,69 @@
 
             </LinearLayout>
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/button_premium_gem"
-                android:layout_width="wrap_content"
-                android:layout_height="50dp"
+            <LinearLayout
+                android:id="@+id/layout_get_premium_gem"
+                android:orientation="vertical"
                 android:layout_gravity="center"
                 android:layout_marginTop="15dp"
                 android:layout_marginBottom="10dp"
-                android:backgroundTint="@android:color/transparent"
-                android:clickable="true"
-                app:cardElevation="0dp"
-                app:rippleColor="#fff">
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
-                <LinearLayout
-                    android:id="@+id/layout_premium_gem"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/btn_round_disable"
-                    android:orientation="horizontal"
-                    android:paddingLeft="5dp"
-                    android:paddingTop="2dp"
-                    android:paddingRight="30dp"
-                    android:paddingBottom="2dp">
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/button_premium_gem"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:backgroundTint="@android:color/transparent"
+                    android:clickable="true"
+                    app:cardElevation="0dp"
+                    app:rippleColor="#fff">
 
-                    <ImageView
-                        android:id="@+id/img_premium_gem"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:layout_gravity="center"
-                        android:layout_marginRight="-20dp"
-                        android:layout_marginBottom="3dp"
-                        android:src="@drawable/diamond_pack2" />
+                    <LinearLayout
+                        android:id="@+id/layout_premium_gem"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/btn_round_disable"
+                        android:orientation="horizontal"
+                        android:paddingLeft="5dp"
+                        android:paddingTop="2dp"
+                        android:paddingRight="30dp"
+                        android:paddingBottom="2dp">
 
-                    <TextView
-                        android:id="@+id/text_premium_gem"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:fontFamily="@font/font_title"
-                        android:text="프리미엄 다이아 수령"
-                        android:textColor="@color/text_gold"
-                        android:textSize="16dp" />
+                        <ImageView
+                            android:id="@+id/img_premium_gem"
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
+                            android:layout_gravity="center"
+                            android:layout_marginRight="-20dp"
+                            android:layout_marginBottom="3dp"
+                            android:src="@drawable/diamond_pack2" />
 
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                        <TextView
+                            android:id="@+id/text_premium_gem"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:fontFamily="@font/font_title"
+                            android:text="프리미엄 다이아 수령"
+                            android:textColor="@color/text_gold"
+                            android:textSize="16dp" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:layout_width="270dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_toRightOf="@+id/button_back"
+                    android:layout_marginTop="7dp"
+                    android:fontFamily="@font/font"
+                    android:text="* 수령하지 않은 프리미엄 다이아는 복구되지 않으니 꼭 매일 수령하세요!"
+                    android:textColor="@color/progress_background_0"
+                    android:textSize="18dp" />
+            </LinearLayout>
 
 
             <LinearLayout
@@ -328,8 +347,8 @@
                     android:id="@+id/layout_benefit_4"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
                     android:layout_below="@id/layout_benefit_3"
+                    android:layout_centerHorizontal="true"
                     android:layout_marginTop="10dp"
                     android:orientation="horizontal">
 
@@ -358,8 +377,8 @@
                     android:id="@+id/layout_benefit_5"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
                     android:layout_below="@id/layout_benefit_4"
+                    android:layout_centerHorizontal="true"
                     android:layout_marginTop="10dp"
                     android:orientation="horizontal">
 
@@ -387,8 +406,8 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
                     android:layout_below="@id/layout_benefit_5"
+                    android:layout_centerHorizontal="true"
                     android:layout_marginTop="10dp"
                     android:orientation="horizontal">
 
@@ -483,8 +502,8 @@
                     android:id="@+id/layout_benefit_7"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
                     android:layout_below="@id/layout_benefit_6"
+                    android:layout_centerHorizontal="true"
                     android:layout_marginTop="10dp"
                     android:orientation="horizontal">
 
@@ -513,8 +532,8 @@
                     android:id="@+id/layout_benefit_8"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
                     android:layout_below="@id/layout_benefit_7"
+                    android:layout_centerHorizontal="true"
                     android:layout_marginTop="10dp"
                     android:orientation="horizontal">
 

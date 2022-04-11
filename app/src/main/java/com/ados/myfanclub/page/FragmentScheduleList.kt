@@ -69,6 +69,7 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
     private var selectedSchedule: ScheduleDTO? = null
     private var selectedPosition: Int? = 0
     private var isAddedTutorialSampleData = false // 튜토리얼 샘플 데이터가 이미 추가되어 있는지 확인
+    private var isReorder = false // 스케줄 순서 변경 활성화 여부
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -138,18 +139,22 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
         }
 
         binding.buttonAddSchedule.setOnClickListener {
-            addSchedule()
+            if (binding.layoutMenu.visibility == View.GONE) { // 메뉴 호출된 상태가 아닐때만
+                addSchedule()
+            }
         }
 
         binding.buttonReorder.setOnClickListener {
-            visibleReorder()
+            if (binding.layoutMenu.visibility == View.GONE) { // 메뉴 호출된 상태가 아닐때만
+                visibleReorder()
 
-            // 순서 편집하기 전에 복원을 위해 데이터 백업
-            schedulesBackup.clear()
-            schedulesBackup.addAll(firebaseViewModel.scheduleDTOs.value!!)
+                // 순서 편집하기 전에 복원을 위해 데이터 백업
+                schedulesBackup.clear()
+                schedulesBackup.addAll(firebaseViewModel.scheduleDTOs.value!!)
 
-            recyclerViewAdapter.showReorderIcon = true
-            recyclerViewAdapter.notifyDataSetChanged()
+                recyclerViewAdapter.showReorderIcon = true
+                recyclerViewAdapter.notifyDataSetChanged()
+            }
         }
 
         binding.buttonModify.setOnClickListener {
@@ -283,6 +288,7 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
     }
 
     private fun visibleReorder() {
+        isReorder = true
         binding.buttonAddSchedule.visibility = View.GONE
         binding.buttonReorder.visibility = View.GONE
         binding.layoutMenuModify.visibility = View.GONE
@@ -294,6 +300,7 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
     }
 
     private fun disableReorder() {
+        isReorder = false
         binding.buttonAddSchedule.visibility = View.VISIBLE
         binding.buttonReorder.visibility = View.VISIBLE
         binding.layoutMenuModify.visibility = View.VISIBLE
@@ -382,16 +389,18 @@ class FragmentScheduleList : Fragment(), OnScheduleItemClickListener, OnStartDra
     }
 
     override fun onItemClick(item: ScheduleDTO, position: Int) {
-        if (fanClubDTO != null) { // 팬클럽 일때는 관리자 권한이 없어졌는지 확인
-            if (!(parentFragment as FragmentPageSchedule?)?.isRemoveAdmin()!!) {
+        if (!isReorder) { // 순서 변경 상태가 아닐때만 클릭
+            if (fanClubDTO != null) { // 팬클럽 일때는 관리자 권한이 없어졌는지 확인
+                if (!(parentFragment as FragmentPageSchedule?)?.isRemoveAdmin()!!) {
+                    selectedSchedule = item
+                    selectedPosition = position
+                    selectRecyclerView()
+                }
+            } else {
                 selectedSchedule = item
                 selectedPosition = position
                 selectRecyclerView()
             }
-        } else {
-            selectedSchedule = item
-            selectedPosition = position
-            selectRecyclerView()
         }
     }
 

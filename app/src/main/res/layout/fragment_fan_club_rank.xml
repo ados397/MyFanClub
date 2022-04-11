@@ -204,7 +204,6 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:layout_marginRight="5dp"
-                                        android:layout_marginBottom="2dp"
                                         android:background="@drawable/btn_round5"
                                         android:fontFamily="@font/font"
                                         android:paddingLeft="5dp"
@@ -218,9 +217,7 @@
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:layout_below="@id/text_description"
-                                        android:layout_marginLeft="5dp"
-                                        android:layout_marginRight="10dp"
-                                        android:layout_marginBottom="10dp"
+                                        android:layout_marginRight="5dp"
                                         android:background="@drawable/edit_rectangle_read_only"
                                         android:focusable="false"
                                         android:fontFamily="@font/font"
@@ -229,6 +226,27 @@
                                         android:textColor="@color/text"
                                         android:textCursorDrawable="@drawable/edit_cursor"
                                         android:textSize="16dp" />
+
+                                    <com.google.android.material.card.MaterialCardView
+                                        android:id="@+id/button_report"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="right"
+                                        android:layout_marginRight="10dp"
+                                        android:layout_marginTop="4dp"
+                                        android:backgroundTint="@android:color/transparent"
+                                        android:clickable="true"
+                                        app:cardElevation="0dp"
+                                        app:rippleColor="#fff">
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_margin="2dp"
+                                            android:fontFamily="@font/font_sub_title"
+                                            android:textColor="@color/text_disable"
+                                            android:text="신고"
+                                            android:textSize="11dp" />
+                                    </com.google.android.material.card.MaterialCardView>
                                 </LinearLayout>
                             </LinearLayout>
                         </LinearLayout>

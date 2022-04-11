@@ -131,13 +131,16 @@ data class ReportDTO(
     var reportTime: Date? = null
 ) {
     enum class Type {
-        DisplayBoard, FanClubChat
+        DisplayBoard, FanClubChat, User, FanClub, Schedule
     }
 
     fun getCollectionName() : String {
         return when(type) {
             Type.FanClubChat -> "fanClubChat"
             Type.DisplayBoard -> "displayBoard"
+            Type.User -> "user"
+            Type.FanClub -> "fanClub"
+            Type.Schedule -> "schedule"
         }
     }
 }

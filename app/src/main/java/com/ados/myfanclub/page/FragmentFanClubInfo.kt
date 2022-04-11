@@ -298,7 +298,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
             }
 
             levelUpActionFanClubDialog?.binding?.buttonUpExpFanClub?.setOnClickListener {
-                val question = GemQuestionDTO("다이아를 사용해 경험치를 올립니다.", levelUpActionFanClubDialog?.useGemCount)
+                val question = GemQuestionDTO("다이아를 사용해 경험치를 획득합니다.", levelUpActionFanClubDialog?.useGemCount)
                 if (gemQuestionDialog == null) {
                     gemQuestionDialog = GemQuestionDialog(requireContext(), question)
                     gemQuestionDialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -726,7 +726,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
 
         binding.textMemberLevel.text = "Lv. ${currentMember?.userLevel}"
         binding.textMemberName.text = currentMember?.userNickname
-        binding.textContribution.text = "기여도 : ${decimalFormat.format(currentMember?.contribution!!)}"
+        binding.textContribution.text = "기여도 : ${currentMember?.getDisplayContribution()}"
         binding.textResponseTime.text = SimpleDateFormat("yyyy.MM.dd HH:mm").format(currentMember?.responseTime!!)
         binding.editAboutMe.setText(currentMember?.userAboutMe)
         binding.imgCheckout.setImageResource(currentMember?.getCheckoutImage()!!)
@@ -1033,7 +1033,6 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
         }
         editTextModifyDialog?.binding?.buttonModifyOk?.setOnClickListener { // Ok
             editTextModifyDialog?.dismiss()
-            editTextModifyDialog = null
 
             val question = QuestionDTO(
                 QuestionDTO.Stat.WARNING,
@@ -1067,6 +1066,8 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
                     Toast.makeText(activity, "공지사항 변경 완료!", Toast.LENGTH_SHORT).show()
                     binding.textNoticeContent.text = fanClubExDTO?.fanClubDTO?.notice
                 }
+
+                editTextModifyDialog = null
             }
         }
     }
@@ -1100,7 +1101,7 @@ class FragmentFanClubInfo : Fragment(), OnFanClubMemberItemClickListener {
             }
     }
 
-    override fun onItemClick(item: MemberDTO, position: Int) {
+    override fun onItemClick(item: MemberExDTO, position: Int) {
 
     }
 }

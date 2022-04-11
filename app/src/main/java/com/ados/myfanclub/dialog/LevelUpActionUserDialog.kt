@@ -177,7 +177,9 @@ class LevelUpActionUserDialog(context: Context) : Dialog(context), View.OnClickL
         rewardExpCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_EXP_COUNT, preferencesDTO?.rewardUserExpCount!!)
         rewardGemCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_USER_GEM_COUNT, preferencesDTO?.rewardUserGemCount!!)
 
+        var gemExpString = decimalFormat.format(gemExp)
         if (oldUserDTO?.isPremium()!!) {
+            gemExpString = "${decimalFormat.format(gemExp.times(2))}(${decimalFormat.format(gemExp)}+${decimalFormat.format(gemExp)})"
             gemExp = gemExp.times(2)
             binding.layoutPremiumUpExp.visibility = View.VISIBLE
             binding.layoutPremiumGetExp.visibility = View.VISIBLE
@@ -193,7 +195,6 @@ class LevelUpActionUserDialog(context: Context) : Dialog(context), View.OnClickL
         setRewardUserExpTimer()
         setRewardUserGemTimer()
 
-        val gemExpString = decimalFormat.format(gemExp)
         val ssb1 = SpannableStringBuilder("1 다이아 당 ${gemExpString}의 경험치 획득!")
         ssb1.apply {
             setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.text_red)), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)

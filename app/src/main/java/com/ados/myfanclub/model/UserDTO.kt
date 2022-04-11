@@ -170,6 +170,7 @@ data class UserDTO(
 
 data class UserExDTO(
     var userDTO: UserDTO? = null,
+    var isBlocked: Boolean = false,
     var isSelected: Boolean = false,
     var imgProfileUri: Uri? = null
 )

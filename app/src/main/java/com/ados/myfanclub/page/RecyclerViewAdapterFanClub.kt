@@ -45,7 +45,7 @@ class RecyclerViewAdapterFanClub(private val itemsEx: ArrayList<FanClubExDTO>, v
                 master.text = "${item.fanClubDTO?.masterNickname}"
                 count.text = "${item.fanClubDTO?.memberCount}/${item.fanClubDTO?.getMaxMemberCount()}"
 
-                if (item.fanClubDTO?.isSelected == true) {
+                if (item.isSelected) {
                     mainLayout.setBackgroundColor(Color.parseColor("#BBD5F8"))
                 } else {
                     mainLayout.setBackgroundColor(Color.parseColor("#FFFFFF"))
@@ -61,15 +61,15 @@ class RecyclerViewAdapterFanClub(private val itemsEx: ArrayList<FanClubExDTO>, v
 
     // 이미 선택된 항목을 선택할 경우 선택을 해제하고 false 반환, 아닐경우 해당항목 선택 후 true 반환
     fun selectItem(position: Int) : Boolean {
-        return if (itemsEx[position].fanClubDTO?.isSelected == true) {
-            itemsEx[position].fanClubDTO?.isSelected = false
+        return if (itemsEx[position].isSelected) {
+            itemsEx[position].isSelected = false
             notifyDataSetChanged()
             false
         } else {
             for (item in itemsEx) {
-                item.fanClubDTO?.isSelected = false
+                item.isSelected = false
             }
-            itemsEx[position].fanClubDTO?.isSelected = true
+            itemsEx[position].isSelected = true
             notifyDataSetChanged()
             true
         }

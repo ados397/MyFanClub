@@ -57,7 +57,7 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
 
     private var fanClubDTO: FanClubDTO? = null
     private var currentMember: MemberDTO? = null
-    private var members : ArrayList<MemberDTO> = arrayListOf()
+    private var membersEx : ArrayList<MemberExDTO> = arrayListOf()
 
     private var questionDialog: QuestionDialog? = null
     private var editTextModifyDialog: EditTextModifyDialog? = null
@@ -152,24 +152,24 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
                     val calendar= Calendar.getInstance()
                     calendar.add(Calendar.DATE, 7)
                     var currentUser = (activity as MainActivity?)?.getUser()
-                    for (member in members) {
+                    for (member in membersEx) {
                         if (!member.isSelected) {
                             continue
                         }
 
                         jobCount++
                         member.isSelected = false
-                        member.position = MemberDTO.Position.MEMBER
-                        member.responseTime = date
+                        member.memberDTO?.position = MemberDTO.Position.MEMBER
+                        member.memberDTO?.responseTime = date
 
                         // 이미 다른 클럽에 가입된 사용자가 아닌지 확인
-                        firebaseViewModel.getHaveFanClub(member.userUid.toString()) { userDTO ->
+                        firebaseViewModel.getHaveFanClub(member.memberDTO?.userUid.toString()) { userDTO ->
                             if (userDTO == null) {
                                 Toast.makeText(activity, "이미 다른 팬클럽에 가입된 사용자 입니다.", Toast.LENGTH_SHORT).show()
                                 successCount++
                             } else {
                                 // 팬클럽 멤버로 등록
-                                firebaseViewModel.updateMember(fanClubDTO?.docName.toString(), member) { // 팬클럽 멤버 등록
+                                firebaseViewModel.updateMember(fanClubDTO?.docName.toString(), member.memberDTO!!) { // 팬클럽 멤버 등록
                                     firebaseViewModel.addFanClubMemberCount(fanClubDTO?.docName.toString(), 1) { fanClub -> // 팬클럽 멤버수 1 증가
                                         if (fanClub != null) {
                                             // 사용자 정보에 팬클럽 ID 기록 및 팬클럽 신청 이력 삭제
@@ -179,20 +179,20 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
                                             }
 
                                             // 팬클럽 가입 정보 팬클럽 채팅방에 알림
-                                            val displayText = "* ${member.userNickname}님이 팬클럽에 가입되셨습니다! 환영인사를 건네보세요."
+                                            val displayText = "* ${member.memberDTO?.userNickname}님이 팬클럽에 가입되셨습니다! 환영인사를 건네보세요."
                                             val chat = DisplayBoardDTO(Utility.randomDocumentName(), displayText, null, null, null, 0, Date())
                                             firebaseViewModel.sendFanClubChat(fanClubDTO?.docName.toString(), chat) { }
 
                                             // 팬클럽 가입 승인 우편으로 발송
                                             val docName = "master${System.currentTimeMillis()}"
                                             var mail = MailDTO(docName,"팬클럽 가입 승인", "축하합니다! 팬클럽 [${fanClubDTO?.name}]에 가입 되었습니다! 멋진 팬클럽 멤버들과 함께 매너있고 즐거운 팬클럽 활동을 시작해보세요!", "시스템", MailDTO.Item.NONE, 0, date, calendar.time)
-                                            firebaseViewModel.sendUserMail(member.userUid.toString(), mail) {
+                                            firebaseViewModel.sendUserMail(member.memberDTO?.userUid.toString(), mail) {
                                                 var log = LogDTO("[팬클럽 가입 승인] 팬클럽 정보 - Name : ${fanClubDTO?.name}, docName : ${fanClubDTO?.docName} 우편 발송, 유효기간 : ${SimpleDateFormat("yyyy.MM.dd HH:mm").format(calendar.time)}까지", date)
-                                                firebaseViewModel.writeUserLog(member.userUid.toString(), log) { }
+                                                firebaseViewModel.writeUserLog(member.memberDTO?.userUid.toString(), log) { }
                                             }
 
                                             // 팬클럽 로그 기록
-                                            var log = LogDTO("[팬클럽 가입 승인] 사용자 정보 (uid : ${member.userUid}, nickname : ${member.userNickname}), 승인한 운영진 정보 (uid : ${currentUser?.uid}, nickname : ${currentUser?.nickname})", date)
+                                            var log = LogDTO("[팬클럽 가입 승인] 사용자 정보 (uid : ${member.memberDTO?.userUid}, nickname : ${member.memberDTO?.userNickname}), 승인한 운영진 정보 (uid : ${currentUser?.uid}, nickname : ${currentUser?.nickname})", date)
                                             firebaseViewModel.writeFanClubLog(fanClubDTO?.docName.toString(), log) { }
                                         }
                                     }
@@ -225,18 +225,18 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
                 val date = Date()
                 val calendar= Calendar.getInstance()
                 calendar.add(Calendar.DATE, 7)
-                for (member in members) {
+                for (member in membersEx) {
                     if (member.isSelected) {
                         jobCount++
-                        firebaseViewModel.updateUserFanClubReject(fanClubDTO?.docName.toString(), member.userUid.toString()) {
+                        firebaseViewModel.updateUserFanClubReject(fanClubDTO?.docName.toString(), member.memberDTO?.userUid.toString()) {
                             successCount++
 
                             // 팬클럽 가입 거절 우편으로 발송
                             val docName = "master${System.currentTimeMillis()}"
                             var mail = MailDTO(docName,"팬클럽 가입 거절", "죄송합니다. 팬클럽 [${fanClubDTO?.name}]에 가입이 거절되었습니다.", "시스템", MailDTO.Item.NONE, 0, date, calendar.time)
-                            firebaseViewModel.sendUserMail(member.userUid.toString(), mail) {
+                            firebaseViewModel.sendUserMail(member.memberDTO?.userUid.toString(), mail) {
                                 var log = LogDTO("[팬클럽 가입 거절] 팬클럽 정보 - Name : ${fanClubDTO?.name}, docName : ${fanClubDTO?.docName} 우편 발송, 유효기간 : ${SimpleDateFormat("yyyy.MM.dd HH:mm").format(calendar.time)}까지", date)
-                                firebaseViewModel.writeUserLog(member.userUid.toString(), log) { }
+                                firebaseViewModel.writeUserLog(member.memberDTO?.userUid.toString(), log) { }
                             }
                         }
                     }
@@ -319,8 +319,12 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
 
     private fun refreshMembers() {
         firebaseViewModel.getMembers(fanClubDTO?.docName.toString(), FirebaseRepository.MemberType.GUEST_ONLY) {
-            members = it
-            recyclerViewAdapter = RecyclerViewAdapterFanClubSignUp(members, this)
+            membersEx.clear()
+            for (member in it) {
+                membersEx.add(MemberExDTO(member))
+            }
+
+            recyclerViewAdapter = RecyclerViewAdapterFanClubSignUp(membersEx, this)
             recyclerView.adapter = recyclerViewAdapter
             (activity as MainActivity?)?.loadingEnd()
         }
@@ -483,7 +487,7 @@ class FragmentFanClubManagement : Fragment(), OnFanClubSignUpItemClickListener {
         }
     }
 
-    override fun onItemClick(item: MemberDTO, position: Int) {
+    override fun onItemClick(item: MemberExDTO, position: Int) {
         selectRecyclerView()
     }
 }

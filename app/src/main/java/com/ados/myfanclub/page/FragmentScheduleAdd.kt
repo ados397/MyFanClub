@@ -896,7 +896,7 @@ class FragmentScheduleAdd : Fragment() {
                             .icon(ContextCompat.getDrawable(requireContext(), R.drawable.ok))
                             .tintTarget(true),
                         TapTarget.forView(binding.layoutMain,
-                            "스케줄은 필요에 따라 매일, 매주, 매월, 특정 기간내 수행할 일을 등록하실 수 있습니다.",
+                            "스케줄은 일, 주, 월 단위로 등록하실 수 있습니다.",
                             "- OK 버튼을 눌러주세요.") // All options below are optional
                             .cancelable(false)
                             .dimColor(R.color.black)
@@ -928,7 +928,7 @@ class FragmentScheduleAdd : Fragment() {
                 TapTargetSequence(requireActivity())
                     .targets(
                         TapTarget.forBounds(rect,
-                            "매일 멜론에서 5번씩 노래를 스트리밍 하는 목표의 스케줄을 임의로 추가하였습니다.",
+                            "'매일 멜론에서 5번씩 노래 듣기'를 목표로 설정해보겠습니다.",
                             "- 작성 완료 버튼을 눌러 스케줄을 등록해주세요.") // All options below are optional
                             .cancelable(false)
                             .dimColor(R.color.black)

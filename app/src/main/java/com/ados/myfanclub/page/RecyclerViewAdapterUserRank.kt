@@ -64,21 +64,32 @@ class RecyclerViewAdapterUserRank(private val itemsEx: ArrayList<UserExDTO>, var
                     }
                 }
 
-                if (item.imgProfileUri != null) {
-                    Glide.with(imgProfile.context).load(item.imgProfileUri).fitCenter().into(holder.imgProfile)
-                } else {
+                if (item.isBlocked) {
                     imgProfile.setImageResource(R.drawable.profile)
-                }
-
-                if (item.userDTO?.fanClubId != null) {
-                    imgFanClub.visibility = View.VISIBLE
-                } else {
                     imgFanClub.visibility = View.GONE
-                }
+                    name.text = "차단됨"
+                    name.setTextColor(ContextCompat.getColor(context!!, R.color.text_disable2))
+                    aboutMe.text = "내가 신고한 사용자 입니다."
+                    aboutMe.setTextColor(ContextCompat.getColor(context!!, R.color.text_disable2))
+                } else {
+                    if (item.imgProfileUri != null) {
+                        Glide.with(imgProfile.context).load(item.imgProfileUri).fitCenter().into(holder.imgProfile)
+                    } else {
+                        imgProfile.setImageResource(R.drawable.profile)
+                    }
 
-                name.text = "${item.userDTO?.nickname}"
+                    if (item.userDTO?.fanClubId != null) {
+                        imgFanClub.visibility = View.VISIBLE
+                    } else {
+                        imgFanClub.visibility = View.GONE
+                    }
+
+                    name.text = "${item.userDTO?.nickname}"
+                    name.setTextColor(ContextCompat.getColor(context!!, R.color.text))
+                    aboutMe.text = item.userDTO?.aboutMe
+                    aboutMe.setTextColor(ContextCompat.getColor(context!!, R.color.text_sub))
+                }
                 level.text = "Lv. ${item.userDTO?.level}"
-                aboutMe.text = item.userDTO?.aboutMe
 
                 if (item.isSelected) {
                     mainLayout.setBackgroundColor(Color.parseColor("#BBD5F8"))

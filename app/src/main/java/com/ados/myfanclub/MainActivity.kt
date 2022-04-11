@@ -613,18 +613,18 @@ class MainActivity : AppCompatActivity() {
             if (fanClubDTO != null) {
                 // 팬클럽 레벨업 알림
                 val fanClubLevel = sharedPreferences.getInt(MySharedPreferences.PREF_KEY_LAST_FAN_CLUB_LEVEL, 0) //초기화에 값을 넣지 않는 이유는 최초 상태인지 확인하기 위해
-                if (fanClubLevel > 0 && fanClubLevel < fanClubDTO?.level!!) { // 팬클럽 레벨업을 했다면 우편 발송
+                if (fanClubLevel > 0 && fanClubLevel < fanClubDTO.level!!) { // 팬클럽 레벨업을 했다면 우편 발송
                     val docName = "master${System.currentTimeMillis()}"
                     val calendar= Calendar.getInstance()
                     calendar.add(Calendar.DATE, 7)
-                    var mail = MailDTO(docName,"팬클럽 레벨업!!", "축하합니다!\n팬클럽 [${fanClubDTO.name}]의 레벨이 ${fanClubDTO?.level}이 되었습니다!\n\n지금 팬클럽으로 가서 축하를 건네보세요!", "시스템", MailDTO.Item.NONE, 0, Date(), calendar.time)
+                    var mail = MailDTO(docName,"팬클럽 레벨업!!", "축하합니다!\n팬클럽 [${fanClubDTO.name}]의 레벨이 ${fanClubDTO.level}이 되었습니다!\n\n지금 팬클럽으로 가서 축하를 건네보세요!", "시스템", MailDTO.Item.NONE, 0, Date(), calendar.time)
                     firebaseViewModel.sendUserMail(currentUserExDTO.userDTO?.uid.toString(), mail) { }
                 }
-                sharedPreferences.putInt(MySharedPreferences.PREF_KEY_LAST_FAN_CLUB_LEVEL, fanClubDTO?.level!!)
+                sharedPreferences.putInt(MySharedPreferences.PREF_KEY_LAST_FAN_CLUB_LEVEL, fanClubDTO.level!!)
 
                 currentFanClubExDTO.fanClubDTO = fanClubDTO
                 if (currentFanClubExDTO.fanClubDTO?.imgSymbolCustom != null) {
-                    firebaseStorageViewModel.getFanClubSymbolImage(fanClubDTO?.docName.toString()) { uri ->
+                    firebaseStorageViewModel.getFanClubSymbolImage(fanClubDTO.docName.toString()) { uri ->
                         currentFanClubExDTO.imgSymbolCustomUri = uri
                     }
                 }
@@ -645,26 +645,26 @@ class MainActivity : AppCompatActivity() {
             if (memberDTO != null) {
                 // 팬클럽 회원 등급 변경 알림
                 val memberPosition = sharedPreferences.getString(MySharedPreferences.PREF_KEY_LAST_MEMBER_POSITION, "") //초기화에 값을 넣지 않는 이유는 최초 상태인지 확인하기 위해
-                if (!memberPosition.isNullOrEmpty() && memberPosition.toString() != memberDTO?.position.toString() && memberDTO?.position != MemberDTO.Position.GUEST) { // 직책이 바뀌었다면 우편 발송
+                if (!memberPosition.isNullOrEmpty() && memberPosition.toString() != memberDTO.position.toString() && memberDTO.position != MemberDTO.Position.GUEST) { // 직책이 바뀌었다면 우편 발송
                     val docName = "master${System.currentTimeMillis()}"
                     val calendar= Calendar.getInstance()
                     calendar.add(Calendar.DATE, 7)
-                    var mail = MailDTO(docName,"팬클럽 등급이 변경되었습니다.", "팬클럽 [${firebaseViewModel.fanClubDTO.value!!.name}]에서 [${memberDTO?.getPositionString()}] 등급이 되었습니다.\n\n지금 팬클럽으로 가서 확인해보세요.", "시스템", MailDTO.Item.NONE, 0, Date(), calendar.time)
+                    var mail = MailDTO(docName,"팬클럽 등급이 변경되었습니다.", "팬클럽 [${firebaseViewModel.fanClubDTO.value!!.name}]에서 [${memberDTO.getPositionString()}] 등급이 되었습니다.\n\n지금 팬클럽으로 가서 확인해보세요.", "시스템", MailDTO.Item.NONE, 0, Date(), calendar.time)
                     firebaseViewModel.sendUserMail(currentUserExDTO.userDTO?.uid.toString(), mail) { }
 
                     val dialog = FanClubQuestionDialog(this)
                     dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
                     dialog.setCanceledOnTouchOutside(false)
                     dialog.show()
-                    dialog.setMemberPosition(memberDTO!!, firebaseViewModel.fanClubDTO.value!!)
+                    dialog.setMemberPosition(memberDTO, firebaseViewModel.fanClubDTO.value!!)
 
                     dialog.binding.buttonFanClubQuestionOk.setOnClickListener { // Ok
                         dialog.dismiss()
                     }
                 }
 
-                if (memberDTO?.position != MemberDTO.Position.GUEST) {
-                    sharedPreferences.putString(MySharedPreferences.PREF_KEY_LAST_MEMBER_POSITION, memberDTO?.position.toString())
+                if (memberDTO.position != MemberDTO.Position.GUEST) {
+                    sharedPreferences.putString(MySharedPreferences.PREF_KEY_LAST_MEMBER_POSITION, memberDTO.position.toString())
                 }
             }
 
@@ -1257,7 +1257,7 @@ class MainActivity : AppCompatActivity() {
                 TapTargetSequence(this)
                     .targets(
                         TapTarget.forView(binding.layoutMain,
-                            "[ 마이팬클럽 ]에서는 '스트리밍 앱', '투표 앱', '유튜브 링크', '뉴스 기사', 'SNS' 등 덕질에 필요한 모든걸 클릭 한번만으로 실행 가능합니다.",
+                            "[ 마이팬클럽 ]에서는 '스트리밍 앱', '투표 앱', '유튜브 링크', '뉴스 기사', 'SNS' 등 덕질에 필요한 모든 걸 클릭 한 번만으로 실행 가능합니다.",
                             "- OK 버튼을 눌러주세요.") // All options below are optional
                             .cancelable(false)
                             .dimColor(R.color.black)
@@ -1267,7 +1267,7 @@ class MainActivity : AppCompatActivity() {
                             .icon(ContextCompat.getDrawable(this, R.drawable.ok))
                             .tintTarget(true),
                         TapTarget.forView(binding.layoutMain,
-                            "그동안 이름도 기억하기 힘들고 일일이 찾기도 힘들었던 수 많은 앱들과 유튜브 링크들을 한 번의 클릭으로 편하게 사용해 보세요!",
+                            "그동안 일일이 찾기 번거로웠던 수많은 앱들과 유튜브 영상을 한 번의 클릭으로 쉽게 사용해 보세요!",
                             "- OK 버튼을 눌러주세요.") // All options below are optional
                             .cancelable(false)
                             .dimColor(R.color.black)
@@ -1277,7 +1277,7 @@ class MainActivity : AppCompatActivity() {
                             .icon(ContextCompat.getDrawable(this, R.drawable.ok))
                             .tintTarget(true),
                         TapTarget.forView(binding.layoutMain,
-                            "[ 마이팬클럽 ]으로 스마트한 덕질 라이프와 효율의 극대화를 느껴보세요!",
+                            "[ 마이팬클럽 ]으로 스마트한 덕질 라이프를 느껴보세요!",
                             "- OK 버튼을 눌러주세요.") // All options below are optional
                             .cancelable(false)
                             .dimColor(R.color.black)

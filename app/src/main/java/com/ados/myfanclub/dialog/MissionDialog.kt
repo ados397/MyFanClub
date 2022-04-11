@@ -18,6 +18,7 @@ import com.ados.myfanclub.MainActivity
 import com.ados.myfanclub.R
 import com.ados.myfanclub.databinding.MissionDialogBinding
 import com.ados.myfanclub.model.DashboardMissionDTO
+import com.ados.myfanclub.model.DashboardMissionDTO.*
 import com.ados.myfanclub.model.ScheduleDTO
 import com.bumptech.glide.Glide
 import com.getkeepsafe.taptargetview.TapTarget
@@ -105,6 +106,8 @@ class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
     }
 
     fun setInfo() {
+        binding.buttonReport.visibility = if (dashboardMissionDTO?.type == Type.FAN_CLUB) View.VISIBLE else View.GONE
+
         when (dashboardMissionDTO?.scheduleDTO?.cycle) {
             ScheduleDTO.Cycle.DAY -> binding.imgScheduleType.setImageResource(R.drawable.schedule_day)
             ScheduleDTO.Cycle.WEEK -> binding.imgScheduleType.setImageResource(R.drawable.schedule_week)
@@ -131,22 +134,22 @@ class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
 
         when (dashboardMissionDTO?.scheduleDTO?.action) { // 앱 실행
             ScheduleDTO.Action.APP -> {
-                binding.layoutQuickMenu.visibility = View.VISIBLE
+                binding.buttonExecute.visibility = View.VISIBLE
                 binding.textExecute.text = "앱 실행"
                 binding.imgIcon.setImageResource(R.drawable.app)
                 binding.textAppName.visibility = View.VISIBLE
                 binding.textAppName.text = "[${dashboardMissionDTO?.scheduleDTO?.appDTO?.appName}]"
             }
             ScheduleDTO.Action.URL -> {
-                binding.layoutQuickMenu.visibility = View.VISIBLE
+                binding.buttonExecute.visibility = View.VISIBLE
                 binding.textExecute.text = "링크 실행"
                 binding.imgIcon.setImageResource(R.drawable.link)
                 binding.textAppName.visibility = View.GONE
             }
             ScheduleDTO.Action.ETC -> {
-                binding.layoutQuickMenu.visibility = View.GONE
+                binding.buttonExecute.visibility = View.GONE
             }
-            else-> binding.layoutQuickMenu.visibility = View.GONE
+            else-> binding.buttonExecute.visibility = View.GONE
         }
     }
 
@@ -233,7 +236,7 @@ class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
                 TapTargetSequence(this)
                     .targets(
                         TapTarget.forView(binding.layoutMain,
-                            "여기에서 '멜론' 실행 및 진행도를 업데이트 할 수 있습니다.",
+                            "여기에서 어플 실행 및 진행도를 업데이트 할 수 있습니다",
                             "- OK 버튼을 눌러주세요.") // All options below are optional
                             .cancelable(false)
                             .dimColor(R.color.black)
@@ -243,8 +246,8 @@ class MissionDialog(context: Context) : Dialog(context), View.OnClickListener {
                             .icon(ContextCompat.getDrawable(context, R.drawable.ok))
                             .tintTarget(true),
                         TapTarget.forView(binding.buttonExecute,
-                            "이 버튼을 누르면 '멜론'이 바로 실행되며 간편하게 이용 가능 합니다!",
-                            "- 그 외에도 수 많은 앱들과 링크를 등록하여 한 번의 클릭만으로 간편하게 실행 가능합니다.") // All options below are optional
+                            "이 버튼을 누르면 어플이 바로 실행되며 간편하게 이용 가능 합니다!",
+                            "- 그 외에도 수많은 앱들과 링크를 등록하여 한 번의 클릭만으로 간편하게 실행 가능합니다.") // All options below are optional
                             .cancelable(false)
                             .dimColor(R.color.black)
                             .outerCircleColor(R.color.charge_back) // Specify a color for the outer circle

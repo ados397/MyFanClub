@@ -49,7 +49,7 @@ class UserInfoDialog(context: Context, var member: MemberDTO, var user: UserExDT
 
         binding.imgPosition.setImageResource(member.getPositionImage())
         binding.textPosition.text = member.getPositionString()
-        binding.textContribution.text = "기여도 : ${decimalFormat.format(member.contribution)}"
+        binding.textContribution.text = "기여도 : ${member.getDisplayContribution()}"
         binding.imgCheckout.setImageResource(member.getCheckoutImage())
 
         binding.editAboutMe.setText(user.userDTO?.aboutMe)

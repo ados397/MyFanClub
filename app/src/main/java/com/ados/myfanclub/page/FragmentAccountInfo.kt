@@ -283,6 +283,7 @@ class FragmentAccountInfo : Fragment() {
 
         levelUpActionUserDialog?.binding?.buttonLevelUpActionUserCancel?.setOnClickListener {
             levelUpActionUserDialog?.dismiss()
+            levelUpActionUserDialog = null
         }
 
         levelUpActionUserDialog?.binding?.buttonUpExpUser?.setOnClickListener {
@@ -290,7 +291,7 @@ class FragmentAccountInfo : Fragment() {
                 levelUpActionUserDialog?.useGemCount = 0
                 GemQuestionDTO("튜토리얼 진행 시 다이아 소모가 없습니다.", levelUpActionUserDialog?.useGemCount)
             } else {
-                GemQuestionDTO("다이아를 사용해 경험치를 올립니다.", levelUpActionUserDialog?.useGemCount)
+                GemQuestionDTO("다이아를 사용해 경험치를 획득합니다.", levelUpActionUserDialog?.useGemCount)
             }
 
             if (gemQuestionDialog == null) {
@@ -311,10 +312,12 @@ class FragmentAccountInfo : Fragment() {
                 gemQuestionDialog?.dismiss()
                 levelUpActionUserDialog?.dismiss()
 
+
                 (activity as MainActivity?)?.loading()
                 val availableExpGem = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_AVAILABLE_USER_EXP_GEM, preferencesDTO?.availableUserExpGem!!)
                 sharedPreferences.putAdCount(MySharedPreferences.PREF_KEY_AVAILABLE_USER_EXP_GEM, availableExpGem.minus(levelUpActionUserDialog?.useGemCount!!))
                 applyExp(levelUpActionUserDialog?.addExp!!, levelUpActionUserDialog?.useGemCount!!, null)
+                levelUpActionUserDialog = null
             }
         }
 

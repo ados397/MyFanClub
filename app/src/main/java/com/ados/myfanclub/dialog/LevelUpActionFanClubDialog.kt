@@ -161,12 +161,15 @@ class LevelUpActionFanClubDialog(context: Context) : Dialog(context), View.OnCli
         rewardExpCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_FAN_CLUB_EXP_COUNT, preferencesDTO?.rewardFanClubExpCount!!)
         rewardGemCount = sharedPreferences.getAdCount(MySharedPreferences.PREF_KEY_REWARD_FAN_CLUB_GEM_COUNT, preferencesDTO?.rewardFanClubGemCount!!)
 
+        var gemExpString: String
         if (oldUserDTO?.isPremium()!!) {
+            gemExpString = "${decimalFormat.format(gemExp.times(2).plus(oldUserDTO?.level!!))}(${decimalFormat.format(gemExp)}+${decimalFormat.format(gemExp)}+${decimalFormat.format(oldUserDTO?.level!!)})"
             gemExp = gemExp.times(2)
             binding.layoutPremiumUpExp.visibility = View.VISIBLE
             binding.layoutPremiumGetExp.visibility = View.VISIBLE
             binding.layoutPremiumGetGem.visibility = View.VISIBLE
         } else {
+            gemExpString = "${decimalFormat.format(gemExp.plus(oldUserDTO?.level!!))}(${decimalFormat.format(gemExp)}+${decimalFormat.format(oldUserDTO?.level!!)})"
             binding.layoutPremiumUpExp.visibility = View.GONE
             binding.layoutPremiumGetExp.visibility = View.GONE
             binding.layoutPremiumGetGem.visibility = View.GONE
@@ -178,7 +181,6 @@ class LevelUpActionFanClubDialog(context: Context) : Dialog(context), View.OnCli
         setRewardFanClubExpTimer()
         setRewardFanClubGemTimer()
 
-        val gemExpString = decimalFormat.format(gemExp)
         val ssb1 = SpannableStringBuilder("1 다이아 당 ${gemExpString}의 경험치 획득!")
         ssb1.apply {
             setSpan(ForegroundColorSpan(ContextCompat.getColor(context, R.color.text_red)), 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)

@@ -5,9 +5,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.ados.myfanclub.databinding.ListItemFanClubSignUpBinding
 import com.ados.myfanclub.model.MemberDTO
+import com.ados.myfanclub.model.MemberExDTO
 import java.text.SimpleDateFormat
 
-class RecyclerViewAdapterFanClubSignUp(private val items: ArrayList<MemberDTO>, var clickListener: OnFanClubSignUpItemClickListener) : RecyclerView.Adapter<RecyclerViewAdapterFanClubSignUp.ViewHolder>() {
+class RecyclerViewAdapterFanClubSignUp(private val itemsEx: ArrayList<MemberExDTO>, var clickListener: OnFanClubSignUpItemClickListener) : RecyclerView.Adapter<RecyclerViewAdapterFanClubSignUp.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = ListItemFanClubSignUpBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -15,26 +16,26 @@ class RecyclerViewAdapterFanClubSignUp(private val items: ArrayList<MemberDTO>, 
     }
 
     override fun getItemCount(): Int {
-        return items.size
+        return itemsEx.size
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.initializes(items[position], clickListener)
+        holder.initializes(itemsEx[position], clickListener)
 
-        items[position].let { item ->
+        itemsEx[position].let { item ->
             with(holder) {
                 checkBox.isChecked = item.isSelected
-                name.text = item.userNickname
-                level.text = "Lv. ${item.userLevel}"
-                requestTime.text = SimpleDateFormat("yyyy.MM.dd HH:mm").format(item.requestTime!!)
-                aboutMe.text = item.userAboutMe
+                name.text = item.memberDTO?.userNickname
+                level.text = "Lv. ${item.memberDTO?.userLevel}"
+                requestTime.text = SimpleDateFormat("yyyy.MM.dd HH:mm").format(item.memberDTO?.requestTime!!)
+                aboutMe.text = item.memberDTO?.userAboutMe
             }
         }
     }
 
     // 체크 모두 해제
     fun releaseCheckAll() {
-        for (item in items) {
+        for (item in itemsEx) {
            item.isSelected = false
         }
         notifyDataSetChanged()
@@ -42,7 +43,7 @@ class RecyclerViewAdapterFanClubSignUp(private val items: ArrayList<MemberDTO>, 
 
     // 체크된 항목이 하나라도 있으면 true 반환 함수
     fun isChecked() : Boolean {
-        for (item in items) {
+        for (item in itemsEx) {
             if (item.isSelected) {
                 return true
             }
@@ -58,7 +59,7 @@ class RecyclerViewAdapterFanClubSignUp(private val items: ArrayList<MemberDTO>, 
         var aboutMe = viewBinding.textAboutMe
         var mainLayout = viewBinding.layoutMain
 
-        fun initializes(item: MemberDTO, action:OnFanClubSignUpItemClickListener) {
+        fun initializes(item: MemberExDTO, action:OnFanClubSignUpItemClickListener) {
             viewBinding.checkbox.setOnClickListener {
                 item.isSelected = viewBinding.checkbox.isChecked
                 action.onItemClick(item, adapterPosition)
@@ -70,5 +71,5 @@ class RecyclerViewAdapterFanClubSignUp(private val items: ArrayList<MemberDTO>, 
 }
 
 interface OnFanClubSignUpItemClickListener {
-    fun onItemClick(item: MemberDTO, position: Int)
+    fun onItemClick(item: MemberExDTO, position: Int)
 }
