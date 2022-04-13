@@ -167,6 +167,7 @@
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_account_settings.xml" value="0.27607361963190186" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_chat.xml" value="0.15572916666666667" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_dashboard_mission.xml" value="0.1515625" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_fan_club_create.xml" value="0.18125" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_fan_club_info.xml" value="0.196875" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_fan_club_main.xml" value="0.17291666666666666" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/fragment_fan_club_management.xml" value="0.1359375" />
@@ -189,7 +190,7 @@
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/list_item_user_rank.xml" value="0.4" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/maintenance_dialog.xml" value="0.4" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/mission_dialog.xml" value="0.16574074074074074" />
-        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/notice_dialog.xml" value="0.4" />
+        <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/notice_dialog.xml" value="0.264" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/password_modify_dialog.xml" value="0.1171875" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/question_dialog.xml" value="0.4" />
         <entry key="..\:/Users/ados3/StudioProjects/MyFanClub/app/src/main/res/layout/report_dialog.xml" value="0.1515625" />

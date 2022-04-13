@@ -78,6 +78,7 @@ class DisplayBoardActivity : AppCompatActivity(), OnDisplayBoardItemClickListene
                 displayBoardAddDialog?.setInfo()
                 displayBoardAddDialog?.binding?.buttonDisplayBoardAddCancel?.setOnClickListener { // Ok
                     displayBoardAddDialog?.dismiss()
+                    displayBoardAddDialog = null
                 }
                 displayBoardAddDialog?.binding?.buttonDisplayBoardAddOk?.setOnClickListener { // Ok
                     val displayText = displayBoardAddDialog?.binding?.editDisplayBoard?.text.toString().trim()
@@ -101,6 +102,7 @@ class DisplayBoardActivity : AppCompatActivity(), OnDisplayBoardItemClickListene
                         }
                         gemQuestionDialog?.binding?.buttonGemQuestionOk?.setOnClickListener { // Ok
                             displayBoardAddDialog?.dismiss()
+                            displayBoardAddDialog = null
                             gemQuestionDialog?.dismiss()
 
                             if ((currentUser?.paidGem!! + currentUser?.freeGem!!) < preferencesDTO?.priceDisplayBoard!!) {

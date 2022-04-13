@@ -460,7 +460,13 @@ class FragmentScheduleAdd : Fragment() {
     private fun setFanClubSchedule() {
         firebaseViewModel.updateFanClubSchedule(fanClubDTO?.docName.toString(), scheduleDTO) {
             if (scheduleDTO.isPhoto) {
-                firebaseStorageViewModel.setScheduleImage(fanClubDTO?.docName.toString(), scheduleDTO.docName.toString(), FirebaseStorageRepository.ScheduleType.FAN_CLUB, photoBitmap!!) {
+                if (photoBitmap != null) { // isPhoto 가 true 이고 photoBitmap 가 null 이라면 스케줄 수정에서 이미지가 변경되지 않았을 경우임. 이때는 이미지가 바뀐게 없어서 스토리지에 저장할 필요 없음.
+                    firebaseStorageViewModel.setScheduleImage(fanClubDTO?.docName.toString(), scheduleDTO.docName.toString(), FirebaseStorageRepository.ScheduleType.FAN_CLUB, photoBitmap!!) {
+                        Toast.makeText(activity,"팬클럽 스케줄 저장 완료", Toast.LENGTH_SHORT).show()
+                        (activity as MainActivity?)?.loadingEnd()
+                        finishFragment()
+                    }
+                } else {
                     Toast.makeText(activity,"팬클럽 스케줄 저장 완료", Toast.LENGTH_SHORT).show()
                     (activity as MainActivity?)?.loadingEnd()
                     finishFragment()

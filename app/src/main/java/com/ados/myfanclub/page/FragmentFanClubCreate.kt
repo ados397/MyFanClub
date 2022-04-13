@@ -259,7 +259,7 @@ class FragmentFanClubCreate : Fragment() {
                 binding.editDescription.setBackgroundResource(R.drawable.edit_rectangle)
                 true
             }
-            binding.textDescriptionLen.text = "${binding.editDescription.text.length}/30"
+            binding.textDescriptionLen.text = "${binding.editDescription.text.length}/600"
             visibleOkButton()
         }
     }

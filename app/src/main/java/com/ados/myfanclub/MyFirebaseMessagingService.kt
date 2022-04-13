@@ -78,7 +78,8 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP) // 액티비티 중복 생성 방지
 
         val pendingIntent = PendingIntent.getActivity(this, 0 , intent,
-            PendingIntent.FLAG_ONE_SHOT) // 일회성
+            //PendingIntent.FLAG_ONE_SHOT) // 일회성
+            PendingIntent.FLAG_IMMUTABLE) // 일회성
 
         val channelId = getString(R.string.default_notification_channel_id) // 채널 아이디
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION) // 소리
@@ -122,7 +123,8 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
         //val pendingIntent = PendingIntent.getActivity(this, 0 , intent, PendingIntent.FLAG_MUTABLE OR PendingIntent.FLAG_UPDATE_CURRENT)
 
         val pendingIntent = PendingIntent.getActivity(this, 0 , intent,
-            PendingIntent.FLAG_ONE_SHOT) // 일회성
+            //PendingIntent.FLAG_ONE_SHOT) // 일회성
+            PendingIntent.FLAG_IMMUTABLE) // 일회성
 
         // messageStyle 로
         val user: Person = Person.Builder()
@@ -173,7 +175,7 @@ class MyFirebaseMessagingService: FirebaseMessagingService() {
 
     private fun getSummaryNotification(context: Context, group: String): NotificationCompat.Builder {
         return NotificationCompat.Builder(context, getString(R.string.default_notification_channel_id))
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.drawable.app_icon)
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)
             .setGroup(group)
